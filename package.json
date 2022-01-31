@@ -1,0 +1,15 @@
+{
+  "name": "nginx-auth-poc",
+  "version": "1.0.0",
+  "scripts": {
+    "clean": "rimraf node_modules authorization-server/node_modules backend-server/node_modules generate-identity-cli/node_modules",
+    "postinstall": "run-p install:*",
+    "install:backend-server": "cd backend-server && yarn",
+    "install:authorization-server": "cd authorization-server && yarn",
+    "install:generate-identity-cli": "cd generate-identity-cli && yarn"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2"
+  }
+}

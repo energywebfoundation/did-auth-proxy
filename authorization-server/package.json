@@ -1,0 +1,15 @@
+{
+  "name": "authorization-server",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^1",
+    "dotenv": "^14",
+    "express": "^4",
+    "passport": "^0.5",
+    "passport-did-auth": "1.2.0-alpha.5",
+    "passport-jwt": "^4"
+  }
+}

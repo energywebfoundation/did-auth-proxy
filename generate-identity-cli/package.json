@@ -1,0 +1,10 @@
+{
+  "name": "generate-identity-cli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "base64url": "^3",
+    "commander": "^8",
+    "ethers": "^5"
+  }
+}
