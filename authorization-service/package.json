@@ -9,6 +9,7 @@
     "clean": "rimraf dist node_modules",
     "prebuild": "rimraf dist",
     "build": "nest build",
+    "build:docker": "docker build . -t authorization-service",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",

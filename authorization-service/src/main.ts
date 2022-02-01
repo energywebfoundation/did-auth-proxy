@@ -12,6 +12,8 @@ const webserverLogger = new Logger('webserver', { timestamp: true });
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableShutdownHooks();
+
   const config = app.get<ConfigService>(ConfigService);
 
   const PORT = config.get('PORT');
