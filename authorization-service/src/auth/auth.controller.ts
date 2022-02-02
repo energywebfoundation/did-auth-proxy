@@ -1,7 +1,16 @@
-import { Controller, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Logger,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { LoginGuard } from './login.guard';
+import { decode as decodeJWT } from 'jsonwebtoken';
 
 @Controller('auth')
 export class AuthController {
@@ -13,11 +22,24 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LoginGuard)
-  async login(@Req() req: Request, @Res() res: Response) {
+  async login(@Body() body, @Req() req: Request, @Res() res: Response) {
     this.logger.debug(`user has been logged in`);
+    this.logger.debug(
+      `identity token received: ${maskString(body.identityToken, 20, 20)}`,
+    );
 
     this.logger.debug(
-      `access token: ${maskString(req.user as string, 20, 20)}`,
+      `identity token content: ${JSON.stringify(
+        decodeJWT(body.identityToken),
+      )}`,
+    );
+
+    this.logger.debug(
+      `access token generated: ${maskString(req.user as string, 20, 20)}`,
+    );
+
+    this.logger.debug(
+      `access token content: ${JSON.stringify(decodeJWT(req.user as string))}`,
     );
 
     return res.send({
