@@ -17,6 +17,11 @@ export const validationSchema = Joi.object({
     .default('development'),
 
   PORT: Joi.number().default(3000),
+
+  RPC_URL: Joi.string().uri().default('https://volta-rpc.energyweb.org/'),
+  CACHE_SERVER_URL: Joi.string().uri().default('https://identitycache-dev.energyweb.org/v1'),
+  CACHE_SERVER_LOGIN_PRVKEY: Joi.string().regex(/^(0x)?[0-9a-f]+$/).required(),
+  JWT_SECRET: Joi.string().required(),
 });
 
 @Module({
