@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
+import { AuthModule } from './auth/auth.module';
 
 const validationOptions = {
   allowUnknown: true,
@@ -25,6 +26,7 @@ export const validationSchema = Joi.object({
       validationOptions,
       validationSchema,
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

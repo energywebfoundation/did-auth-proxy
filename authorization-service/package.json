@@ -26,6 +26,7 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.0.0",
     "@nestjs/core": "^8.0.0",
+    "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^8.0.0",
     "joi": "^17.0.0",
     "reflect-metadata": "^0.1.13",
