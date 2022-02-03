@@ -1,6 +1,7 @@
 #### PRODUCTION DEPENDENCIES INSTALLATION STAGE
 FROM node:lts-alpine as dependencies
 WORKDIR /app
+RUN apk add python3 make g++
 
 ENV NODE_ENV=production
 
@@ -11,6 +12,7 @@ RUN yarn install --production=true
 FROM node:lts-alpine as build
 
 WORKDIR /app
+RUN apk add python3 make g++
 
 COPY --from=dependencies /app/node_modules /app/node_modules
 
