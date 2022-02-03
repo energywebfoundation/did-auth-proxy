@@ -1,5 +1,5 @@
 #### PRODUCTION DEPENDENCIES INSTALLATION STAGE
-FROM node:lts-alpine as dependencies
+FROM node:16-alpine as dependencies
 WORKDIR /app
 RUN apk add python3 make g++
 
@@ -9,7 +9,7 @@ COPY ["./package.json", "yarn.lock", "./"]
 RUN yarn install --production=true
 
 #### TRANSPILATION STAGE
-FROM node:lts-alpine as build
+FROM node:16-alpine as build
 
 WORKDIR /app
 RUN apk add python3 make g++
@@ -24,7 +24,7 @@ COPY . .
 RUN yarn build
 
 #### FINAL IMAGE CREATION STAGE
-FROM node:lts-alpine as final
+FROM node:16-alpine as final
 WORKDIR /app
 
 ENV NODE_ENV=production
