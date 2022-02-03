@@ -17,9 +17,14 @@ async function bootstrap() {
   const config = app.get<ConfigService>(ConfigService);
 
   const PORT = config.get('PORT');
+  const BIND = config.get('BIND');
 
-  await app.listen(PORT, () => {
-    webserverLogger.log('Listening at http://localhost:' + PORT);
+  logger.log(`starting http server bound to ${BIND}:${PORT}`);
+
+  await app.listen(PORT, BIND, () => {
+    webserverLogger.log(
+      `Listening at http://localhost:${PORT}, bound to ${BIND}`,
+    );
   });
 
   const server = app.getHttpServer();
