@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { LoginGuard } from './login.guard';
 import { decode as decodeJWT } from 'jsonwebtoken';
-import { JwtAuthGuard } from "./jwt.guard";
+import { JwtAuthGuard } from './jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -55,7 +55,9 @@ export class AuthController {
   @Get('token-introspection')
   @UseGuards(JwtAuthGuard)
   async introspect(@Req() req: Request) {
-    this.logger.debug(`successful access token introspection: ${JSON.stringify(req.user)}`);
+    this.logger.debug(
+      `successful access token introspection: ${JSON.stringify(req.user)}`,
+    );
   }
 }
 
