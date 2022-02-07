@@ -25,12 +25,18 @@ async function bootstrap() {
       new DocumentBuilder()
         .setTitle('Energy Web DID Auth Service')
         .setVersion('0.0.1')
+        .addBearerAuth(
+          { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+          'access-token',
+        )
         .build(),
     ),
     {
       customSiteTitle:
         'Swagger documentation for Energy Web DID Auth Service API',
-      swaggerOptions: {},
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
     },
   );
 

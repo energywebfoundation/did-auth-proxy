@@ -15,7 +15,7 @@ import { LoginGuard } from './login.guard';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { JwtAuthGuard } from './jwt.guard';
 import { LoginResponseDataDto } from './dto/login-response-data.dto';
-import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginDataDTO } from './dto/login-data.dto';
 
 @Controller('auth')
@@ -70,6 +70,7 @@ export class AuthController {
 
   @Get('token-introspection')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   async introspect(@Req() req: Request) {
     this.logger.debug(
       `successful access token introspection: ${JSON.stringify(req.user)}`,
