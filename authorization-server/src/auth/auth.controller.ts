@@ -6,6 +6,8 @@ import {
   Post,
   Req,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
@@ -17,6 +19,11 @@ import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginDataDTO } from './dto/login-data.dto';
 
 @Controller('auth')
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+  }),
+)
 export class AuthController {
   private readonly logger = new Logger(AuthController.name, {
     timestamp: true,
