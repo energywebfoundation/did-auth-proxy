@@ -5,14 +5,16 @@ import {
   Logger,
   Post,
   Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { LoginGuard } from './login.guard';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { JwtAuthGuard } from './jwt.guard';
+import { LoginResponseDataDto } from './dto/login-response-data.dto';
+import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import { LoginDataDTO } from './dto/login-data.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +26,12 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LoginGuard)
-  async login(@Body() body, @Req() req: Request, @Res() res: Response) {
+  @ApiBody({ type: LoginDataDTO })
+  @ApiOkResponse({ type: LoginResponseDataDto })
+  async login(
+    @Body() body: LoginDataDTO,
+    @Req() req: Request,
+  ): Promise<LoginResponseDataDto> {
     this.logger.debug(`user has been logged in`);
     this.logger.debug(
       `identity token received: ${maskString(body.identityToken, 20, 20)}`,
@@ -36,20 +43,22 @@ export class AuthController {
       )}`,
     );
 
+    const accessToken: string = req.user as string;
+
     this.logger.debug(
-      `access token generated: ${maskString(req.user as string, 20, 20)}`,
+      `access token generated: ${maskString(accessToken, 20, 20)}`,
     );
 
     this.logger.debug(
-      `access token content: ${JSON.stringify(decodeJWT(req.user as string))}`,
+      `access token content: ${JSON.stringify(decodeJWT(accessToken))}`,
     );
 
-    return res.send({
-      access_token: req.user,
+    return {
+      access_token: accessToken,
       type: 'Bearer',
       expires_in: null, // TODO: to be implemented
       refresh_token: null, // TODO: to be implemented
-    });
+    };
   }
 
   @Get('token-introspection')
