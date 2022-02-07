@@ -1,18 +1,38 @@
-FROM node:16-alpine as build
-
+#### PRODUCTION DEPENDENCIES INSTALLATION STAGE
+FROM node:16-alpine as dependencies
+WORKDIR /app
 RUN apk add python3 make g++
 
-WORKDIR /app
-COPY ["package.json", "yarn.lock", "./"]
+ENV NODE_ENV=production
 
+COPY ["./package.json", "yarn.lock", "./"]
+RUN yarn install --production=true
+
+#### TRANSPILATION STAGE
+FROM node:16-alpine as build
+
+WORKDIR /app
+RUN apk add python3 make g++
+
+COPY --from=dependencies /app/node_modules /app/node_modules
+
+COPY --from=dependencies /app/package.json /app/
+COPY --from=dependencies /app/yarn.lock /app/
 RUN yarn
 
-FROM node:16-alpine
+COPY . .
+RUN yarn build
 
+#### FINAL IMAGE CREATION STAGE
+FROM node:16-alpine as final
 WORKDIR /app
 
-COPY --from=build /app/node_modules ./node_modules
+ENV NODE_ENV=production
+ENV BIND=0.0.0.0
 
-COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=build /app/dist ./
 
-CMD index.js
+EXPOSE 3000
+
+CMD ["node", "main.js"]
