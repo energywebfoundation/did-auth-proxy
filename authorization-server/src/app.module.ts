@@ -31,6 +31,8 @@ export const validationSchema = Joi.object({
   REDIS_PASSWORD: Joi.string(),
 
   JWT_SECRET: Joi.string().required(),
+  JWT_ACCESS_TTL: Joi.number().default(3600),
+  JWT_REFRESH_TTL: Joi.number().default(86400),
 });
 
 @Module({
