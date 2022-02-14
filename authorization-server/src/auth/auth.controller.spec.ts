@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { createRequest } from 'node-mocks-http';
 import { sign as sign } from 'jsonwebtoken';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -18,6 +19,8 @@ describe('AuthController', () => {
   const mockAuthService = {
     generateAccessToken: () => {},
     generateRefreshToken: () => {},
+    validateRefreshToken: () => {},
+    refreshTokens: () => {},
   };
 
   beforeEach(async () => {
@@ -106,6 +109,83 @@ describe('AuthController', () => {
         exp: Math.floor(Date.now() / 100 + 1800),
       };
       await controller.introspect(request);
+    });
+  });
+
+  describe('refresh()', function () {
+    it('should validate refreshToken', async function () {
+      const spy = jest
+        .spyOn(mockAuthService, 'validateRefreshToken')
+        .mockImplementation(async () => true);
+
+      const spyRefresh = jest
+        .spyOn(mockAuthService, 'refreshTokens')
+        .mockImplementation(async () => ({
+          access_token: 'regenerated-access-token',
+          refresh_token: 'regenerated-refresh-token',
+        }));
+
+      await controller.refresh({ refreshToken: 'validToken' });
+
+      expect(spy).toHaveBeenCalledWith('validToken');
+
+      spy.mockClear().mockRestore();
+      spyRefresh.mockClear().mockRestore();
+    });
+
+    it('should throw ForbiddenException when invalid access token provided', async function () {
+      const spy = jest
+        .spyOn(mockAuthService, 'validateRefreshToken')
+        .mockImplementation(async () => false);
+
+      await expect(() =>
+        controller.refresh({ refreshToken: 'invalid' }),
+      ).rejects.toThrowError(ForbiddenException);
+
+      spy.mockClear().mockRestore();
+    });
+
+    it('should respond with a pair of new tokens', async function () {
+      const spyValidate = jest
+        .spyOn(mockAuthService, 'validateRefreshToken')
+        .mockImplementation(async () => true);
+
+      const spyRefresh = jest
+        .spyOn(mockAuthService, 'refreshTokens')
+        .mockImplementation(async () => ({
+          access_token: 'regenerated-access-token',
+          refresh_token: 'regenerated-refresh-token',
+        }));
+
+      const { access_token, refresh_token, type, expires_in } =
+        await controller.refresh({
+          refreshToken: 'validToken',
+        });
+
+      expect({
+        access_token,
+        refresh_token,
+        type,
+      }).toEqual({
+        access_token: 'regenerated-access-token',
+        refresh_token: 'regenerated-refresh-token',
+        type: 'Bearer',
+      });
+
+      expect(access_token).toEqual('regenerated-access-token');
+      expect(refresh_token).toEqual('regenerated-refresh-token');
+
+      expect(expires_in).toBeGreaterThanOrEqual(
+        mockConfigService.get('JWT_ACCESS_TTL') - 1,
+      );
+      expect(expires_in).toBeLessThanOrEqual(
+        mockConfigService.get('JWT_ACCESS_TTL'),
+      );
+
+      expect(spyRefresh).toHaveBeenCalledWith('validToken');
+
+      spyValidate.mockClear().mockRestore();
+      spyRefresh.mockClear().mockRestore();
     });
   });
 });

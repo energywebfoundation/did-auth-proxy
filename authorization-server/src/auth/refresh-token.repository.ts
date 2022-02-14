@@ -2,14 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
-
-interface IDecodedToken {
-  id: string;
-  did: string;
-  verifiedRoles: { name: string; namespace: string }[];
-  iat: number;
-  exp: number;
-}
+import { IRefreshTokenPayload } from './auth.service';
 
 const KEY_PREFIX = 'refresh-token';
 
@@ -26,7 +19,7 @@ export class RefreshTokenRepository {
   ) {}
 
   async saveToken(token: string): Promise<void> {
-    const decoded = this.jwtService.verify(token) as IDecodedToken;
+    const decoded = this.jwtService.verify(token) as IRefreshTokenPayload;
     const ttl = decoded.exp - Math.floor(Date.now() / 1000);
     const key = redisKey(KEY_PREFIX, decoded.did, decoded.id);
 

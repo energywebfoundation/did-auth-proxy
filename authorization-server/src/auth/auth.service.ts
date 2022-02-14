@@ -14,6 +14,14 @@ interface IGenerateRefreshTokenPayload {
   roles: string[];
 }
 
+export interface IRefreshTokenPayload {
+  id: string;
+  did: string;
+  roles: string[];
+  iat: number;
+  exp: number;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name, {
@@ -50,5 +58,47 @@ export class AuthService {
     await this.refreshTokenRepository.saveToken(token);
 
     return token;
+  }
+
+  public async validateRefreshToken(token: string): Promise<boolean> {
+    let tokenDecoded: IRefreshTokenPayload;
+
+    try {
+      tokenDecoded = this.jwtService.verify(token);
+    } catch (err) {
+      this.logger.warn(`error when verifying token: ${err}`);
+      return false;
+    }
+
+    const { id, did } = tokenDecoded;
+
+    return !!(await this.refreshTokenRepository.getToken(did, id));
+  }
+
+  public async invalidateRefreshToken(did, id) {
+    await this.refreshTokenRepository.deleteToken(did, id);
+  }
+
+  public async refreshTokens(
+    token: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
+    const tokenDecoded = this.jwtService.verify(token) as IRefreshTokenPayload;
+
+    const access_token = await this.generateAccessToken({
+      did: tokenDecoded.did,
+      roles: tokenDecoded.roles,
+    });
+
+    const refresh_token = await this.generateRefreshToken({
+      did: tokenDecoded.did,
+      roles: tokenDecoded.roles,
+    });
+
+    await this.invalidateRefreshToken(tokenDecoded.did, tokenDecoded.id);
+
+    return {
+      access_token,
+      refresh_token: refresh_token,
+    };
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Logger,
   Post,
@@ -18,6 +19,7 @@ import { LoginResponseDataDto } from './dto/login-response-data.dto';
 import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { ConfigService } from '@nestjs/config';
+import { RefreshDto } from './dto/refresh.dto';
 
 interface IDidAccessTokenPayload {
   did: string;
@@ -96,6 +98,32 @@ export class AuthController {
     this.logger.debug(
       `successful access token introspection: ${JSON.stringify(req.user)}`,
     );
+  }
+
+  @Post('refresh-token')
+  @ApiBody({ type: RefreshDto })
+  @ApiOkResponse({ type: LoginResponseDataDto })
+  async refresh(@Body() body: RefreshDto): Promise<LoginResponseDataDto> {
+    const tokenIsValid = await this.authService.validateRefreshToken(
+      body.refreshToken,
+    );
+    if (!tokenIsValid) {
+      throw new ForbiddenException('invalid refresh token');
+    }
+
+    const accessTokenGenerationStart = Date.now();
+
+    const { access_token, refresh_token } =
+      await this.authService.refreshTokens(body.refreshToken);
+
+    return {
+      access_token,
+      type: 'Bearer',
+      expires_in:
+        this.configService.get<number>('JWT_ACCESS_TTL') -
+        Math.ceil((Date.now() - accessTokenGenerationStart) / 1000),
+      refresh_token,
+    };
   }
 }
 
