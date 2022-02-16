@@ -26,6 +26,8 @@ export const validationSchema = Joi.object({
     .regex(/^(0x)?[0-9a-f]+$/)
     .required(),
 
+  ACCEPTED_ROLES: Joi.string().required(),
+
   REDIS_HOST: Joi.string().hostname().default('127.0.0.1'),
   REDIS_PORT: Joi.number().port().default(6379),
   REDIS_PASSWORD: Joi.string(),
