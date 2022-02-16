@@ -20,11 +20,7 @@ import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
-
-interface IDidAccessTokenPayload {
-  did: string;
-  verifiedRoles: { name: string; namespace: string }[];
-}
+import { IDidAccessTokenPayload } from './auth.interface';
 
 @Controller('auth')
 @UsePipes(

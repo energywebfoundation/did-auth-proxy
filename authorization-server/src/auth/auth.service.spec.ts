@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService, IRefreshTokenPayload } from './auth.service';
+import { AuthService } from './auth.service';
+import { IRefreshTokenPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';

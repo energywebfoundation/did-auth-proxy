@@ -3,32 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 } from 'uuid';
 import { RefreshTokenRepository } from './refresh-token.repository';
-
-interface IGenerateAccessTokenPayload {
-  did: string;
-  roles: string[];
-}
-
-interface IGenerateRefreshTokenPayload {
-  did: string;
-  roles: string[];
-}
-
-export interface IAccessTokenPayload {
-  id: string;
-  did: string;
-  roles: string[];
-  iat: number;
-  exp: number;
-}
-
-export interface IRefreshTokenPayload {
-  id: string;
-  did: string;
-  roles: string[];
-  iat: number;
-  exp: number;
-}
+import {
+  IGenerateAccessTokenPayload,
+  IGenerateRefreshTokenPayload,
+  IRefreshTokenPayload,
+} from './auth.interface';
 
 @Injectable()
 export class AuthService {
