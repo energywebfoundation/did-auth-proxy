@@ -15,11 +15,8 @@ services:
 
   backend:
     restart: unless-stopped
-    image: node:16-alpine
-    volumes:
-      - './backend-server:/app'
-    working_dir: '/app'
-    command: 'index.js'
+    build:
+      context: backend-server
     networks:
       backend:
 
