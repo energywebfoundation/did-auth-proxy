@@ -6,6 +6,7 @@ services:
     depends_on:
       - backend
       - auth-server
+    image: did-auth-proxy-webserver
     build:
       context: nginx
     ports:
@@ -15,6 +16,7 @@ services:
 
   backend:
     restart: unless-stopped
+    image: did-auth-proxy-backend
     build:
       context: backend-server
     networks:
@@ -24,6 +26,7 @@ services:
     depends_on:
       - redis
     restart: unless-stopped
+    image: did-auth-proxy-auth-server
     build:
       context: authorization-server
     environment:
