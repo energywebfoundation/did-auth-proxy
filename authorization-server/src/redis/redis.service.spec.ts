@@ -27,25 +27,41 @@ describe('RedisService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should connect on application start', async function () {
-    const spy = jest
-      .spyOn(service, 'connect')
-      .mockImplementation(async () => {});
-    await service.onModuleInit();
+  describe('when application starting', function () {
+    let spy: jest.SpyInstance;
 
-    expect(spy).toHaveBeenCalled();
+    beforeEach(async function () {
+      spy = jest.spyOn(service, 'connect').mockImplementation(async () => {});
 
-    await service.onModuleDestroy(); // test teardown
-    spy.mockClear().mockRestore();
+      await service.onModuleInit();
+    });
+
+    afterEach(async function () {
+      spy.mockClear().mockRestore();
+    });
+
+    it('should connect', async function () {
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
-  it('should should disconnect on application shutdown', async function () {
-    const spy = jest
-      .spyOn(service, 'disconnect')
-      .mockImplementation(async () => {});
-    await service.onModuleDestroy();
+  describe('when application stopping', function () {
+    let spy: jest.SpyInstance;
 
-    expect(spy).toHaveBeenCalled();
-    spy.mockClear().mockRestore();
+    beforeEach(async function () {
+      spy = jest
+        .spyOn(service, 'disconnect')
+        .mockImplementation(async () => {});
+
+      await service.onModuleDestroy();
+    });
+
+    afterEach(async function () {
+      spy.mockClear().mockRestore();
+    });
+
+    it('should disconnect', async function () {
+      expect(spy).toHaveBeenCalled();
+    });
   });
 });

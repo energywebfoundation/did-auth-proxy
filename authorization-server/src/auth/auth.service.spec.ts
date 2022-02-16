@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { IRefreshTokenPayload } from './auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
-import { decode, JsonWebTokenError, verify } from 'jsonwebtoken';
+import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -62,163 +61,304 @@ describe('AuthService', () => {
   });
 
   describe('generateAccessToken()', function () {
-    it('should sign token with jwtService', async function () {
-      const spy = jest.spyOn(jwtService, 'sign');
+    describe('when called', function () {
+      let spySign: jest.SpyInstance;
+      let issuedAt: number;
+      let result: string, resultDecoded: Record<string, any>;
 
-      const token = await service.generateAccessToken(payload);
+      beforeEach(async function () {
+        spySign = jest.spyOn(jwtService, 'sign');
 
-      const tokenPayload = verify(token, 'secretKeyValid') as Record<
-        string,
-        any
-      >;
+        issuedAt = Math.floor(Date.now() / 1000);
+        result = await service.generateAccessToken(payload);
+        resultDecoded = decode(result) as Record<string, any>;
+      });
 
-      expect(spy).toBeCalledWith(
-        { id: tokenPayload.id, ...payload },
-        { expiresIn: configService.get('JWT_ACCESS_TTL') },
-      );
+      afterEach(async function () {
+        spySign.mockClear().mockRestore();
+      });
 
-      spy.mockClear();
+      it('should return JWT token', async function () {
+        expect(resultDecoded).toBeDefined();
+      });
+
+      it('should generate token payload with all expected fields', async function () {
+        expect(Object.keys(resultDecoded).sort()).toEqual(
+          ['did', 'id', 'roles', 'iat', 'exp'].sort(),
+        );
+      });
+
+      it('should set correct TTL', async function () {
+        expect(resultDecoded.exp - resultDecoded.iat).toEqual(
+          configService.get('JWT_ACCESS_TTL'),
+        );
+      });
+
+      it('should set correct iat', async function () {
+        expect(resultDecoded.iat).toEqual(issuedAt);
+      });
+
+      it('should sign token with jwtService', async function () {
+        expect(spySign).toHaveBeenCalledWith(
+          { id: resultDecoded.id, ...payload },
+          { expiresIn: configService.get('JWT_ACCESS_TTL') },
+        );
+      });
     });
   });
 
   describe('generateRefreshToken()', function () {
-    it('should sign token with jwtService', async function () {
-      const spy = jest.spyOn(jwtService, 'sign');
+    describe('when called', function () {
+      let spySign: jest.SpyInstance, spySave: jest.SpyInstance;
+      let issuedAt: number;
+      let result, resultDecoded: Record<string, any>;
 
-      const token = await service.generateRefreshToken(payload);
+      beforeEach(async function () {
+        spySign = jest.spyOn(jwtService, 'sign');
+        spySave = jest.spyOn(mockRefreshTokenRepository, 'saveToken');
 
-      const tokenPayload = verify(token, 'secretKeyValid') as Record<
-        string,
-        any
-      >;
+        issuedAt = Math.floor(Date.now() / 1000);
+        result = await service.generateRefreshToken(payload);
+        resultDecoded = decode(result) as Record<string, any>;
+      });
 
-      expect(spy).toBeCalledWith(
-        { id: tokenPayload.id, ...payload },
-        { expiresIn: configService.get('JWT_REFRESH_TTL') },
-      );
+      afterEach(async function () {
+        spySave.mockClear().mockRestore();
+        spySign.mockClear().mockRestore();
+      });
 
-      spy.mockClear();
-    });
+      it('should return JWT token', async function () {
+        expect(resultDecoded).toBeDefined();
+      });
 
-    it('should save generated token in a repository', async function () {
-      const spy = jest.spyOn(mockRefreshTokenRepository, 'saveToken');
+      it('should generate token payload with all expected fields', async function () {
+        expect(Object.keys(resultDecoded).sort()).toEqual(
+          ['did', 'id', 'roles', 'iat', 'exp'].sort(),
+        );
+      });
 
-      const token = await service.generateRefreshToken(payload);
+      it('should set correct TTL', async function () {
+        expect(resultDecoded.exp - resultDecoded.iat).toEqual(
+          configService.get('JWT_REFRESH_TTL'),
+        );
+      });
 
-      expect(spy).toBeCalledWith(token);
+      it('should set correct iat', async function () {
+        expect(resultDecoded.iat).toEqual(issuedAt);
+      });
 
-      spy.mockClear();
+      it('should sign token with jwtService', async function () {
+        expect(spySign).toHaveBeenCalledWith(
+          { id: resultDecoded.id, ...payload },
+          { expiresIn: configService.get('JWT_REFRESH_TTL') },
+        );
+      });
+
+      it('should save generated token in the repository', async function () {
+        expect(spySave).toHaveBeenCalledWith(result);
+      });
     });
   });
 
   describe('validateRefreshToken()', function () {
-    it('should resolve to true when valid refresh token provided', async function () {
-      const refreshToken = await service.generateRefreshToken(payload);
-      const refreshTokenDecoded = decode(refreshToken) as Record<string, any>;
+    describe('when called with valid whitelisted refresh token', function () {
+      let refreshToken, refreshTokenDecoded: Record<string, any>;
+      let result;
+      let spy: jest.SpyInstance;
 
-      const spy = jest
-        .spyOn(mockRefreshTokenRepository, 'getToken')
-        .mockImplementation(async () => 'token-fetched-from-repository');
+      beforeEach(async function () {
+        refreshToken = jwtService.sign(payload);
+        refreshTokenDecoded = decode(refreshToken) as Record<string, any>;
 
-      expect(await service.validateRefreshToken(refreshToken)).toEqual(true);
-      expect(spy).toHaveBeenCalledWith(
-        refreshTokenDecoded.did,
-        refreshTokenDecoded.id,
-      );
+        spy = jest
+          .spyOn(mockRefreshTokenRepository, 'getToken')
+          .mockImplementation(async () => 'token-fetched-from-repository');
 
-      spy.mockClear().mockRestore();
+        result = await service.validateRefreshToken(refreshToken);
+      });
+
+      afterEach(() => {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should resolve to true', async function () {
+        expect(result).toEqual(true);
+      });
+
+      it('should check if token is whitelisted', async function () {
+        expect(spy).toHaveBeenCalledWith(
+          refreshTokenDecoded.did,
+          refreshTokenDecoded.id,
+        );
+      });
     });
 
-    it('should resolve to false when malformed refresh token provided', async function () {
-      expect(await service.validateRefreshToken('invalid')).toEqual(false);
+    describe('when called with malformed refresh token', function () {
+      let result;
+
+      beforeEach(async function () {
+        result = await service.validateRefreshToken('invalid token');
+      });
+
+      it('should resolve to false', async function () {
+        expect(result).toEqual(false);
+      });
     });
 
-    it('should resolve to false when expired refresh token provided', async function () {
-      const refreshToken = await service.generateRefreshToken(payload);
+    describe('when called with expired refresh token', function () {
+      let result, refreshToken;
 
-      await new Promise((resolve) => setTimeout(resolve, 2010));
+      beforeEach(async function () {
+        refreshToken = jwtService.sign(payload, { expiresIn: 0 });
 
-      expect(await service.validateRefreshToken(refreshToken)).toEqual(false);
+        result = await service.validateRefreshToken('invalid token');
+      });
+
+      it('should resolve to false', async function () {
+        expect(result).toEqual(false);
+      });
+    });
+
+    describe('when called with invalidated refresh token', function () {
+      let refreshToken, refreshTokenDecoded: Record<string, any>;
+      let result;
+      let spyVerify: jest.SpyInstance, spyGetToken: jest.SpyInstance;
+
+      beforeEach(async function () {
+        refreshToken = jwtService.sign({ id: '111', ...payload });
+        refreshTokenDecoded = decode(refreshToken) as Record<string, any>;
+
+        spyVerify = jest
+          .spyOn(jwtService, 'verify')
+          .mockImplementation(() => refreshTokenDecoded);
+        spyGetToken = jest
+          .spyOn(mockRefreshTokenRepository, 'getToken')
+          .mockImplementation(() => null);
+
+        result = await service.validateRefreshToken(refreshToken);
+      });
+
+      afterEach(function () {
+        spyVerify.mockClear().mockRestore();
+        spyGetToken.mockClear().mockRestore();
+      });
+
+      it('should resolve to false', async function () {
+        expect(result).toEqual(false);
+      });
+
+      it('should verify token', async function () {
+        expect(spyVerify).toHaveBeenCalledWith(refreshToken);
+      });
+
+      it('should check if token is whitelisted', async function () {
+        expect(spyGetToken).toHaveBeenCalledWith(
+          refreshTokenDecoded.did,
+          refreshTokenDecoded.id,
+        );
+      });
     });
   });
 
   describe('invalidateRefreshToken()', function () {
-    it('should remove token entry from the repository', async function () {
-      const spy = jest.spyOn(mockRefreshTokenRepository, 'deleteToken');
+    describe('when called', function () {
+      let spyDeleteToken: jest.SpyInstance;
 
-      await service.invalidateRefreshToken('did', 'id');
+      beforeEach(async function () {
+        spyDeleteToken = jest.spyOn(mockRefreshTokenRepository, 'deleteToken');
 
-      expect(spy).toHaveBeenCalledWith('did', 'id');
+        await service.invalidateRefreshToken('did', 'id');
+      });
 
-      spy.mockClear().mockRestore();
+      afterEach(async function () {
+        spyDeleteToken.mockClear().mockRestore();
+      });
+
+      it('should remove token entry from the repository', async function () {
+        expect(spyDeleteToken).toHaveBeenCalledWith('did', 'id');
+      });
     });
   });
 
   describe('refreshTokens()', function () {
-    it('should generate a new tokens pair when valid refresh token provided', async function () {
-      const oldRefreshToken = await service.generateRefreshToken(payload);
+    describe('when called with valid refresh token', function () {
+      let spyGenerateAccessToken: jest.SpyInstance;
+      let spyGenerateRefreshToken: jest.SpyInstance;
+      let spyDeleteToken: jest.SpyInstance;
+      let result;
 
-      const spyGenerateAccessToken = jest
-        .spyOn(service, 'generateAccessToken')
-        .mockImplementation(async () => 'new-access-token');
+      const oldRefreshTokenPayload = {
+        id: '110dbf81-732c-4b6c-bba8-018463ea7506',
+        did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
+        roles: ['role1', 'role2'],
+      };
 
-      const spyGenerateRefreshToken = jest
-        .spyOn(service, 'generateRefreshToken')
-        .mockImplementation(async () => 'new-refresh-token');
+      const oldRefreshToken = sign(oldRefreshTokenPayload, 'secretKeyValid');
 
-      const { accessToken, refreshToken } = await service.refreshTokens(
-        oldRefreshToken,
-      );
+      beforeEach(async () => {
+        spyGenerateAccessToken = jest
+          .spyOn(service, 'generateAccessToken')
+          .mockImplementation(async () => 'new-access-token');
 
-      expect(spyGenerateAccessToken).toHaveBeenCalledWith({
-        did: payload.did,
-        roles: payload.roles,
+        spyGenerateRefreshToken = jest
+          .spyOn(service, 'generateRefreshToken')
+          .mockImplementation(async () => 'new-refresh-token');
+
+        spyDeleteToken = jest.spyOn(mockRefreshTokenRepository, 'deleteToken');
+
+        result = await service.refreshTokens(oldRefreshToken);
       });
 
-      expect(spyGenerateRefreshToken).toHaveBeenCalledWith({
-        did: payload.did,
-        roles: payload.roles,
+      afterEach(() => {
+        spyGenerateAccessToken.mockClear().mockRestore();
+        spyGenerateRefreshToken.mockClear().mockRestore();
+        spyDeleteToken.mockClear().mockRestore();
       });
 
-      expect(accessToken).toEqual('new-access-token');
-      expect(refreshToken).toEqual('new-refresh-token');
+      it('should generate a new access token', async function () {
+        expect(spyGenerateAccessToken).toHaveBeenCalledWith({
+          did: oldRefreshTokenPayload.did,
+          roles: oldRefreshTokenPayload.roles,
+        });
+      });
 
-      spyGenerateRefreshToken.mockClear().mockRestore();
-      spyGenerateAccessToken.mockClear().mockRestore();
+      it('should generate a new refresh token', async function () {
+        expect(spyGenerateRefreshToken).toHaveBeenCalledWith({
+          did: oldRefreshTokenPayload.did,
+          roles: oldRefreshTokenPayload.roles,
+        });
+      });
+
+      it('should return a new access token', async function () {
+        expect(result).toMatchObject({ accessToken: 'new-access-token' });
+      });
+
+      it('should return a new refresh token', async function () {
+        expect(result).toMatchObject({ refreshToken: 'new-refresh-token' });
+      });
+
+      it('should invalidate old refresh token', async function () {
+        expect(spyDeleteToken).toHaveBeenCalledWith(
+          oldRefreshTokenPayload.did,
+          oldRefreshTokenPayload.id,
+        );
+      });
     });
 
-    it('should store a new refresh token in the repository', async function () {
-      const oldRefreshToken = await service.generateRefreshToken(payload);
+    describe('when called with malformed refresh token', function () {
+      let exceptionThrown: Error;
 
-      const spy = jest.spyOn(mockRefreshTokenRepository, 'saveToken');
+      beforeEach(async () => {
+        try {
+          await service.refreshTokens('malformed-token');
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
 
-      const { refreshToken } = await service.refreshTokens(oldRefreshToken);
-
-      expect(spy).toBeCalledWith(refreshToken);
-
-      spy.mockClear();
-    });
-
-    it('should invalidate an old refresh token', async function () {
-      const refreshToken = await service.generateRefreshToken(payload);
-      const refreshTokenDecoded = decode(refreshToken) as IRefreshTokenPayload;
-
-      const spy = jest.spyOn(mockRefreshTokenRepository, 'deleteToken');
-
-      await service.refreshTokens(refreshToken);
-
-      expect(spy).toBeCalledWith(
-        refreshTokenDecoded.did,
-        refreshTokenDecoded.id,
-      );
-
-      spy.mockClear();
-    });
-
-    it('should throw an exception when malformed refresh token provided', async function () {
-      await expect(() =>
-        service.refreshTokens('malformed-token'),
-      ).rejects.toThrow(JsonWebTokenError);
+      it('should throw an exception', async function () {
+        expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+      });
     });
   });
 });

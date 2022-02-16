@@ -5,6 +5,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
+import { v4 } from 'uuid';
 
 describe('RefreshTokenRepository', () => {
   let repository: RefreshTokenRepository;
@@ -55,72 +56,147 @@ describe('RefreshTokenRepository', () => {
     expect(repository).toBeDefined();
   });
 
-  describe('RefreshTokenRepository.saveToken()', function () {
-    it('should accept valid token', async () => {
-      const token = jwtService.sign(payload);
-      await repository.saveToken(token);
+  describe('saveToken()', function () {
+    describe('when called with valid token', function () {
+      let spy: jest.SpyInstance;
+      let token: string;
+
+      beforeEach(async function () {
+        token = jwtService.sign({ id: v4(), ...payload });
+
+        spy = jest.spyOn(mockRedisService, 'set');
+
+        await repository.saveToken(token);
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should save a taken', async function () {
+        expect(spy).toHaveBeenCalledWith(
+          `refresh-token:${payload.did}:${payload.id}`,
+          JSON.stringify(jwtService.decode(token)),
+          'EX',
+          3600,
+        );
+      });
     });
 
-    it('should save token', async function () {
-      const spy = jest.spyOn(mockRedisService, 'set');
-      const token = jwtService.sign(payload);
-      await repository.saveToken(token);
+    describe('when called with expired token', function () {
+      let spy: jest.SpyInstance;
+      let token: string;
+      let exceptionThrown: Error;
 
-      expect(spy).toHaveBeenCalled();
-      expect(spy).lastCalledWith(
-        `refresh-token:${payload.did}:${payload.id}`,
-        JSON.stringify(jwtService.decode(token)),
-        'EX',
-        3600,
-      );
+      beforeEach(async function () {
+        token = jwtService.sign({ id: v4(), ...payload }, { expiresIn: 0 });
 
-      spy.mockClear();
+        spy = jest.spyOn(mockRedisService, 'set');
+
+        exceptionThrown = null;
+
+        try {
+          await repository.saveToken(token);
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should throw TokenExpiredError', async function () {
+        expect(exceptionThrown).toBeInstanceOf(TokenExpiredError);
+      });
+
+      it('should throw exception before saving a token', async function () {
+        expect(spy).not.toHaveBeenCalled();
+      });
     });
 
-    it('should reject token singed with invalid key', async () => {
-      const token = sign(payload, 'secretKeyInvalid');
+    describe('when called with token signed with invalid key', function () {
+      let spy: jest.SpyInstance;
+      let token: string;
+      let exceptionThrown: Error;
 
-      await expect(() => repository.saveToken(token)).rejects.toThrowError(
-        JsonWebTokenError,
-      );
-    });
+      beforeEach(async function () {
+        token = sign({ id: v4(), ...payload }, 'invalid');
 
-    it('should reject expired token', async function () {
-      const token = sign(payload, 'secretKeyValid', { expiresIn: -1 });
+        spy = jest.spyOn(mockRedisService, 'set');
 
-      await expect(() => repository.saveToken(token)).rejects.toThrowError(
-        TokenExpiredError,
-      );
+        exceptionThrown = null;
+
+        try {
+          await repository.saveToken(token);
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should throw TokenExpiredError', async function () {
+        expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+      });
+
+      it('should throw exception before saving a token', async function () {
+        expect(spy).not.toHaveBeenCalled();
+      });
     });
   });
 
-  describe('RefreshTokenRepository.getToken()', function () {
-    it('should get token', async function () {
-      const did = payload.did;
-      const id = payload.id;
-      const spy = jest.spyOn(mockRedisService, 'get');
+  describe('getToken()', function () {
+    describe('when called', function () {
+      let spy: jest.SpyInstance;
+      let result: string;
 
-      await repository.getToken(did, id);
+      beforeEach(async function () {
+        spy = jest
+          .spyOn(mockRedisService, 'get')
+          .mockImplementation(() => 'token-fetched');
 
-      expect(spy).toHaveBeenCalled();
-      expect(spy).lastCalledWith(`refresh-token:${did}:${id}`);
+        result = await repository.getToken(payload.did, payload.id);
+      });
 
-      spy.mockClear();
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should fetch a token', async function () {
+        expect(spy).toHaveBeenCalledWith(
+          `refresh-token:${payload.did}:${payload.id}`,
+        );
+      });
+
+      it('should return fetched token', async function () {
+        expect(result).toEqual('token-fetched');
+      });
     });
   });
 
-  describe('RefreshTokenRepository.deleteToken()', function () {
-    it('should delete token', async function () {
-      const did = payload.did;
-      const id = payload.id;
-      const spy = jest.spyOn(mockRedisService, 'del');
+  describe('deleteToken()', function () {
+    describe('when called', function () {
+      let spy: jest.SpyInstance;
+      let result: string;
 
-      await repository.deleteToken(did, id);
+      beforeEach(async function () {
+        spy = jest.spyOn(mockRedisService, 'del');
 
-      expect(spy).toHaveBeenCalled();
-      expect(spy).lastCalledWith(`refresh-token:${did}:${id}`);
+        await repository.deleteToken(payload.did, payload.id);
+      });
 
-      spy.mockClear();
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should delete token', async function () {
+        expect(spy).toHaveBeenCalledWith(
+          `refresh-token:${payload.did}:${payload.id}`,
+        );
+      });
     });
   });
 });
