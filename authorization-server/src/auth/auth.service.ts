@@ -14,6 +14,14 @@ interface IGenerateRefreshTokenPayload {
   roles: string[];
 }
 
+export interface IAccessTokenPayload {
+  id: string;
+  did: string;
+  roles: string[];
+  iat: number;
+  exp: number;
+}
+
 export interface IRefreshTokenPayload {
   id: string;
   did: string;
@@ -81,15 +89,15 @@ export class AuthService {
 
   public async refreshTokens(
     token: string,
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokenDecoded = this.jwtService.verify(token) as IRefreshTokenPayload;
 
-    const access_token = await this.generateAccessToken({
+    const accessToken = await this.generateAccessToken({
       did: tokenDecoded.did,
       roles: tokenDecoded.roles,
     });
 
-    const refresh_token = await this.generateRefreshToken({
+    const refreshToken = await this.generateRefreshToken({
       did: tokenDecoded.did,
       roles: tokenDecoded.roles,
     });
@@ -97,8 +105,8 @@ export class AuthService {
     await this.invalidateRefreshToken(tokenDecoded.did, tokenDecoded.id);
 
     return {
-      access_token,
-      refresh_token: refresh_token,
+      accessToken,
+      refreshToken,
     };
   }
 }

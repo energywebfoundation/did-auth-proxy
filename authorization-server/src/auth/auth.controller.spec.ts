@@ -53,9 +53,13 @@ describe('AuthController', () => {
         body: { identityToken },
       });
 
+      const accessToken = sign({}, 'asecret', {
+        expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
+      });
+
       const spyGenerateAccessToken = jest
         .spyOn(mockAuthService, 'generateAccessToken')
-        .mockImplementation(() => 'signed-access-token-string');
+        .mockImplementation(() => accessToken);
 
       const spyGenerateRefreshToken = jest
         .spyOn(mockAuthService, 'generateRefreshToken')
@@ -84,7 +88,7 @@ describe('AuthController', () => {
       );
 
       expect(resultWithNoExpires).toEqual({
-        access_token: 'signed-access-token-string',
+        access_token: accessToken,
         refresh_token: 'signed-refresh-token-string',
         type: 'Bearer',
       });
@@ -121,8 +125,10 @@ describe('AuthController', () => {
       const spyRefresh = jest
         .spyOn(mockAuthService, 'refreshTokens')
         .mockImplementation(async () => ({
-          access_token: 'regenerated-access-token',
-          refresh_token: 'regenerated-refresh-token',
+          accessToken: sign({}, 'aSecret', {
+            expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
+          }),
+          refreshToken: 'regenerated-refresh-token',
         }));
 
       await controller.refresh({ refreshToken: 'validToken' });
@@ -146,6 +152,10 @@ describe('AuthController', () => {
     });
 
     it('should respond with a pair of new tokens', async function () {
+      const accessToken: string = sign({}, 'aSecret', {
+        expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
+      });
+
       const spyValidate = jest
         .spyOn(mockAuthService, 'validateRefreshToken')
         .mockImplementation(async () => true);
@@ -153,8 +163,8 @@ describe('AuthController', () => {
       const spyRefresh = jest
         .spyOn(mockAuthService, 'refreshTokens')
         .mockImplementation(async () => ({
-          access_token: 'regenerated-access-token',
-          refresh_token: 'regenerated-refresh-token',
+          accessToken: accessToken,
+          refreshToken: 'regenerated-refresh-token',
         }));
 
       const { access_token, refresh_token, type, expires_in } =
@@ -167,20 +177,15 @@ describe('AuthController', () => {
         refresh_token,
         type,
       }).toEqual({
-        access_token: 'regenerated-access-token',
+        access_token: accessToken,
         refresh_token: 'regenerated-refresh-token',
         type: 'Bearer',
       });
 
-      expect(access_token).toEqual('regenerated-access-token');
-      expect(refresh_token).toEqual('regenerated-refresh-token');
+      const expectedTTL = mockConfigService.get('JWT_ACCESS_TTL');
 
-      expect(expires_in).toBeGreaterThanOrEqual(
-        mockConfigService.get('JWT_ACCESS_TTL') - 1,
-      );
-      expect(expires_in).toBeLessThanOrEqual(
-        mockConfigService.get('JWT_ACCESS_TTL'),
-      );
+      expect(expires_in).toBeGreaterThanOrEqual(expectedTTL - 1);
+      expect(expires_in).toBeLessThanOrEqual(expectedTTL);
 
       expect(spyRefresh).toHaveBeenCalledWith('validToken');
 

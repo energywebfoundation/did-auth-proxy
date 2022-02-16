@@ -155,7 +155,7 @@ describe('AuthService', () => {
 
   describe('refreshTokens()', function () {
     it('should generate a new tokens pair when valid refresh token provided', async function () {
-      const refreshToken = await service.generateRefreshToken(payload);
+      const oldRefreshToken = await service.generateRefreshToken(payload);
 
       const spyGenerateAccessToken = jest
         .spyOn(service, 'generateAccessToken')
@@ -165,8 +165,8 @@ describe('AuthService', () => {
         .spyOn(service, 'generateRefreshToken')
         .mockImplementation(async () => 'new-refresh-token');
 
-      const { access_token, refresh_token } = await service.refreshTokens(
-        refreshToken,
+      const { accessToken, refreshToken } = await service.refreshTokens(
+        oldRefreshToken,
       );
 
       expect(spyGenerateAccessToken).toHaveBeenCalledWith({
@@ -179,21 +179,21 @@ describe('AuthService', () => {
         roles: payload.roles,
       });
 
-      expect(access_token).toEqual('new-access-token');
-      expect(refresh_token).toEqual('new-refresh-token');
+      expect(accessToken).toEqual('new-access-token');
+      expect(refreshToken).toEqual('new-refresh-token');
 
       spyGenerateRefreshToken.mockClear().mockRestore();
       spyGenerateAccessToken.mockClear().mockRestore();
     });
 
     it('should store a new refresh token in the repository', async function () {
-      const refreshToken = await service.generateRefreshToken(payload);
+      const oldRefreshToken = await service.generateRefreshToken(payload);
 
       const spy = jest.spyOn(mockRefreshTokenRepository, 'saveToken');
 
-      const { refresh_token } = await service.refreshTokens(refreshToken);
+      const { refreshToken } = await service.refreshTokens(oldRefreshToken);
 
-      expect(spy).toBeCalledWith(refresh_token);
+      expect(spy).toBeCalledWith(refreshToken);
 
       spy.mockClear();
     });

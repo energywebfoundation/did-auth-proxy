@@ -69,8 +69,6 @@ export class AuthController {
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
     );
 
-    const accessTokenGenerationStart = Date.now();
-
     const accessToken = await this.authService.generateAccessToken({
       did: didAccessTokenPayload.did,
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
@@ -81,14 +79,7 @@ export class AuthController {
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
     });
 
-    return {
-      access_token: accessToken,
-      type: 'Bearer',
-      expires_in:
-        this.configService.get<number>('JWT_ACCESS_TTL') -
-        Math.ceil((Date.now() - accessTokenGenerationStart) / 1000),
-      refresh_token: refreshToken,
-    };
+    return new LoginResponseDataDto({ accessToken, refreshToken });
   }
 
   @Get('token-introspection')
@@ -111,19 +102,11 @@ export class AuthController {
       throw new ForbiddenException('invalid refresh token');
     }
 
-    const accessTokenGenerationStart = Date.now();
+    const { accessToken, refreshToken } = await this.authService.refreshTokens(
+      body.refreshToken,
+    );
 
-    const { access_token, refresh_token } =
-      await this.authService.refreshTokens(body.refreshToken);
-
-    return {
-      access_token,
-      type: 'Bearer',
-      expires_in:
-        this.configService.get<number>('JWT_ACCESS_TTL') -
-        Math.ceil((Date.now() - accessTokenGenerationStart) / 1000),
-      refresh_token,
-    };
+    return new LoginResponseDataDto({ accessToken, refreshToken });
   }
 }
 
