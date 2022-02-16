@@ -6,7 +6,11 @@
     "postinstall": "run-p install:*",
     "install:backend-server": "cd backend-server && yarn",
     "install:authorization-server": "cd authorization-server && yarn",
-    "install:generate-identity-cli": "cd generate-identity-cli && yarn"
+    "install:generate-identity-cli": "cd generate-identity-cli && yarn",
+    "build:docker": "run-p build:docker:*",
+    "build:docker:webserver": "cd nginx && docker build . -t did-auth-proxy-webserver",
+    "build:docker:backend-server": "cd backend-server && docker build . -t did-auth-proxy-backend",
+    "build:docker:authorization-server": "cd authorization-server && docker build . -t did-auth-proxy-auth-server"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
