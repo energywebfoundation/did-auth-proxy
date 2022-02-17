@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  redis:
+    image: bitnami/redis:latest
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6379:6379'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      dev-backend:
+    volumes:
+      - dev-redis-data:/bitnami/redis/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:8081"
+    environment:
+      - REDIS_HOSTS=redis:redis:6379
+    networks:
+      dev-backend:
+
+volumes:
+  dev-redis-data:
+
+networks:
+  dev-backend:

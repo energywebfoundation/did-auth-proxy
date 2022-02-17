@@ -25,6 +25,8 @@ services:
       backend:
 
   auth-server:
+    depends_on:
+      - redis
     restart: unless-stopped
     build:
       context: authorization-server
@@ -33,10 +35,30 @@ services:
       - RPC_URL=https://volta-rpc.energyweb.org/
       - CACHE_SERVER_URL=https://identitycache-dev.energyweb.org/v1
       - CACHE_SERVER_LOGIN_PRVKEY=eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis
       - JWT_SECRET=asecretstring
       - ACCEPTED_ROLES=role1.roles.app-test2.apps.artur.iam.ewc
+      - JWT_ACCESS_TTL=3600
+      - JWT_REFRESH_TTL=86400
     networks:
       backend:
+
+  redis:
+    image: bitnami/redis:latest
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6379:6379'
+    environment:
+      - REDIS_PASSWORD=redis
+    networks:
+      backend:
+    volumes:
+      - redis-data:/bitnami/redis/data
+
+volumes:
+  redis-data:
 
 networks:
   backend:

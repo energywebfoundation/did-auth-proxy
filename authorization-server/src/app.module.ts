@@ -25,7 +25,16 @@ export const validationSchema = Joi.object({
   CACHE_SERVER_LOGIN_PRVKEY: Joi.string()
     .regex(/^(0x)?[0-9a-f]+$/)
     .required(),
+
+  ACCEPTED_ROLES: Joi.string().required(),
+
+  REDIS_HOST: Joi.string().hostname().default('127.0.0.1'),
+  REDIS_PORT: Joi.number().port().default(6379),
+  REDIS_PASSWORD: Joi.string(),
+
   JWT_SECRET: Joi.string().required(),
+  JWT_ACCESS_TTL: Joi.number().default(3600),
+  JWT_REFRESH_TTL: Joi.number().default(86400),
 });
 
 @Module({

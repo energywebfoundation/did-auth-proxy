@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Logger,
   Post,
@@ -17,6 +18,9 @@ import { JwtAuthGuard } from './jwt.guard';
 import { LoginResponseDataDto } from './dto/login-response-data.dto';
 import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginDataDTO } from './dto/login-data.dto';
+import { ConfigService } from '@nestjs/config';
+import { RefreshDto } from './dto/refresh.dto';
+import { IDidAccessTokenPayload } from './auth.interface';
 
 @Controller('auth')
 @UsePipes(
@@ -29,7 +33,10 @@ export class AuthController {
     timestamp: true,
   });
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('login')
   @UseGuards(LoginGuard)
@@ -50,22 +57,25 @@ export class AuthController {
       )}`,
     );
 
-    const accessToken: string = req.user as string;
+    const didAccessTokenPayload = decodeJWT(
+      req.user as string,
+    ) as unknown as IDidAccessTokenPayload;
 
     this.logger.debug(
-      `access token generated: ${maskString(accessToken, 20, 20)}`,
+      `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
     );
 
-    this.logger.debug(
-      `access token content: ${JSON.stringify(decodeJWT(accessToken))}`,
-    );
+    const accessToken = await this.authService.generateAccessToken({
+      did: didAccessTokenPayload.did,
+      roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+    });
 
-    return {
-      access_token: accessToken,
-      type: 'Bearer',
-      expires_in: null, // TODO: to be implemented
-      refresh_token: null, // TODO: to be implemented
-    };
+    const refreshToken = await this.authService.generateRefreshToken({
+      did: didAccessTokenPayload.did,
+      roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+    });
+
+    return new LoginResponseDataDto({ accessToken, refreshToken });
   }
 
   @Get('token-introspection')
@@ -75,6 +85,24 @@ export class AuthController {
     this.logger.debug(
       `successful access token introspection: ${JSON.stringify(req.user)}`,
     );
+  }
+
+  @Post('refresh-token')
+  @ApiBody({ type: RefreshDto })
+  @ApiOkResponse({ type: LoginResponseDataDto })
+  async refresh(@Body() body: RefreshDto): Promise<LoginResponseDataDto> {
+    const tokenIsValid = await this.authService.validateRefreshToken(
+      body.refreshToken,
+    );
+    if (!tokenIsValid) {
+      throw new ForbiddenException('invalid refresh token');
+    }
+
+    const { accessToken, refreshToken } = await this.authService.refreshTokens(
+      body.refreshToken,
+    );
+
+    return new LoginResponseDataDto({ accessToken, refreshToken });
   }
 }
 
