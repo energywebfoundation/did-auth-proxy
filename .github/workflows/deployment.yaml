@@ -1,0 +1,90 @@
+name: Build and deploy
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  cancel-previous:
+    name: 'Cancel Previous Runs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+  unique_id:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate unique id
+        id: unique_id
+        run: echo "::set-output name=id::$(uuidgen)"
+    outputs:
+      unique_id: ${{ steps.unique_id.outputs.id }}
+  install-build-and-push:
+    runs-on: ubuntu-latest
+    needs: [cancel-previous, unique_id]
+    steps:
+      - name: Get GHA environment name
+        id: env_vars
+        run: |
+          echo "Running on branch ${{ github.ref }}"
+          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "::set-output name=aws_access_key_id::${{ secrets.DEV_AWS_ACCESS_KEY_ID }}"
+            echo "::set-output name=aws_secret_key::${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
+            echo "::set-output name=aws_region::${{ secrets.DEV_AWS_REGION }}"
+            echo "::set-output name=aws_ecr_repository::${{ secrets.DEV_ECR_REPOSITORY }}"
+            echo "::set-output name=argocd_url::${{ secrets.DEV_ARGOCD_URL }}"
+            echo "::set-output name=argocd_username::${{ secrets.DEV_ARGOCD_USERNAME }}"
+            echo "::set-output name=argocd_password::${{ secrets.DEV_ARGOCD_PASS }}"
+            echo "::set-output name=argocd_app_name::"did-auth-proxy"
+            echo "::set-output name=argocd_tag::"did-auth-proxy-helm.image.tag"
+          else
+            echo "Branch ${{ github.ref }} is not configured for deployment"
+            exit 1
+          fi
+
+      - name: Get the tag version
+        uses: actions/checkout@v2
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ steps.env_vars.outputs.aws_access_key_id }}
+          aws-secret-access-key: ${{ steps.env_vars.outputs.aws_secret_key }}
+          aws-region: ${{ steps.env_vars.outputs.aws_region }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build & push docker images
+        env:
+          BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile .
+          docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
+          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+          docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+
+      - name: Logout of Amazon ECR
+        if: always()
+        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+
+      - name: ArgoCD login
+        uses: clowdhaus/argo-cd-action/@v1.10.0
+        id: argocd_login
+        with:
+          command: login ${{ steps.env_vars.outputs.argocd_url }}
+          options: --insecure --password ${{ steps.env_vars.outputs.argocd_password }} --username ${{ steps.env_vars.outputs.argocd_username }}
+
+      - name: ArgoCD overvrite HELM values.yaml
+        uses: clowdhaus/argo-cd-action/@v1.10.0
+        id: argocd_image_helm_tag_overwrite
+        with:
+          command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
+          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
