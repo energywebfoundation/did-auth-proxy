@@ -44,8 +44,9 @@ jobs:
             echo "Branch ${{ github.ref }} is not configured for deployment"
             exit 1
           fi
-      - uses: actions/checkout@v2
+
       - name: Get the tag version
+        uses: actions/checkout@v2
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
 
@@ -67,6 +68,8 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile .
           docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
+          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+          docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
 
       - name: Logout of Amazon ECR
         if: always()
