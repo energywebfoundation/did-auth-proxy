@@ -180,7 +180,6 @@ describe('RefreshTokenRepository', () => {
   describe('deleteToken()', function () {
     describe('when called', function () {
       let spy: jest.SpyInstance;
-      let result: string;
 
       beforeEach(async function () {
         spy = jest.spyOn(mockRedisService, 'del');

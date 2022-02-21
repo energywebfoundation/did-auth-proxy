@@ -211,7 +211,7 @@ describe('AuthService', () => {
       beforeEach(async function () {
         refreshToken = jwtService.sign(payload, { expiresIn: 0 });
 
-        result = await service.validateRefreshToken('invalid token');
+        result = await service.validateRefreshToken(refreshToken);
       });
 
       it('should resolve to false', async function () {
