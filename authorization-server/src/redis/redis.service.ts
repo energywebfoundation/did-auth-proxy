@@ -16,7 +16,7 @@ export class RedisService
     timestamp: true,
   });
 
-  constructor(configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     super({
       host: configService.get('REDIS_HOST'),
       port: configService.get('REDIS_PORT'),
@@ -37,6 +37,9 @@ export class RedisService
       await this.connect();
     } catch (err) {
       this.logger.error(`error initializing Redis connection: ${err}`);
+      if (this.configService.get<boolean>('FAIL_ON_REDIS_UNAVAILABLE')) {
+        throw new Error('unable to connect to Redis instance');
+      }
     }
   }
 

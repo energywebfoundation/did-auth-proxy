@@ -7,7 +7,7 @@ describe('RedisService', () => {
   let service: RedisService;
 
   const mockConfigService = {
-    get(key: string) {
+    get(key: string): string | number | boolean | undefined {
       return {}[key];
     },
   };
@@ -27,41 +27,143 @@ describe('RedisService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('when application starting', function () {
-    let spy: jest.SpyInstance;
+  describe('onModuleInit()', function () {
+    let spyConnect: jest.SpyInstance;
 
-    beforeEach(async function () {
-      spy = jest.spyOn(service, 'connect').mockImplementation(async () => {});
+    describe('when able to connect to the Redis server', function () {
+      beforeEach(async function () {
+        spyConnect = jest
+          .spyOn(service, 'connect')
+          .mockImplementation(async () => {});
+      });
 
-      await service.onModuleInit();
+      afterEach(async function () {
+        spyConnect.mockClear().mockRestore();
+      });
+
+      describe('when called', function () {
+        let exceptionThrown: Error;
+
+        beforeEach(async function () {
+          try {
+            await service.onModuleInit();
+          } catch (err) {
+            exceptionThrown = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exceptionThrown).not.toBeDefined();
+        });
+
+        it('should connect', async function () {
+          expect(spyConnect).toHaveBeenCalled();
+        });
+      });
     });
 
-    afterEach(async function () {
-      spy.mockClear().mockRestore();
-    });
+    describe('when not able to connect to the Redis server', function () {
+      let spy: jest.SpyInstance;
 
-    it('should connect', async function () {
-      expect(spy).toHaveBeenCalled();
+      beforeEach(async function () {
+        spy = jest.spyOn(service, 'connect').mockImplementation(async () => {
+          throw new Error('Connection is closed');
+        });
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      describe('when FAIL_ON_REDIS_UNAVAILABLE=true', function () {
+        let spyConfigService: jest.SpyInstance;
+
+        beforeEach(async function () {
+          spyConfigService = jest
+            .spyOn(mockConfigService, 'get')
+            .mockImplementation((key: string) => {
+              return {
+                FAIL_ON_REDIS_UNAVAILABLE: true,
+              }[key];
+            });
+        });
+
+        afterEach(async function () {
+          spyConfigService.mockClear().mockRestore();
+        });
+
+        describe('when called', function () {
+          let exceptionThrown: Error;
+
+          beforeEach(async function () {
+            try {
+              await service.onModuleInit();
+            } catch (err) {
+              exceptionThrown = err;
+            }
+          });
+
+          it('should throw an error', async function () {
+            expect(exceptionThrown).toBeDefined();
+          });
+        });
+      });
+
+      describe('when FAIL_ON_REDIS_UNAVAILABLE=false', function () {
+        let spyConfigService: jest.SpyInstance;
+
+        beforeEach(async function () {
+          spyConfigService = jest
+            .spyOn(mockConfigService, 'get')
+            .mockImplementation((key: string) => {
+              return {
+                FAIL_ON_REDIS_UNAVAILABLE: false,
+              }[key];
+            });
+        });
+
+        afterEach(async function () {
+          spyConfigService.mockClear().mockRestore();
+        });
+
+        describe('when called', function () {
+          let exceptionThrown: Error;
+
+          beforeEach(async function () {
+            try {
+              await service.onModuleInit();
+            } catch (err) {
+              exceptionThrown = err;
+            }
+          });
+
+          it('should execute', async function () {
+            expect(exceptionThrown).not.toBeDefined();
+          });
+        });
+      });
     });
   });
 
-  describe('when application stopping', function () {
-    let spy: jest.SpyInstance;
+  describe('onModuleDestroy()', function () {
+    describe('when called', function () {
+      let spy: jest.SpyInstance;
 
-    beforeEach(async function () {
-      spy = jest
-        .spyOn(service, 'disconnect')
-        .mockImplementation(async () => {});
+      beforeEach(async function () {
+        spy = jest
+          .spyOn(service, 'disconnect')
+          .mockImplementation(async () => {});
 
-      await service.onApplicationShutdown();
-    });
+        await service.onApplicationShutdown();
+      });
 
-    afterEach(async function () {
-      spy.mockClear().mockRestore();
-    });
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
 
-    it('should disconnect', async function () {
-      expect(spy).toHaveBeenCalled();
+      it('should disconnect', async function () {
+        expect(spy).toHaveBeenCalled();
+      });
     });
   });
 });
