@@ -24,15 +24,16 @@ export class RedisService
       lazyConnect: true,
     });
 
-    this.on('connect', () => this.logger.debug(`connecting`));
-    this.on('ready', () => this.logger.log(`ready`));
-    this.on('end', () => this.logger.log(`disconnected`));
+    this.on('connect', () => this.logger.debug(`event: connect`));
+    this.on('ready', () => this.logger.log(`event: ready`));
+    this.on('end', () => this.logger.log(`event: disconnected`));
     this.on('error', (err) => this.logger.error(`${err}`));
-    this.on('reconnecting', () => this.logger.warn(`reconnecting`));
+    this.on('reconnecting', () => this.logger.warn(`event: reconnecting`));
   }
 
   async onModuleInit() {
     try {
+      this.logger.debug('connecting');
       await this.connect();
     } catch (err) {
       this.logger.error(`error initializing Redis connection: ${err}`);
