@@ -2,6 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from './redis.service';
 import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '../logger/logger.service';
 
 describe('RedisService', () => {
   let service: RedisService;
@@ -16,6 +17,7 @@ describe('RedisService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RedisService,
+        LoggerService,
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();

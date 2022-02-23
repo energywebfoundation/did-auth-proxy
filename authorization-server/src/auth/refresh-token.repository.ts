@@ -1,22 +1,22 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { IRefreshTokenPayload } from './auth.interface';
+import { LoggerService } from '../logger/logger.service';
 
 const KEY_PREFIX = 'refresh-token';
 
 @Injectable()
 export class RefreshTokenRepository {
-  private readonly logger = new Logger(RefreshTokenRepository.name, {
-    timestamp: true,
-  });
-
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
     private redis: RedisService,
-  ) {}
+    private logger: LoggerService,
+  ) {
+    this.logger.setContext(RefreshTokenRepository.name);
+  }
 
   async saveToken(token: string): Promise<void> {
     const decoded = this.jwtService.verify(token) as IRefreshTokenPayload;

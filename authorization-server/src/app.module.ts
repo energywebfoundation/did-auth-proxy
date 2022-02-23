@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { AuthModule } from './auth/auth.module';
+import { LoggerModule } from './logger/logger.module';
 
 const validationOptions = {
   allowUnknown: true,
@@ -41,6 +42,7 @@ export const validationSchema = Joi.object({
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationOptions,

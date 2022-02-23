@@ -7,6 +7,7 @@ import { createRequest } from 'node-mocks-http';
 import { sign as sign } from 'jsonwebtoken';
 import { ForbiddenException } from '@nestjs/common';
 import { LoginResponseDataDto } from './dto/login-response-data.dto';
+import { LoggerService } from '../logger/logger.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -28,6 +29,7 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        LoggerService,
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
