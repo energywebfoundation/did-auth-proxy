@@ -1,7 +1,7 @@
 import {
   Injectable,
   Logger,
-  OnModuleDestroy,
+  OnApplicationShutdown,
   OnModuleInit,
 } from '@nestjs/common';
 import * as Redis from 'ioredis';
@@ -10,7 +10,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class RedisService
   extends Redis
-  implements OnModuleInit, OnModuleDestroy
+  implements OnModuleInit, OnApplicationShutdown
 {
   private readonly logger = new Logger(RedisService.name, {
     timestamp: true,
@@ -39,7 +39,7 @@ export class RedisService
     }
   }
 
-  async onModuleDestroy() {
+  async onApplicationShutdown() {
     this.logger.debug('disconnecting');
     this.disconnect();
   }

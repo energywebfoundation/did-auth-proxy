@@ -53,7 +53,7 @@ describe('RedisService', () => {
         .spyOn(service, 'disconnect')
         .mockImplementation(async () => {});
 
-      await service.onModuleDestroy();
+      await service.onApplicationShutdown();
     });
 
     afterEach(async function () {
