@@ -1,18 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { LoggerService } from './logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
 
-const logger = new Logger('bootstrap', { timestamp: true });
+const logger = new LoggerService('bootstrap', { timestamp: true });
 logger.log('starting');
 logger.log(`NODE_ENV=${process.env.NODE_ENV}`);
 
-const webserverLogger = new Logger('webserver', { timestamp: true });
+const webserverLogger = new LoggerService('webserver');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  app.useLogger(new LoggerService());
 
   app.enableShutdownHooks();
 
