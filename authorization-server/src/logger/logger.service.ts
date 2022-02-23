@@ -18,4 +18,8 @@ export class LoggerService extends ConsoleLogger {
       this.setLogLevels(['error', 'warn']);
     }
   }
+
+  protected getTimestamp(): string {
+    return new Date().toISOString();
+  }
 }
