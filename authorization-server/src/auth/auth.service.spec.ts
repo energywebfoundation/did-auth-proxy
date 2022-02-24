@@ -12,6 +12,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
   let configService: ConfigService;
+  let loggerService: LoggerService;
 
   const mockConfigService = {
     get(key: string) {
@@ -45,7 +46,10 @@ describe('AuthService', () => {
       ],
       providers: [
         AuthService,
-        LoggerService,
+        {
+          provide: LoggerService,
+          useValue: new LoggerService(),
+        },
         { provide: ConfigService, useValue: mockConfigService },
         {
           provide: RefreshTokenRepository,
@@ -57,6 +61,8 @@ describe('AuthService', () => {
     service = module.get<AuthService>(AuthService);
     configService = module.get<ConfigService>(ConfigService);
     jwtService = module.get<JwtService>(JwtService);
+
+    loggerService = module.get(LoggerService);
   });
 
   it('should be defined', () => {
@@ -198,27 +204,56 @@ describe('AuthService', () => {
 
     describe('when called with malformed refresh token', function () {
       let result: boolean;
+      let spyLoggerWarn: jest.SpyInstance;
 
       beforeEach(async function () {
+        spyLoggerWarn = jest
+          .spyOn(loggerService, 'warn')
+          .mockImplementation(() => {});
+
         result = await service.validateRefreshToken('invalid token');
+      });
+
+      afterEach(async function () {
+        spyLoggerWarn.mockClear().mockRestore();
       });
 
       it('should resolve to false', async function () {
         expect(result).toBe(false);
+      });
+
+      it('should write a warn log message', async function () {
+        expect(spyLoggerWarn).toHaveBeenCalled();
       });
     });
 
     describe('when called with expired refresh token', function () {
       let result: boolean, refreshToken;
+      let spyLoggerWarn: jest.SpyInstance;
 
       beforeEach(async function () {
+        spyLoggerWarn = jest
+          .spyOn(loggerService, 'warn')
+          .mockImplementation(() => {});
+
         refreshToken = jwtService.sign(payload, { expiresIn: 0 });
 
         result = await service.validateRefreshToken(refreshToken);
       });
 
+      afterEach(async function () {
+        spyLoggerWarn.mockClear().mockRestore();
+      });
+
       it('should resolve to false', async function () {
         expect(result).toBe(false);
+      });
+
+      it('should write a warn log message', async function () {
+        expect(spyLoggerWarn).toHaveBeenCalled();
+        expect(spyLoggerWarn).toHaveBeenCalledWith(
+          'error when verifying token: TokenExpiredError: jwt expired',
+        );
       });
     });
 
