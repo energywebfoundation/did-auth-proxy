@@ -6,6 +6,7 @@ import { LoggerService } from '../logger/logger.service';
 
 describe('RedisService', () => {
   let service: RedisService;
+  let loggerService: LoggerService;
 
   const mockConfigService = {
     get(key: string): string | number | boolean | undefined {
@@ -17,12 +18,16 @@ describe('RedisService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RedisService,
-        LoggerService,
+        {
+          provide: LoggerService,
+          useValue: new LoggerService(),
+        },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
     service = module.get<RedisService>(RedisService);
+    loggerService = module.get(LoggerService);
   });
 
   it('should be defined', () => {
@@ -65,16 +70,24 @@ describe('RedisService', () => {
     });
 
     describe('when not able to connect to the Redis server', function () {
-      let spy: jest.SpyInstance;
+      let spyConnect: jest.SpyInstance;
+      let spyLoggerError: jest.SpyInstance;
 
       beforeEach(async function () {
-        spy = jest.spyOn(service, 'connect').mockImplementation(async () => {
-          throw new Error('Connection is closed');
-        });
+        spyConnect = jest
+          .spyOn(service, 'connect')
+          .mockImplementation(async () => {
+            throw new Error('Connection is closed');
+          });
+
+        spyLoggerError = jest
+          .spyOn(loggerService, 'error')
+          .mockImplementation(() => {});
       });
 
       afterEach(async function () {
-        spy.mockClear().mockRestore();
+        spyConnect.mockClear().mockRestore();
+        spyLoggerError.mockClear().mockRestore();
       });
 
       describe('when FAIL_ON_REDIS_UNAVAILABLE=true', function () {
@@ -107,6 +120,10 @@ describe('RedisService', () => {
 
           it('should throw an error', async function () {
             expect(exceptionThrown).toBeDefined();
+          });
+
+          it('should write an error log message', async function () {
+            expect(spyLoggerError).toHaveBeenCalled();
           });
         });
       });
@@ -141,6 +158,10 @@ describe('RedisService', () => {
 
           it('should execute', async function () {
             expect(exceptionThrown).toBeUndefined();
+          });
+
+          it('should write an error log message', async function () {
+            expect(spyLoggerError).toHaveBeenCalled();
           });
         });
       });
