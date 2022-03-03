@@ -16,7 +16,7 @@ export class RedisService
     timestamp: true,
   });
 
-  constructor(configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     super({
       host: configService.get('REDIS_HOST'),
       port: configService.get('REDIS_PORT'),
@@ -24,18 +24,22 @@ export class RedisService
       lazyConnect: true,
     });
 
-    this.on('connect', () => this.logger.debug(`connecting`));
-    this.on('ready', () => this.logger.log(`ready`));
-    this.on('end', () => this.logger.log(`disconnected`));
+    this.on('connect', () => this.logger.debug(`event: connect`));
+    this.on('ready', () => this.logger.log(`event: ready`));
+    this.on('end', () => this.logger.log(`event: disconnected`));
     this.on('error', (err) => this.logger.error(`${err}`));
-    this.on('reconnecting', () => this.logger.warn(`reconnecting`));
+    this.on('reconnecting', () => this.logger.warn(`event: reconnecting`));
   }
 
   async onModuleInit() {
     try {
+      this.logger.debug('connecting');
       await this.connect();
     } catch (err) {
       this.logger.error(`error initializing Redis connection: ${err}`);
+      if (this.configService.get<boolean>('FAIL_ON_REDIS_UNAVAILABLE')) {
+        throw new Error('unable to connect to Redis instance');
+      }
     }
   }
 
