@@ -25,9 +25,6 @@ version: 0.0.9
 appVersion: "0.0.9"
 
 dependencies:
-  - name: redis
-    version: 16.4.0
-    repository: https://charts.bitnami.com/bitnami
   - name: did-auth-proxy-helm
     version: 0.0.9
     repository: "oci://984870885661.dkr.ecr.us-west-2.amazonaws.com"
