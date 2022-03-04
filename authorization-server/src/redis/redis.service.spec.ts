@@ -10,7 +10,9 @@ describe('RedisService', () => {
 
   const mockConfigService = {
     get(key: string): string | number | boolean | undefined {
-      return {}[key];
+      return {
+        LOG_LEVELS: 'error,warn',
+      }[key];
     },
   };
 

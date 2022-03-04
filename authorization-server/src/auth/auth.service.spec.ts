@@ -17,6 +17,7 @@ describe('AuthService', () => {
   const mockConfigService = {
     get(key: string) {
       return {
+        LOG_LEVELS: 'error,warn',
         JWT_ACCESS_TTL: 1,
         JWT_REFRESH_TTL: 2,
       }[key];

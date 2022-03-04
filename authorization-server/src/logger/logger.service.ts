@@ -2,8 +2,11 @@ import {
   ConsoleLogger,
   ConsoleLoggerOptions,
   Injectable,
+  LogLevel,
   Scope,
 } from '@nestjs/common';
+
+export { LogLevel } from '@nestjs/common';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LoggerService extends ConsoleLogger {
@@ -21,5 +24,9 @@ export class LoggerService extends ConsoleLogger {
 
   protected getTimestamp(): string {
     return new Date().toISOString();
+  }
+
+  setLogLevelsFromString(levels: string) {
+    super.setLogLevels(levels.split(',') as LogLevel[]);
   }
 }

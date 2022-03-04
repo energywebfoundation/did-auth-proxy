@@ -16,6 +16,12 @@ export const validationSchema = Joi.object({
     .valid('development', 'production', 'test')
     .default('development'),
 
+  LOG_LEVELS: Joi.string()
+    .regex(
+      /^((log|warn|error|debug|verbose)?(,(log|warn|error|debug|verbose))*)$/,
+    )
+    .default('log,warn,error,debug,verbose'),
+
   PORT: Joi.number().default(3000),
   BIND: Joi.string().ip().default('127.0.0.1'),
 

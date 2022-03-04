@@ -16,6 +16,7 @@ export class RefreshTokenRepository {
     private logger: LoggerService,
   ) {
     this.logger.setContext(RefreshTokenRepository.name);
+    this.logger.setLogLevelsFromString(configService.get<string>('LOG_LEVELS'));
   }
 
   async saveToken(token: string): Promise<void> {

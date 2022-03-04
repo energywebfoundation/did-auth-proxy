@@ -35,6 +35,7 @@ export class AuthController {
     private readonly logger: LoggerService,
   ) {
     this.logger.setContext(AuthController.name);
+    this.logger.setLogLevelsFromString(configService.get<string>('LOG_LEVELS'));
   }
 
   @Post('login')

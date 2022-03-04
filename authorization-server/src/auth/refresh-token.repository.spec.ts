@@ -14,7 +14,9 @@ describe('RefreshTokenRepository', () => {
 
   const mockConfigService = {
     get(key: string) {
-      return {}[key];
+      return {
+        LOG_LEVELS: 'error,warn',
+      }[key];
     },
   };
   const mockRedisService = {
