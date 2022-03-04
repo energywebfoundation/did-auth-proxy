@@ -1,3 +1,5 @@
-FROM nginx:alpine
+FROM bitnami/nginx:1.21
 
-COPY ./nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+
+COPY ./nginx.conf /opt/bitnami/nginx/conf/server_blocks/nginx.conf
