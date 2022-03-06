@@ -15,7 +15,7 @@ export const validationSchema = Joi.object({
     .valid('development', 'production', 'test')
     .default('development'),
 
-  PORT: Joi.number().default(3000),
+  PORT: Joi.number().default(3001),
   BIND: Joi.string().ip().default('127.0.0.1'),
 
   RPC_URL: Joi.string().uri().default('https://volta-rpc.energyweb.org/'),
