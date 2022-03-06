@@ -2,7 +2,7 @@ name: Build and deploy
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, workflow-acr]
   workflow_dispatch:
 
 jobs:
@@ -89,7 +89,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build & push docker images
+      - name: Build & push docker images (AWS)
         env:
           BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -102,6 +102,20 @@ jobs:
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
+      
+      - name: Login to Azure registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_REGISTRY_USERNAME }}
+          password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
+
+      - name: Push image (Azure)
+        run: |
+          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
+          docker push ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
+          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:canary
+          docker push ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:canary
 
       - name: ArgoCD login
         uses: clowdhaus/argo-cd-action/@v1.10.0
