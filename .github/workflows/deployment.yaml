@@ -118,7 +118,7 @@ jobs:
         run: |
           docker tag ${{ steps.login-ecr.outputs.registry }}/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
           docker push $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker tag $ECR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
+          docker tag $ACR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
           docker push $ACR_REGISTRY/$REPO_NAME:canary
 
       - name: ArgoCD login
