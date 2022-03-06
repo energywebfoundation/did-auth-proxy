@@ -111,11 +111,15 @@ jobs:
           password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
 
       - name: Push image (Azure)
+        env:
+          BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
+          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
+          REPO_NAME: ${{ steps.env_vars.outputs.aws_ecr_repository }}
         run: |
-          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
-          docker push ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
-          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:canary
-          docker push ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}/${{ steps.env_vars.outputs.aws_ecr_repository }}:canary
+          docker tag ${{ steps.login-ecr.outputs.registry }}/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
+          docker push $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
+          docker tag $ECR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
+          docker push $ACR_REGISTRY/$REPO_NAME:canary
 
       - name: ArgoCD login
         uses: clowdhaus/argo-cd-action/@v1.10.0
