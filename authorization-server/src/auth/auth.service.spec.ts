@@ -182,7 +182,7 @@ describe('AuthService', () => {
       });
 
       it('should resolve to true', async function () {
-        expect(result).toEqual(true);
+        expect(result).toBe(true);
       });
 
       it('should check if token is whitelisted', async function () {
@@ -201,7 +201,7 @@ describe('AuthService', () => {
       });
 
       it('should resolve to false', async function () {
-        expect(result).toEqual(false);
+        expect(result).toBe(false);
       });
     });
 
@@ -215,7 +215,7 @@ describe('AuthService', () => {
       });
 
       it('should resolve to false', async function () {
-        expect(result).toEqual(false);
+        expect(result).toBe(false);
       });
     });
 
@@ -244,7 +244,7 @@ describe('AuthService', () => {
       });
 
       it('should resolve to false', async function () {
-        expect(result).toEqual(false);
+        expect(result).toBe(false);
       });
 
       it('should verify token', async function () {
