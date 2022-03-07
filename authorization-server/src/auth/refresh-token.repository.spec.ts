@@ -172,7 +172,7 @@ describe('RefreshTokenRepository', () => {
       });
 
       it('should return fetched token', async function () {
-        expect(result).toEqual('token-fetched');
+        expect(result).toBe('token-fetched');
       });
     });
   });

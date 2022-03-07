@@ -53,7 +53,7 @@ describe('RedisService', () => {
         });
 
         it('should execute', async function () {
-          expect(exceptionThrown).not.toBeDefined();
+          expect(exceptionThrown).toBeUndefined();
         });
 
         it('should connect', async function () {
@@ -138,7 +138,7 @@ describe('RedisService', () => {
           });
 
           it('should execute', async function () {
-            expect(exceptionThrown).not.toBeDefined();
+            expect(exceptionThrown).toBeUndefined();
           });
         });
       });
