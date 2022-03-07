@@ -123,6 +123,7 @@ describe('AuthController', () => {
   });
 
   describe('introspect()', () => {
+    // eslint-disable-next-line jest/expect-expect
     it('should execute when request passes Guards', async function () {
       const request = createRequest({
         method: 'GET',
