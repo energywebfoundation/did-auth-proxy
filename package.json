@@ -13,9 +13,11 @@
     "build:docker": "run-p build:docker:*",
     "build:docker:webserver": "cd nginx && docker build . -t did-auth-proxy-webserver",
     "build:docker:backend-server": "cd backend-server && docker build . -t did-auth-proxy-backend",
-    "build:docker:authorization-server": "cd authorization-server && docker build . -t did-auth-proxy-auth-server"
+    "build:docker:authorization-server": "cd authorization-server && docker build . -t did-auth-proxy-auth-server",
+    "prepare": "husky install"
   },
   "devDependencies": {
+    "husky": "^7",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2"
   }
