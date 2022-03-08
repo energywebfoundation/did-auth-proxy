@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
+import { IAccessTokenPayload, IRefreshTokenPayload } from './auth.interface';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -64,14 +65,14 @@ describe('AuthService', () => {
     describe('when called', function () {
       let spySign: jest.SpyInstance;
       let issuedAt: number;
-      let result: string, resultDecoded: Record<string, any>;
+      let result: string, resultDecoded: IAccessTokenPayload;
 
       beforeEach(async function () {
         spySign = jest.spyOn(jwtService, 'sign');
 
         issuedAt = Math.floor(Date.now() / 1000);
         result = await service.generateAccessToken(payload);
-        resultDecoded = decode(result) as Record<string, any>;
+        resultDecoded = decode(result) as IAccessTokenPayload;
       });
 
       afterEach(async function () {
@@ -111,7 +112,7 @@ describe('AuthService', () => {
     describe('when called', function () {
       let spySign: jest.SpyInstance, spySave: jest.SpyInstance;
       let issuedAt: number;
-      let result, resultDecoded: Record<string, any>;
+      let result, resultDecoded: IRefreshTokenPayload;
 
       beforeEach(async function () {
         spySign = jest.spyOn(jwtService, 'sign');
@@ -119,7 +120,7 @@ describe('AuthService', () => {
 
         issuedAt = Math.floor(Date.now() / 1000);
         result = await service.generateRefreshToken(payload);
-        resultDecoded = decode(result) as Record<string, any>;
+        resultDecoded = decode(result) as IRefreshTokenPayload;
       });
 
       afterEach(async function () {
@@ -162,13 +163,13 @@ describe('AuthService', () => {
 
   describe('validateRefreshToken()', function () {
     describe('when called with valid whitelisted refresh token', function () {
-      let refreshToken, refreshTokenDecoded: Record<string, any>;
+      let refreshToken, refreshTokenDecoded: IRefreshTokenPayload;
       let result;
       let spy: jest.SpyInstance;
 
       beforeEach(async function () {
         refreshToken = jwtService.sign(payload);
-        refreshTokenDecoded = decode(refreshToken) as Record<string, any>;
+        refreshTokenDecoded = decode(refreshToken) as IRefreshTokenPayload;
 
         spy = jest
           .spyOn(mockRefreshTokenRepository, 'getToken')
@@ -220,13 +221,13 @@ describe('AuthService', () => {
     });
 
     describe('when called with invalidated refresh token', function () {
-      let refreshToken, refreshTokenDecoded: Record<string, any>;
+      let refreshToken, refreshTokenDecoded: IRefreshTokenPayload;
       let result;
       let spyVerify: jest.SpyInstance, spyGetToken: jest.SpyInstance;
 
       beforeEach(async function () {
         refreshToken = jwtService.sign({ id: '111', ...payload });
-        refreshTokenDecoded = decode(refreshToken) as Record<string, any>;
+        refreshTokenDecoded = decode(refreshToken) as IRefreshTokenPayload;
 
         spyVerify = jest
           .spyOn(jwtService, 'verify')
