@@ -1,5 +1,5 @@
 module.exports = {
-  singleQuote: true,
+  ...require('@energyweb/prettier-config'),
   trailingComma: "all",
   bracketSpacing: true,
   bracketSameLine: true,

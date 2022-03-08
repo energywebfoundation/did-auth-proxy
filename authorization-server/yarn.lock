@@ -375,6 +375,11 @@
   dependencies:
     ethers "5.4.7"
 
+"@energyweb/prettier-config@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@energyweb/prettier-config/-/prettier-config-0.0.1.tgz#fc159fdb6b5b8badf846c8d8a70729959a0d3fc1"
+  integrity sha512-4Bh2nbDO1JkGRVZ2Ub0fdgmRTLMQa2eoB2U5jo7o8M/ivqFxyZbPRWSgwfahyHvxjev1bUi25FayWee5zMRrkg==
+
 "@ensdomains/resolver@^0.3.1":
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/@ensdomains/resolver/-/resolver-0.3.1.tgz#cf2cb9b7937fcc153f1bcc6ce820b40f775276a6"
