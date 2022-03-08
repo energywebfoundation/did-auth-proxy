@@ -19,7 +19,6 @@ export class AuthService {
     private logger: LoggerService,
   ) {
     this.logger.setContext(AuthService.name);
-    this.logger.setLogLevelsFromString(configService.get<string>('LOG_LEVELS'));
   }
 
   public async generateAccessToken(

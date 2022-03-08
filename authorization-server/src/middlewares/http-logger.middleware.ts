@@ -10,7 +10,6 @@ export class HttpLoggerMiddleware implements NestMiddleware {
     private readonly configService: ConfigService,
   ) {
     this.logger.setContext(HttpLoggerMiddleware.name);
-    this.logger.setLogLevelsFromString(configService.get<string>('LOG_LEVELS'));
   }
 
   use(req: Request, res: Response, next: NextFunction) {

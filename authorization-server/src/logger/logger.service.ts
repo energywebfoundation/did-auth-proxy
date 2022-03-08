@@ -20,14 +20,12 @@ export class LoggerService extends ConsoleLogger {
 
     if (isCI()) {
       this.setLogLevels(['error', 'warn']);
+    } else {
+      this.setLogLevels(process.env.LOG_LEVELS.split(',') as LogLevel[]);
     }
   }
 
   protected getTimestamp(): string {
     return new Date().toISOString();
-  }
-
-  setLogLevelsFromString(levels: string) {
-    super.setLogLevels(levels.split(',') as LogLevel[]);
   }
 }

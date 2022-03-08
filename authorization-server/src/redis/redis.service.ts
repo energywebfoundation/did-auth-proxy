@@ -24,7 +24,6 @@ export class RedisService
     });
 
     this.logger.setContext(RedisService.name);
-    this.logger.setLogLevelsFromString(configService.get<string>('LOG_LEVELS'));
 
     this.on('connect', () => this.logger.debug(`event: connect`));
     this.on('ready', () => this.logger.log(`event: ready`));

@@ -20,7 +20,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     });
 
     this.logger.setContext(AuthStrategy.name);
-    this.logger.setLogLevelsFromString(configService.get<string>('LOG_LEVELS'));
 
     this.logger.log(
       `accepted roles: ${parseAcceptedRoles(
