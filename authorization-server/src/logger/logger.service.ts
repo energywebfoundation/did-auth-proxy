@@ -5,6 +5,7 @@ import {
   LogLevel,
   Scope,
 } from '@nestjs/common';
+import { isCI } from '../helpers';
 
 export { LogLevel } from '@nestjs/common';
 
@@ -17,7 +18,7 @@ export class LoggerService extends ConsoleLogger {
 
     super(context, { ...optionsDefault, ...options });
 
-    if (process.env.NODE_ENV === 'test') {
+    if (isCI()) {
       this.setLogLevels(['error', 'warn']);
     }
   }
