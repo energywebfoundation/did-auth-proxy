@@ -363,6 +363,11 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@energyweb/eslint-config@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@energyweb/eslint-config/-/eslint-config-0.0.2.tgz#be61be1007d2f413d5018684bcf9df4a471f92c2"
+  integrity sha512-BZCl84xWpXTq6hkT5aD2Q/U691FW+IDNn7HYOVej5/8QgOx+uEjOj2GimdlvXUivJViMz6XDVzzwv9yWvCwbVQ==
+
 "@energyweb/iam-contracts@^3.2.0":
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/@energyweb/iam-contracts/-/iam-contracts-3.8.0.tgz#bbab3ac3b503de206967e6bdfdb92c89379495a3"

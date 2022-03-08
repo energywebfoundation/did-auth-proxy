@@ -6,6 +6,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'jest'],
   extends: [
+    '@energyweb',
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
     'plugin:jest/recommended',
