@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Socket } from 'net';
 
 const logger = new Logger('bootstrap', { timestamp: true });
 logger.log('starting');
@@ -58,7 +59,7 @@ async function bootstrap() {
 
 bootstrap();
 
-function connectionHandler(socket) {
+function connectionHandler(socket: Socket) {
   webserverLogger.debug(
     `connection from ${socket.remoteAddress}:${socket.remotePort}`,
   );

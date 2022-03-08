@@ -363,12 +363,22 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
+"@energyweb/eslint-config@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@energyweb/eslint-config/-/eslint-config-0.0.2.tgz#be61be1007d2f413d5018684bcf9df4a471f92c2"
+  integrity sha512-BZCl84xWpXTq6hkT5aD2Q/U691FW+IDNn7HYOVej5/8QgOx+uEjOj2GimdlvXUivJViMz6XDVzzwv9yWvCwbVQ==
+
 "@energyweb/iam-contracts@^3.2.0":
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/@energyweb/iam-contracts/-/iam-contracts-3.8.0.tgz#bbab3ac3b503de206967e6bdfdb92c89379495a3"
   integrity sha512-hIv8hW2MDN5K3qxicFTcL/fswfoBdfluKWBkUyNG/zs1Ri/zx9qdfCvDpoWpy4FCZR/rM/iToFyslGTC9lh2nA==
   dependencies:
     ethers "5.4.7"
+
+"@energyweb/prettier-config@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@energyweb/prettier-config/-/prettier-config-0.0.1.tgz#fc159fdb6b5b8badf846c8d8a70729959a0d3fc1"
+  integrity sha512-4Bh2nbDO1JkGRVZ2Ub0fdgmRTLMQa2eoB2U5jo7o8M/ivqFxyZbPRWSgwfahyHvxjev1bUi25FayWee5zMRrkg==
 
 "@ensdomains/resolver@^0.3.1":
   version "0.3.1"
@@ -2024,6 +2034,11 @@
   integrity sha512-uci4Esokrw9qGb9bvhhSVEjd6rkny/dk5PK/Qz4yxKiyppEI+dOPlNrZBahE3i+PoKFYyDxChVXZ/ysS/nrm1Q==
   dependencies:
     "@types/superagent" "*"
+
+"@types/uuid@^8":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
 
 "@types/yargs-parser@*":
   version "21.0.0"

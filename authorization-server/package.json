@@ -48,6 +48,8 @@
     "uuid": "^8.0.0"
   },
   "devDependencies": {
+    "@energyweb/eslint-config": "^0.0.2",
+    "@energyweb/prettier-config": "^0.0.1",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",
@@ -59,6 +61,7 @@
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^8",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",
