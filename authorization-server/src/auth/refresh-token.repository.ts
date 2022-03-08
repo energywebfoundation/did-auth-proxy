@@ -45,6 +45,6 @@ export class RefreshTokenRepository {
   }
 }
 
-function redisKey(prefix, did, id) {
+function redisKey(prefix: string, did: string, id: string) {
   return `${prefix}:${did}:${id}`;
 }

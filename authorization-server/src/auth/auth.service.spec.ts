@@ -112,7 +112,7 @@ describe('AuthService', () => {
     describe('when called', function () {
       let spySign: jest.SpyInstance, spySave: jest.SpyInstance;
       let issuedAt: number;
-      let result, resultDecoded: IRefreshTokenPayload;
+      let result: string, resultDecoded: IRefreshTokenPayload;
 
       beforeEach(async function () {
         spySign = jest.spyOn(jwtService, 'sign');
@@ -164,7 +164,7 @@ describe('AuthService', () => {
   describe('validateRefreshToken()', function () {
     describe('when called with valid whitelisted refresh token', function () {
       let refreshToken, refreshTokenDecoded: IRefreshTokenPayload;
-      let result;
+      let result: boolean;
       let spy: jest.SpyInstance;
 
       beforeEach(async function () {
@@ -195,7 +195,7 @@ describe('AuthService', () => {
     });
 
     describe('when called with malformed refresh token', function () {
-      let result;
+      let result: boolean;
 
       beforeEach(async function () {
         result = await service.validateRefreshToken('invalid token');
@@ -207,7 +207,7 @@ describe('AuthService', () => {
     });
 
     describe('when called with expired refresh token', function () {
-      let result, refreshToken;
+      let result: boolean, refreshToken;
 
       beforeEach(async function () {
         refreshToken = jwtService.sign(payload, { expiresIn: 0 });
@@ -221,8 +221,8 @@ describe('AuthService', () => {
     });
 
     describe('when called with invalidated refresh token', function () {
-      let refreshToken, refreshTokenDecoded: IRefreshTokenPayload;
-      let result;
+      let refreshToken: string, refreshTokenDecoded: IRefreshTokenPayload;
+      let result: boolean;
       let spyVerify: jest.SpyInstance, spyGetToken: jest.SpyInstance;
 
       beforeEach(async function () {
@@ -286,7 +286,7 @@ describe('AuthService', () => {
       let spyGenerateAccessToken: jest.SpyInstance;
       let spyGenerateRefreshToken: jest.SpyInstance;
       let spyDeleteToken: jest.SpyInstance;
-      let result;
+      let result: { accessToken: string; refreshToken: string };
 
       const oldRefreshTokenPayload = {
         id: '110dbf81-732c-4b6c-bba8-018463ea7506',

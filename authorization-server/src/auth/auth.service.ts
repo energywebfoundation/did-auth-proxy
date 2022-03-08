@@ -62,7 +62,7 @@ export class AuthService {
     return !!(await this.refreshTokenRepository.getToken(did, id));
   }
 
-  public async invalidateRefreshToken(did, id) {
+  public async invalidateRefreshToken(did: string, id: string) {
     await this.refreshTokenRepository.deleteToken(did, id);
   }
 
