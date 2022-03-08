@@ -42,8 +42,8 @@ describe('AuthController', () => {
 
   describe('login()', function () {
     describe('when executed', () => {
-      let spyGenerateRefreshToken;
-      let spyGenerateAccessToken;
+      let spyGenerateRefreshToken: jest.SpyInstance;
+      let spyGenerateAccessToken: jest.SpyInstance;
       let accessToken: string, refreshToken: string;
       let response: LoginResponseDataDto;
 
@@ -143,7 +143,7 @@ describe('AuthController', () => {
 
   describe('refresh()', function () {
     describe('when called with valid refresh token', function () {
-      let spyRefresh, spyValidate;
+      let spyRefresh: jest.SpyInstance, spyValidate: jest.SpyInstance;
       let response: LoginResponseDataDto;
       let refreshToken: string, newRefreshToken: string, newAccessToken: string;
 
@@ -207,7 +207,7 @@ describe('AuthController', () => {
     });
 
     describe('when called with invalid refresh token', function () {
-      let spy, exceptionThrown;
+      let spy: jest.SpyInstance, exceptionThrown: Error;
 
       beforeEach(async () => {
         spy = jest
