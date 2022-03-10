@@ -1,138 +1,138 @@
-# Default values for did-auth-proxy-helm.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+  # Default values for did-auth-proxy-helm.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+did-auth-proxy-helm:
+  replicaCount: 1
 
-replicaCount: 1
+  image:
+    repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
 
-image:
-  repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  imagePullSecrets: 
+    - name: regcred
+  nameOverride: "did-auth-proxy-helm"
+  fullnameOverride: "did-auth-proxy-helm"
 
-imagePullSecrets: 
-  - name: regcred
-nameOverride: "did-auth-proxy-helm"
-fullnameOverride: "did-auth-proxy-helm"
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
+  podAnnotations: {}
 
-podAnnotations: {}
+  podSecurityContext: {}
+    # fsGroup: 2000
 
-podSecurityContext: {}
-  # fsGroup: 2000
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+  service:
+    type: ClusterIP
+    port: 80
+    
+  #example with influx as a backend service
 
-service:
-  type: ClusterIP
-  port: 80
-  
-#example with influx as a backend service
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~ / {
+            auth_request /token_introspection;
+            proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
+        }
+        location = /token_introspection {
+              internal;
+              proxy_method      GET;
+              proxy_set_header  Authorization "$http_authorization";
+              proxy_set_header  Content-Length "";
+              proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
+        }
+    hosts:
+      - host: did-auth-proxy-dev.energyweb.org
+        paths:
+        - path: /auth
+          pathType: Prefix
+        - path: /auth/login
+          pathType: Prefix
+        - path: /auth/refresh-token
+          pathType: Prefix
+        - path: /auth/token-introspection
+          pathType: Prefix
+        - path: /
+          pathType: Prefix
 
-ingress:
-  enabled: true
-  className: ""
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~ / {
-          auth_request /token_introspection;
-          proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
-      }
-      location = /token_introspection {
-            internal;
-            proxy_method      GET;
-            proxy_set_header  Authorization "$http_authorization";
-            proxy_set_header  Content-Length "";
-            proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
-      }
-  hosts:
-    - host: did-auth-proxy-dev.energyweb.org
-      paths:
-      - path: /auth
-        pathType: Prefix
-      - path: /auth/login
-        pathType: Prefix
-      - path: /auth/refresh-token
-        pathType: Prefix
-      - path: /auth/token-introspection
-        pathType: Prefix
-      - path: /
-        pathType: Prefix
+    tls:
+        - secretName: did-auth-proxy-secret
+          hosts:
+            - did-auth-proxy-dev.energyweb.org
 
-  tls:
-      - secretName: did-auth-proxy-secret
-        hosts:
-          - did-auth-proxy-dev.energyweb.org
+  config:
+    enabled: false
+    secretRefName: {}
+    configRefName: {}
 
-config:
-  enabled: false
-  secretRefName: {}
-  configRefName: {}
+  #for now dummy configs
+  appValues:
+    PORT: 80
+    CACHE_SERVER_LOGIN_PRVKEY: eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
+    JWT_SECRET: asecretstring
+    ACCEPTED_ROLES: didauthtest.roles.didauthkamil.iam.ewc
+    JWT_ACCESS_TTL: 3600
+    JWT_REFRESH_TTL: 86400
 
-#for now dummy configs
-appValues:
-  PORT: 80
-  CACHE_SERVER_LOGIN_PRVKEY: eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
-  JWT_SECRET: asecretstring
-  ACCEPTED_ROLES: didauthtest.roles.didauthkamil.iam.ewc
-  JWT_ACCESS_TTL: 3600
-  JWT_REFRESH_TTL: 86400
+  opsValues:
+    RPC_URL: https://volta-rpc.energyweb.org/
+    CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
+    REDIS_HOST: did-auth-proxy-helm-redis-master.did.svc.cluster.local
+    REDIS_PORT: 6379
+    REDIS_PASSWORD: redis
 
-opsValues:
-  RPC_URL: https://volta-rpc.energyweb.org/
-  CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
-  REDIS_HOST: did-auth-proxy-helm-redis-master.did.svc.cluster.local
-  REDIS_PORT: 6379
-  REDIS_PASSWORD: redis
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
 
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  nodeSelector: {}
 
-nodeSelector: {}
+  tolerations: []
 
-tolerations: []
+  affinity: {}
 
-affinity: {}
+  sealedSecret:
+    enabled: false
+    annotations: {}
+    encryptedData: {}
 
-sealedSecret:
-  enabled: false
-  annotations: {}
-  encryptedData: {}
+  ########
+  # Redis
 
-########
-# Redis
-
-redis:
-  auth:
-    password: redis
+  redis:
+    auth:
+      password: redis
