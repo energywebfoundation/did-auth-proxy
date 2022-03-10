@@ -43,7 +43,27 @@ did-auth-proxy-helm:
 
   ingress:
     enabled: true
-    annotations: {kubernetes.io/ingress.class: azure/application-gateway, appgw.ingress.kubernetes.io/ssl-redirect: "true"}
+    annotations: 
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location = /health {
+            proxy_pass http://ddhub-messagebroker.ddhub-dev.svc.cluster.local;
+        }
+        location ~ ^/(swagger-ui|q/openapi) {
+            proxy_pass http://ddhub-messagebroker.ddhub-dev.svc.cluster.local;
+        }
+        location ~ / {
+            auth_request /token_introspection;
+            proxy_pass http://ddhub-messagebroker.ddhub-dev.svc.cluster.local;
+        }
+        location = /token_introspection {
+              internal;
+              proxy_method      GET;
+              proxy_set_header  Authorization "$http_authorization";
+              proxy_set_header  Content-Length "";
+              proxy_pass        http://did-auth-proxy-dev.ddhub-dev.svc.cluster.local/auth/token-introspection;
+        }
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
     hosts:
@@ -72,14 +92,15 @@ did-auth-proxy-helm:
     PORT: 80
     CACHE_SERVER_LOGIN_PRVKEY: eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
     JWT_SECRET: asecretstring
-    ACCEPTED_ROLES: role1.roles.app-test2.apps.artur.iam.ewc
+    ACCEPTED_ROLES: user.roles.dsb.apps.energyweb.iam.ewc,channelcreation.roles.dsb.apps.energyweb.iam.ewc,messagebroker.roles.dsb.apps.energyweb.iam.ewc
+
     JWT_ACCESS_TTL: 3600
     JWT_REFRESH_TTL: 86400
 
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
-    REDIS_HOST: did-auth-proxy-dev-redis-master.ddhub-dev.svc
+    REDIS_HOST: ddhub-messagebroker-dev-redis-master.ddhub-dev.svc
     REDIS_PORT: 6379
     REDIS_PASSWORD: redis
 
