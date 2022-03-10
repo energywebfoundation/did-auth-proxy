@@ -22,9 +22,9 @@ version: 0.0.10
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.0.10"
+appVersion: "0.0.9"
 
 dependencies:
   - name: did-auth-proxy-helm
-    version: 0.0.10
+    version: 0.0.9
     repository: "oci://984870885661.dkr.ecr.us-west-2.amazonaws.com"
