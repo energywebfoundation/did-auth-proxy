@@ -51,14 +51,14 @@ ingress:
     nginx.ingress.kubernetes.io/server-snippet: |
       location ~ / {
           auth_request /token_introspection;
-          proxy_pass http://backend-nginx-influxdb.did-auth.svc.cluster.local:8086;
+          proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
       }
       location = /token_introspection {
             internal;
             proxy_method      GET;
             proxy_set_header  Authorization "$http_authorization";
             proxy_set_header  Content-Length "";
-            proxy_pass        http://did-auth-proxy-helm.did-auth.svc.cluster.local/auth/token-introspection;
+            proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
       }
   hosts:
     - host: did-auth-proxy-dev.energyweb.org
