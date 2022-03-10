@@ -96,7 +96,7 @@ did-auth-proxy-helm:
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
-    REDIS_HOST: did-auth-proxy-helm-redis-master.did.svc.cluster.local
+    REDIS_HOST: did-auth-proxy-helm-redis-master.did-auth-proxy.svc.cluster.local
     REDIS_PORT: 6379
     REDIS_PASSWORD: redis
 
