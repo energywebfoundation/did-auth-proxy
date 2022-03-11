@@ -1,12 +1,15 @@
 import { LoginStrategy } from 'passport-did-auth';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { LoggerService } from '../logger/logger.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
-  private readonly logger = new Logger(AuthStrategy.name, { timestamp: true });
-
-  constructor() {
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly configService: ConfigService,
+  ) {
     super({
       jwtSecret: process.env.JWT_SECRET,
       jwtSignOptions: { algorithm: 'HS256' },
@@ -15,6 +18,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       acceptedRoles: parseAcceptedRoles(process.env.ACCEPTED_ROLES),
       privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
     });
+
+    this.logger.setContext(AuthStrategy.name);
 
     this.logger.log(
       `accepted roles: ${parseAcceptedRoles(

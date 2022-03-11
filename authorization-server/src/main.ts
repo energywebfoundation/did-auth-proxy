@@ -1,22 +1,26 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
+import { LoggerService, LogLevel } from './logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
 
-const logger = new Logger('bootstrap', { timestamp: true });
-logger.log('starting');
-logger.log(`NODE_ENV=${process.env.NODE_ENV}`);
-
-const webserverLogger = new Logger('webserver', { timestamp: true });
+console.log(`${new Date().toISOString()} process starting`);
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.enableShutdownHooks();
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
 
   const config = app.get<ConfigService>(ConfigService);
+
+  app.useLogger(
+    new LoggerService(null, {
+      logLevels: config.get<string>('LOG_LEVELS').split(',') as LogLevel[],
+    }),
+  );
+
+  app.enableShutdownHooks();
 
   SwaggerModule.setup(
     'swagger',
@@ -44,7 +48,9 @@ async function bootstrap() {
   const PORT = config.get('PORT');
   const BIND = config.get('BIND');
 
-  logger.log(`starting http server bound to ${BIND}:${PORT}`);
+  const webserverLogger = new LoggerService('webserver', {
+    logLevels: config.get<string>('LOG_LEVELS').split(',') as LogLevel[],
+  });
 
   await app.listen(PORT, BIND, () => {
     webserverLogger.log(
@@ -54,20 +60,20 @@ async function bootstrap() {
 
   const server = app.getHttpServer();
 
-  server.on('connection', connectionHandler);
+  server.on('connection', (socket: Socket) =>
+    connectionHandler(socket, webserverLogger),
+  );
 }
 
 bootstrap();
 
-function connectionHandler(socket: Socket) {
-  webserverLogger.debug(
-    `connection from ${socket.remoteAddress}:${socket.remotePort}`,
-  );
+function connectionHandler(socket: Socket, logger: LoggerService) {
+  logger.debug(`connection from ${socket.remoteAddress}:${socket.remotePort}`);
 
   const start = Date.now();
 
   socket.on('close', (error) => {
-    webserverLogger.debug(
+    logger.debug(
       `connection from ${socket.remoteAddress}:${socket.remotePort} closed${
         error ? ' with error' : ''
       }, ` +

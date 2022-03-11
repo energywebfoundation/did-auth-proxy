@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
 import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
 import { v4 } from 'uuid';
+import { LoggerService } from '../logger/logger.service';
 
 describe('RefreshTokenRepository', () => {
   let repository: RefreshTokenRepository;
@@ -13,7 +14,9 @@ describe('RefreshTokenRepository', () => {
 
   const mockConfigService = {
     get(key: string) {
-      return {}[key];
+      return {
+        LOG_LEVELS: 'error,warn',
+      }[key];
     },
   };
   const mockRedisService = {
@@ -43,6 +46,7 @@ describe('RefreshTokenRepository', () => {
       ],
       providers: [
         RefreshTokenRepository,
+        LoggerService,
         { provide: ConfigService, useValue: mockConfigService },
         { provide: RedisService, useValue: mockRedisService },
       ],

@@ -1,28 +1,29 @@
 import {
   Injectable,
-  Logger,
   OnApplicationShutdown,
   OnModuleInit,
 } from '@nestjs/common';
 import * as Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class RedisService
   extends Redis
   implements OnModuleInit, OnApplicationShutdown
 {
-  private readonly logger = new Logger(RedisService.name, {
-    timestamp: true,
-  });
-
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly logger: LoggerService,
+  ) {
     super({
       host: configService.get('REDIS_HOST'),
       port: configService.get('REDIS_PORT'),
       password: configService.get('REDIS_PASSWORD'),
       lazyConnect: true,
     });
+
+    this.logger.setContext(RedisService.name);
 
     this.on('connect', () => this.logger.debug(`event: connect`));
     this.on('ready', () => this.logger.log(`event: ready`));

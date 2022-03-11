@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { AuthModule } from './auth/auth.module';
+import { LoggerModule } from './logger/logger.module';
 
 const validationOptions = {
   allowUnknown: true,
@@ -14,6 +15,12 @@ export const validationSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .default('development'),
+
+  LOG_LEVELS: Joi.string()
+    .regex(
+      /^((log|warn|error|debug|verbose)?(,(log|warn|error|debug|verbose))*)$/,
+    )
+    .default('log,warn,error,debug,verbose'),
 
   PORT: Joi.number().default(3000),
   BIND: Joi.string().ip().default('127.0.0.1'),
@@ -41,6 +48,7 @@ export const validationSchema = Joi.object({
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationOptions,

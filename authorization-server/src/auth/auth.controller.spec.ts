@@ -7,13 +7,17 @@ import { createRequest } from 'node-mocks-http';
 import { sign as sign } from 'jsonwebtoken';
 import { ForbiddenException } from '@nestjs/common';
 import { LoginResponseDataDto } from './dto/login-response-data.dto';
+import { LoggerService } from '../logger/logger.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
   const mockConfigService = {
-    get(key: string) {
-      return { JWT_ACCESS_TTL: 10 }[key];
+    get: <T>(key: string): T => {
+      return {
+        LOG_LEVELS: 'error,warn',
+        JWT_ACCESS_TTL: 10,
+      }[key] as unknown as T;
     },
   };
 
@@ -28,6 +32,7 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        LoggerService,
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
@@ -56,7 +61,7 @@ describe('AuthController', () => {
         const identityToken = 'foobar';
 
         accessToken = sign({}, 'asecret', {
-          expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
+          expiresIn: mockConfigService.get<number>('JWT_ACCESS_TTL'),
         });
         refreshToken = `refresh-token-string-${Math.random()}`;
 
@@ -108,11 +113,11 @@ describe('AuthController', () => {
 
       it('should respond with correct expires_in field value', async function () {
         expect(response.expires_in).toBeGreaterThanOrEqual(
-          mockConfigService.get('JWT_ACCESS_TTL') - 1,
+          mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
         );
 
         expect(response.expires_in).toBeLessThanOrEqual(
-          mockConfigService.get('JWT_ACCESS_TTL'),
+          mockConfigService.get<number>('JWT_ACCESS_TTL'),
         );
       });
 
@@ -151,7 +156,7 @@ describe('AuthController', () => {
         refreshToken = `validRefreshToken-${Math.random()}`;
 
         newAccessToken = sign({}, 'aSecret', {
-          expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
+          expiresIn: mockConfigService.get<number>('JWT_ACCESS_TTL'),
         });
 
         newRefreshToken = `regenerated-refresh-token-${Math.random()}`;
@@ -188,11 +193,11 @@ describe('AuthController', () => {
 
       it('should respond with correct expires_in field value', async function () {
         expect(response.expires_in).toBeGreaterThanOrEqual(
-          mockConfigService.get('JWT_ACCESS_TTL') - 1,
+          mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
         );
 
         expect(response.expires_in).toBeLessThanOrEqual(
-          mockConfigService.get('JWT_ACCESS_TTL'),
+          mockConfigService.get<number>('JWT_ACCESS_TTL'),
         );
       });
 

@@ -30,6 +30,7 @@ services:
     build:
       context: authorization-server
     environment:
+      - LOG_LEVELS=log,warn,error,debug,verbose
       - PORT=80
       - RPC_URL=https://volta-rpc.energyweb.org/
       - CACHE_SERVER_URL=https://identitycache-dev.energyweb.org/v1

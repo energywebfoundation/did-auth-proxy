@@ -7,10 +7,12 @@ import { RedisModule } from '../redis/redis.module';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { LoggerModule } from '../logger/logger.module';
 
 @Module({
   imports: [
     RedisModule,
+    LoggerModule,
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET'),

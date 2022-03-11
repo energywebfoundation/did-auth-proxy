@@ -3,7 +3,6 @@ import {
   Controller,
   ForbiddenException,
   Get,
-  Logger,
   Post,
   Req,
   UseGuards,
@@ -21,6 +20,7 @@ import { LoginDataDTO } from './dto/login-data.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
 import { IDidAccessTokenPayload } from './auth.interface';
+import { LoggerService } from '../logger/logger.service';
 
 @Controller('auth')
 @UsePipes(
@@ -29,14 +29,13 @@ import { IDidAccessTokenPayload } from './auth.interface';
   }),
 )
 export class AuthController {
-  private readonly logger = new Logger(AuthController.name, {
-    timestamp: true,
-  });
-
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly logger: LoggerService,
+  ) {
+    this.logger.setContext(AuthController.name);
+  }
 
   @Post('login')
   @UseGuards(LoginGuard)

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { v4 } from 'uuid';
@@ -8,18 +8,18 @@ import {
   IGenerateRefreshTokenPayload,
   IRefreshTokenPayload,
 } from './auth.interface';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name, {
-    timestamp: true,
-  });
-
   constructor(
     private configService: ConfigService,
     private jwtService: JwtService,
     private refreshTokenRepository: RefreshTokenRepository,
-  ) {}
+    private logger: LoggerService,
+  ) {
+    this.logger.setContext(AuthService.name);
+  }
 
   public async generateAccessToken(
     payload: IGenerateAccessTokenPayload,
