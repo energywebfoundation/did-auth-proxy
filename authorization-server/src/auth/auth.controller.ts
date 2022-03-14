@@ -5,12 +5,13 @@ import {
   Get,
   Post,
   Req,
+  Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { LoginGuard } from './login.guard';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { JwtAuthGuard } from './jwt.guard';
@@ -24,7 +25,7 @@ import {
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
-import { IDidAccessTokenPayload } from './auth.interface';
+import { IAccessTokenPayload, IDidAccessTokenPayload } from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
 
 @Controller('auth')
@@ -57,6 +58,7 @@ export class AuthController {
   async login(
     @Body() body: LoginDto,
     @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto> {
     this.logger.debug(`user has been logged in`);
     this.logger.debug(
@@ -85,6 +87,12 @@ export class AuthController {
     const refreshToken = await this.authService.generateRefreshToken({
       did: didAccessTokenPayload.did,
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+    });
+
+    res.cookie('Auth', accessToken, {
+      maxAge:
+        (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 - Date.now(),
+      httpOnly: true,
     });
 
     return new LoginResponseDto({ accessToken, refreshToken });

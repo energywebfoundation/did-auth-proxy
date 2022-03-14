@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
-import { createRequest } from 'node-mocks-http';
+import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { sign as sign } from 'jsonwebtoken';
 import { ForbiddenException } from '@nestjs/common';
 import { LoginResponseDto } from './dto/login-response.dto';
@@ -51,6 +51,7 @@ describe('AuthController', () => {
       let spyGenerateAccessToken: jest.SpyInstance;
       let accessToken: string, refreshToken: string;
       let response: LoginResponseDto;
+      let responseCookies: Record<string, ResponseCookie>;
 
       const didAccessTokenPayload = {
         did: '',
@@ -65,11 +66,13 @@ describe('AuthController', () => {
         });
         refreshToken = `refresh-token-string-${Math.random()}`;
 
-        const request = createRequest({
+        const expRequest = createRequest({
           method: 'POST',
           path: '/auth/login',
           body: { identityToken },
         });
+
+        const expResponse = createResponse();
 
         spyGenerateAccessToken = jest
           .spyOn(mockAuthService, 'generateAccessToken')
@@ -79,9 +82,15 @@ describe('AuthController', () => {
           .spyOn(mockAuthService, 'generateRefreshToken')
           .mockImplementation(() => refreshToken);
 
-        request.user = sign(didAccessTokenPayload, 'secretKeyValid');
+        expRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
 
-        response = await controller.login({ identityToken }, request);
+        response = await controller.login(
+          { identityToken },
+          expRequest,
+          expResponse,
+        );
+
+        responseCookies = expResponse.cookies;
       });
 
       afterEach(() => {
@@ -123,6 +132,22 @@ describe('AuthController', () => {
 
       it('should respond with correct type field value', async function () {
         expect(response).toMatchObject({ type: 'Bearer' });
+      });
+
+      it('should set cookie', async function () {
+        expect(responseCookies['Auth']).toBeDefined();
+        expect(responseCookies['Auth'].value).toBe(accessToken);
+        expect(responseCookies['Auth'].options.httpOnly).toBe(true);
+
+        expect(
+          responseCookies['Auth'].options.maxAge / 1000,
+        ).toBeGreaterThanOrEqual(
+          mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
+        );
+
+        expect(
+          responseCookies['Auth'].options.maxAge / 1000,
+        ).toBeLessThanOrEqual(mockConfigService.get<number>('JWT_ACCESS_TTL'));
       });
     });
   });
