@@ -17,6 +17,7 @@ describe('AuthController', () => {
       return {
         LOG_LEVELS: 'error,warn',
         JWT_ACCESS_TTL: 10,
+        AUTH_COOKIE_NAME: 'Auth-tests',
       }[key] as unknown as T;
     },
   };
@@ -135,18 +136,19 @@ describe('AuthController', () => {
       });
 
       it('should set cookie', async function () {
-        expect(responseCookies['Auth']).toBeDefined();
-        expect(responseCookies['Auth'].value).toBe(accessToken);
-        expect(responseCookies['Auth'].options.httpOnly).toBe(true);
+        const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
+        expect(responseCookies[cookieName]).toBeDefined();
+        expect(responseCookies[cookieName].value).toBe(accessToken);
+        expect(responseCookies[cookieName].options.httpOnly).toBe(true);
 
         expect(
-          responseCookies['Auth'].options.maxAge / 1000,
+          responseCookies[cookieName].options.maxAge / 1000,
         ).toBeGreaterThanOrEqual(
           mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
         );
 
         expect(
-          responseCookies['Auth'].options.maxAge / 1000,
+          responseCookies[cookieName].options.maxAge / 1000,
         ).toBeLessThanOrEqual(mockConfigService.get<number>('JWT_ACCESS_TTL'));
       });
     });

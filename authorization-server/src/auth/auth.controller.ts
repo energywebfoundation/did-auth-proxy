@@ -89,11 +89,16 @@ export class AuthController {
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
     });
 
-    res.cookie('Auth', accessToken, {
-      maxAge:
-        (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 - Date.now(),
-      httpOnly: true,
-    });
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME'),
+      accessToken,
+      {
+        maxAge:
+          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
+          Date.now(),
+        httpOnly: true,
+      },
+    );
 
     return new LoginResponseDto({ accessToken, refreshToken });
   }

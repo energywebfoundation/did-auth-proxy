@@ -46,6 +46,8 @@ export const validationSchema = Joi.object({
   JWT_SECRET: Joi.string().required(),
   JWT_ACCESS_TTL: Joi.number().default(3600),
   JWT_REFRESH_TTL: Joi.number().default(86400),
+
+  AUTH_COOKIE_NAME: Joi.string().default('Auth'),
 });
 
 @Module({
