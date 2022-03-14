@@ -15,7 +15,12 @@ import { LoginGuard } from './login.guard';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { JwtAuthGuard } from './jwt.guard';
 import { LoginResponseDataDto } from './dto/login-response-data.dto';
-import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { LoginDataDTO } from './dto/login-data.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
@@ -35,6 +40,14 @@ export class AuthController {
     private readonly logger: LoggerService,
   ) {
     this.logger.setContext(AuthController.name);
+  }
+
+  @Get()
+  @ApiOperation({
+    description: 'Returns 200 response code with "OK"',
+  })
+  public async getStatus(): Promise<string> {
+    return 'OK';
   }
 
   @Post('login')
