@@ -4,6 +4,7 @@ import { LoggerService, LogLevel } from './logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
+import * as cookieParser from 'cookie-parser';
 
 console.log(`${new Date().toISOString()} process starting`);
 
@@ -13,6 +14,8 @@ async function bootstrap() {
   });
 
   const config = app.get<ConfigService>(ConfigService);
+
+  app.use(cookieParser());
 
   app.useLogger(
     new LoggerService(null, {
