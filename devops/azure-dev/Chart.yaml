@@ -26,5 +26,5 @@ appVersion: "0.0.9"
 
 dependencies:
   - name: did-auth-proxy-helm
-    version: 0.0.10
-    repository: "oci://984870885661.dkr.ecr.us-west-2.amazonaws.com"
+    version: 0.0.11
+    repository: https://aemoprivatecontainerregistry.azurecr.io/helm/v1/repo
