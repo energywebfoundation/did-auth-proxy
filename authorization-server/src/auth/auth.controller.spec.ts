@@ -135,21 +135,70 @@ describe('AuthController', () => {
         expect(response).toMatchObject({ type: 'Bearer' });
       });
 
-      it('should set cookie', async function () {
-        const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
-        expect(responseCookies[cookieName]).toBeDefined();
-        expect(responseCookies[cookieName].value).toBe(accessToken);
-        expect(responseCookies[cookieName].options.httpOnly).toBe(true);
+      describe('when AUTH_COOKIE_ENABLED=true', function () {
+        let mockConfigGet: jest.SpyInstance;
 
-        expect(
-          responseCookies[cookieName].options.maxAge / 1000,
-        ).toBeGreaterThanOrEqual(
-          mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
-        );
+        beforeAll(async function () {
+          mockConfigGet = jest
+            .spyOn(mockConfigService, 'get')
+            .mockImplementation(<T>(key: string): T => {
+              return {
+                LOG_LEVELS: 'error,warn',
+                JWT_ACCESS_TTL: 10,
+                AUTH_COOKIE_NAME: 'Auth-tests',
+                AUTH_COOKIE_ENABLED: true,
+              }[key] as unknown as T;
+            });
+        });
 
-        expect(
-          responseCookies[cookieName].options.maxAge / 1000,
-        ).toBeLessThanOrEqual(mockConfigService.get<number>('JWT_ACCESS_TTL'));
+        afterAll(async function () {
+          mockConfigGet.mockClear().mockRestore();
+        });
+
+        it('should set cookie', async function () {
+          const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
+          expect(responseCookies[cookieName]).toBeDefined();
+          expect(responseCookies[cookieName].value).toBe(accessToken);
+          expect(responseCookies[cookieName].options.httpOnly).toBe(true);
+
+          expect(
+            responseCookies[cookieName].options.maxAge / 1000,
+          ).toBeGreaterThanOrEqual(
+            mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
+          );
+
+          expect(
+            responseCookies[cookieName].options.maxAge / 1000,
+          ).toBeLessThanOrEqual(
+            mockConfigService.get<number>('JWT_ACCESS_TTL'),
+          );
+        });
+      });
+
+      describe('when AUTH_COOKIE_ENABLED=false', function () {
+        let mockConfigGet: jest.SpyInstance;
+
+        beforeAll(async function () {
+          mockConfigGet = jest
+            .spyOn(mockConfigService, 'get')
+            .mockImplementation(<T>(key: string): T => {
+              return {
+                LOG_LEVELS: 'error,warn',
+                JWT_ACCESS_TTL: 10,
+                AUTH_COOKIE_NAME: 'Auth-tests',
+                AUTH_COOKIE_ENABLED: false,
+              }[key] as unknown as T;
+            });
+        });
+
+        afterAll(async function () {
+          mockConfigGet.mockClear().mockRestore();
+        });
+
+        it('should skip setting the cookie', async function () {
+          const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
+          expect(responseCookies[cookieName]).toBeUndefined();
+        });
       });
     });
   });

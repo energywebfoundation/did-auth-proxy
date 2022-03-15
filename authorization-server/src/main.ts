@@ -15,7 +15,9 @@ async function bootstrap() {
 
   const config = app.get<ConfigService>(ConfigService);
 
-  app.use(cookieParser());
+  if (config.get<boolean>('AUTH_COOKIE_ENABLED')) {
+    app.use(cookieParser());
+  }
 
   app.useLogger(
     new LoggerService(null, {
