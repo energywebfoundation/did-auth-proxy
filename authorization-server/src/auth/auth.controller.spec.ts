@@ -17,6 +17,7 @@ describe('AuthController', () => {
       return {
         LOG_LEVELS: 'error,warn',
         JWT_ACCESS_TTL: 10,
+        JWT_REFRESH_TTL: 20,
         AUTH_COOKIE_NAME: 'Auth-tests',
       }[key] as unknown as T;
     },
@@ -26,6 +27,7 @@ describe('AuthController', () => {
     generateAccessToken: () => {},
     generateRefreshToken: () => {},
     validateRefreshToken: () => {},
+    invalidateRefreshToken: () => {},
     refreshTokens: () => {},
   };
 
@@ -199,6 +201,170 @@ describe('AuthController', () => {
           const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
           expect(responseCookies[cookieName]).toBeUndefined();
         });
+      });
+    });
+  });
+
+  describe('logout()', function () {
+    it('should be defined', async function () {
+      expect(controller.logout).toBeDefined();
+    });
+
+    describe('when called with a valid refresh token', function () {
+      let mockValidateRefreshToken: jest.SpyInstance;
+      let mockInvalidateRefreshToken: jest.SpyInstance;
+      let refreshToken: string;
+      let responseCookies: Record<string, ResponseCookie>;
+
+      beforeEach(async function () {
+        const expResponse = createResponse();
+        mockValidateRefreshToken = jest
+          .spyOn(mockAuthService, 'validateRefreshToken')
+          .mockImplementation(() => true);
+        mockInvalidateRefreshToken = jest.spyOn(
+          mockAuthService,
+          'invalidateRefreshToken',
+        );
+
+        refreshToken = sign(
+          {
+            did: 'some-did',
+            id: 'some-id',
+          },
+          'asecret',
+          {
+            expiresIn: mockConfigService.get<number>('JWT_REFRESH_TTL'),
+          },
+        );
+
+        await controller.logout(
+          {
+            refreshToken,
+          },
+          expResponse,
+        );
+
+        responseCookies = expResponse.cookies;
+      });
+
+      afterEach(async function () {
+        mockValidateRefreshToken.mockClear().mockRestore();
+        mockInvalidateRefreshToken.mockClear().mockRestore();
+      });
+
+      it('should check validity of the refresh token', async function () {
+        expect(mockValidateRefreshToken).toHaveBeenCalledWith(refreshToken);
+      });
+
+      it('should invalidate refresh token', async function () {
+        expect(mockInvalidateRefreshToken).toHaveBeenCalledWith(
+          'some-did',
+          'some-id',
+        );
+      });
+
+      describe('when AUTH_COOKIE_ENABLED=true', function () {
+        let mockConfigGet: jest.SpyInstance;
+
+        beforeAll(async function () {
+          mockConfigGet = jest
+            .spyOn(mockConfigService, 'get')
+            .mockImplementation(<T>(key: string): T => {
+              return {
+                LOG_LEVELS: 'error,warn',
+                JWT_ACCESS_TTL: 10,
+                JWT_REFRESH_TTL: 20,
+                AUTH_COOKIE_NAME: 'Auth-tests',
+                AUTH_COOKIE_ENABLED: true,
+              }[key] as unknown as T;
+            });
+        });
+
+        afterAll(async function () {
+          mockConfigGet.mockClear().mockRestore();
+        });
+
+        it('should unset auth cookie', async function () {
+          const cookie =
+            responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
+
+          expect(cookie).toBeDefined();
+          expect(cookie.value).toBe('');
+          expect(cookie.options.expires).toEqual(new Date(0));
+        });
+      });
+
+      describe('when AUTH_COOKIE_ENABLED=false', function () {
+        let mockConfigGet: jest.SpyInstance;
+
+        beforeAll(async function () {
+          mockConfigGet = jest
+            .spyOn(mockConfigService, 'get')
+            .mockImplementation(<T>(key: string): T => {
+              return {
+                LOG_LEVELS: 'error,warn',
+                JWT_ACCESS_TTL: 10,
+                JWT_REFRESH_TTL: 21,
+                AUTH_COOKIE_NAME: 'Auth-tests',
+                AUTH_COOKIE_ENABLED: false,
+              }[key] as unknown as T;
+            });
+        });
+
+        afterAll(async function () {
+          mockConfigGet.mockClear().mockRestore();
+        });
+
+        it('should send no auth cookie', async function () {
+          const cookie =
+            responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
+
+          expect(cookie).toBeUndefined();
+        });
+      });
+    });
+
+    describe('when called with invalid refresh token', function () {
+      let mockValidateRefreshToken: jest.SpyInstance;
+      let refreshToken: string;
+      let responseCookies: Record<string, ResponseCookie>;
+      let exceptionThrown: Error;
+
+      beforeEach(async function () {
+        const expResponse = createResponse();
+        mockValidateRefreshToken = jest
+          .spyOn(mockAuthService, 'validateRefreshToken')
+          .mockImplementation(() => false);
+
+        refreshToken = 'invalid';
+
+        try {
+          await controller.logout(
+            {
+              refreshToken,
+            },
+            expResponse,
+          );
+        } catch (err) {
+          exceptionThrown = err;
+        }
+
+        responseCookies = expResponse.cookies;
+      });
+
+      afterEach(async function () {
+        mockValidateRefreshToken.mockClear().mockRestore();
+      });
+
+      it('should thrown an exception', async function () {
+        expect(exceptionThrown).toBeInstanceOf(Error);
+      });
+
+      it('should send no auth cookie', async function () {
+        const cookie =
+          responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
+
+        expect(cookie).toBeUndefined();
       });
     });
   });

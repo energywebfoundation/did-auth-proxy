@@ -19,14 +19,20 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
-import { IAccessTokenPayload, IDidAccessTokenPayload } from './auth.interface';
+import {
+  IAccessTokenPayload,
+  IDidAccessTokenPayload,
+  IRefreshTokenPayload,
+} from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
+import { LogoutDto } from './dto/logout.dto';
 
 @Controller('auth')
 @UsePipes(
@@ -103,6 +109,35 @@ export class AuthController {
     }
 
     return new LoginResponseDto({ accessToken, refreshToken });
+  }
+
+  @Post('logout')
+  @ApiBody({ type: LogoutDto })
+  @ApiCreatedResponse()
+  async logout(
+    @Body() body: LogoutDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    if (!(await this.authService.validateRefreshToken(body.refreshToken))) {
+      throw new ForbiddenException('invalid refresh token');
+    }
+
+    const tokenDecoded = decodeJWT(body.refreshToken) as IRefreshTokenPayload;
+
+    this.logger.debug(
+      `logging out ${tokenDecoded.did}, refresh token id=${tokenDecoded.id}`,
+    );
+
+    await this.authService.invalidateRefreshToken(
+      tokenDecoded.did,
+      tokenDecoded.id,
+    );
+
+    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      res.cookie(this.configService.get<string>('AUTH_COOKIE_NAME'), '', {
+        expires: new Date(0),
+      });
+    }
   }
 
   @Get('token-introspection')
