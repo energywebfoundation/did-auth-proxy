@@ -9,6 +9,7 @@ import {
   IRefreshTokenPayload,
 } from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
+import { isNil } from '@nestjs/common/utils/shared.utils';
 
 @Injectable()
 export class AuthService {
@@ -50,6 +51,8 @@ export class AuthService {
   public async validateRefreshToken(token: string): Promise<boolean> {
     let tokenDecoded: IRefreshTokenPayload;
 
+    this.logger.debug(`validating refresh token`);
+
     try {
       tokenDecoded = this.jwtService.verify(token);
     } catch (err) {
@@ -59,7 +62,17 @@ export class AuthService {
 
     const { id, did } = tokenDecoded;
 
-    return !!(await this.refreshTokenRepository.getToken(did, id));
+    const tokenWhitelisted = await this.refreshTokenRepository.getToken(
+      did,
+      id,
+    );
+
+    if (isNil(tokenWhitelisted)) {
+      this.logger.warn(`refresh token is not whitelisted`);
+      return false;
+    } else {
+      return true;
+    }
   }
 
   public async invalidateRefreshToken(did: string, id: string) {

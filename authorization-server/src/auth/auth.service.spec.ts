@@ -261,7 +261,9 @@ describe('AuthService', () => {
     describe('when called with invalidated refresh token', function () {
       let refreshToken: string, refreshTokenDecoded: IRefreshTokenPayload;
       let result: boolean;
-      let spyVerify: jest.SpyInstance, spyGetToken: jest.SpyInstance;
+      let spyVerify: jest.SpyInstance;
+      let spyGetToken: jest.SpyInstance;
+      let spyLogWarn: jest.SpyInstance;
 
       beforeEach(async function () {
         refreshToken = jwtService.sign({ id: '111', ...payload });
@@ -273,6 +275,9 @@ describe('AuthService', () => {
         spyGetToken = jest
           .spyOn(mockRefreshTokenRepository, 'getToken')
           .mockImplementation(() => null);
+        spyLogWarn = jest
+          .spyOn(loggerService, 'warn')
+          .mockImplementation(() => {});
 
         result = await service.validateRefreshToken(refreshToken);
       });
@@ -295,6 +300,10 @@ describe('AuthService', () => {
           refreshTokenDecoded.did,
           refreshTokenDecoded.id,
         );
+      });
+
+      it('should write warn log message', async function () {
+        expect(spyLogWarn).toHaveBeenCalled();
       });
     });
   });
