@@ -43,6 +43,12 @@ export class RefreshTokenRepository {
     this.logger.debug(`deleting key: ${key}`);
     await this.redis.del(key);
   }
+
+  async deleteAllTokens(did: string): Promise<void> {
+    const key = redisKey(KEY_PREFIX, did, '*');
+    this.logger.debug(`deleting key: ${key}`);
+    await this.redis.del(key);
+  }
 }
 
 function redisKey(prefix: string, did: string, id: string) {

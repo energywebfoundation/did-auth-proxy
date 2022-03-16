@@ -79,6 +79,10 @@ export class AuthService {
     await this.refreshTokenRepository.deleteToken(did, id);
   }
 
+  public async invalidateAllRefreshTokens(did: string) {
+    await this.refreshTokenRepository.deleteAllTokens(did);
+  }
+
   public async refreshTokens(
     token: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {

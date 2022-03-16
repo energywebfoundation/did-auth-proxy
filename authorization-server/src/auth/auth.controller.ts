@@ -128,10 +128,14 @@ export class AuthController {
       `logging out ${tokenDecoded.did}, refresh token id=${tokenDecoded.id}`,
     );
 
-    await this.authService.invalidateRefreshToken(
-      tokenDecoded.did,
-      tokenDecoded.id,
-    );
+    if (body.allDevices) {
+      await this.authService.invalidateAllRefreshTokens(tokenDecoded.did);
+    } else {
+      await this.authService.invalidateRefreshToken(
+        tokenDecoded.did,
+        tokenDecoded.id,
+      );
+    }
 
     if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
       res.cookie(this.configService.get<string>('AUTH_COOKIE_NAME'), '', {

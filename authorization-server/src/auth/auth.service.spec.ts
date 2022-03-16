@@ -28,6 +28,7 @@ describe('AuthService', () => {
     saveToken() {},
     getToken() {},
     deleteToken() {},
+    deleteAllTokens() {},
   };
 
   const payload = {
@@ -324,6 +325,29 @@ describe('AuthService', () => {
 
       it('should remove token entry from the repository', async function () {
         expect(spyDeleteToken).toHaveBeenCalledWith('did', 'id');
+      });
+    });
+  });
+
+  describe('invalidateAllRefreshTokens()', function () {
+    describe('when called', function () {
+      let spyDeleteAllTokens: jest.SpyInstance;
+
+      beforeEach(async function () {
+        spyDeleteAllTokens = jest.spyOn(
+          mockRefreshTokenRepository,
+          'deleteAllTokens',
+        );
+
+        await service.invalidateAllRefreshTokens('did');
+      });
+
+      afterEach(async function () {
+        spyDeleteAllTokens.mockClear().mockRestore();
+      });
+
+      it('should remove token entry from the repository', async function () {
+        expect(spyDeleteAllTokens).toHaveBeenCalledWith('did');
       });
     });
   });
