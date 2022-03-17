@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { createRequest } from 'node-mocks-http';
 import { sign as sign } from 'jsonwebtoken';
 import { ForbiddenException } from '@nestjs/common';
-import { LoginResponseDataDto } from './dto/login-response-data.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
 import { LoggerService } from '../logger/logger.service';
 
 describe('AuthController', () => {
@@ -50,7 +50,7 @@ describe('AuthController', () => {
       let spyGenerateRefreshToken: jest.SpyInstance;
       let spyGenerateAccessToken: jest.SpyInstance;
       let accessToken: string, refreshToken: string;
-      let response: LoginResponseDataDto;
+      let response: LoginResponseDto;
 
       const didAccessTokenPayload = {
         did: '',
@@ -149,7 +149,7 @@ describe('AuthController', () => {
   describe('refresh()', function () {
     describe('when called with valid refresh token', function () {
       let spyRefresh: jest.SpyInstance, spyValidate: jest.SpyInstance;
-      let response: LoginResponseDataDto;
+      let response: LoginResponseDto;
       let refreshToken: string, newRefreshToken: string, newAccessToken: string;
 
       beforeEach(async () => {
