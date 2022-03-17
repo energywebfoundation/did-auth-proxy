@@ -139,9 +139,11 @@ describe('AuthController', () => {
       });
 
       describe('when AUTH_COOKIE_ENABLED=true', function () {
+        let cookieName: string;
         let mockConfigGet: jest.SpyInstance;
 
         beforeAll(async function () {
+          cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
           mockConfigGet = jest
             .spyOn(mockConfigService, 'get')
             .mockImplementation(<T>(key: string): T => {
@@ -159,11 +161,18 @@ describe('AuthController', () => {
         });
 
         it('should set cookie', async function () {
-          const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
           expect(responseCookies[cookieName]).toBeDefined();
-          expect(responseCookies[cookieName].value).toBe(accessToken);
-          expect(responseCookies[cookieName].options.httpOnly).toBe(true);
+        });
 
+        it('should set cookie with a correct value', async function () {
+          expect(responseCookies[cookieName].value).toBe(accessToken);
+        });
+
+        it('should set http-only cookie', async function () {
+          expect(responseCookies[cookieName].options.httpOnly).toBe(true);
+        });
+
+        it('should set cookie with a correct expiration time', async function () {
           expect(
             responseCookies[cookieName].options.maxAge / 1000,
           ).toBeGreaterThanOrEqual(
