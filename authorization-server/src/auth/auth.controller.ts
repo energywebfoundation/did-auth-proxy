@@ -21,7 +21,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { LoginDataDTO } from './dto/login-data.dto';
+import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { RefreshDto } from './dto/refresh.dto';
 import { IDidAccessTokenPayload } from './auth.interface';
@@ -52,10 +52,10 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LoginGuard)
-  @ApiBody({ type: LoginDataDTO })
+  @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async login(
-    @Body() body: LoginDataDTO,
+    @Body() body: LoginDto,
     @Req() req: Request,
   ): Promise<LoginResponseDto> {
     this.logger.debug(`user has been logged in`);
