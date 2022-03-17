@@ -104,6 +104,7 @@ export class AuthController {
             (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
             Date.now(),
           httpOnly: true,
+          secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
         },
       );
     }

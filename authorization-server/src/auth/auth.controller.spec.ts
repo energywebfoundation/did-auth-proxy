@@ -152,6 +152,7 @@ describe('AuthController', () => {
               return {
                 ...envVarsBase,
                 AUTH_COOKIE_ENABLED: true,
+                AUTH_COOKIE_SECURE: true,
               }[key] as unknown as T;
             });
         });
@@ -184,6 +185,50 @@ describe('AuthController', () => {
           ).toBeLessThanOrEqual(
             mockConfigService.get<number>('JWT_ACCESS_TTL'),
           );
+        });
+
+        describe('when AUTH_COOKIE_SECURE=true', function () {
+          beforeAll(async function () {
+            mockConfigGet = jest
+              .spyOn(mockConfigService, 'get')
+              .mockImplementation(<T>(key: string): T => {
+                return {
+                  ...envVarsBase,
+                  AUTH_COOKIE_ENABLED: true,
+                  AUTH_COOKIE_SECURE: true,
+                }[key] as unknown as T;
+              });
+          });
+
+          afterAll(async function () {
+            mockConfigGet.mockClear().mockRestore();
+          });
+
+          it('should set secure cookie', async function () {
+            expect(responseCookies[cookieName].options.secure).toBe(true);
+          });
+        });
+
+        describe('when AUTH_COOKIE_SECURE=false', function () {
+          beforeAll(async function () {
+            mockConfigGet = jest
+              .spyOn(mockConfigService, 'get')
+              .mockImplementation(<T>(key: string): T => {
+                return {
+                  ...envVarsBase,
+                  AUTH_COOKIE_ENABLED: true,
+                  AUTH_COOKIE_SECURE: false,
+                }[key] as unknown as T;
+              });
+          });
+
+          afterAll(async function () {
+            mockConfigGet.mockClear().mockRestore();
+          });
+
+          it('should set secure cookie', async function () {
+            expect(responseCookies[cookieName].options.secure).toBe(false);
+          });
         });
       });
 

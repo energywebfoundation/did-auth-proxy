@@ -46,6 +46,7 @@ services:
       - JWT_REFRESH_TTL=86400
       - AUTH_COOKIE_NAME=Auth
       - AUTH_COOKIE_ENABLED=false
+      - AUTH_COOKIE_SECURE=true
     networks:
       backend:
 
