@@ -105,6 +105,7 @@ export class AuthController {
             Date.now(),
           httpOnly: true,
           secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
+          sameSite: 'strict', // setting this, because cookie is set to make it possible serve static content and html to a web browser
         },
       );
     }

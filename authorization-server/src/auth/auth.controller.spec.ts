@@ -173,6 +173,10 @@ describe('AuthController', () => {
           expect(responseCookies[cookieName].options.httpOnly).toBe(true);
         });
 
+        it('should set cookie with "strict" SameSite policy', async function () {
+          expect(responseCookies[cookieName].options.sameSite).toBe('strict');
+        });
+
         it('should set cookie with a correct expiration time', async function () {
           expect(
             responseCookies[cookieName].options.maxAge / 1000,
