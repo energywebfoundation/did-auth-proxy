@@ -9,17 +9,19 @@ import { ForbiddenException } from '@nestjs/common';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { LoggerService } from '../logger/logger.service';
 
+const envVarsBase: Record<string, unknown> = {
+  LOG_LEVELS: 'error,warn',
+  JWT_ACCESS_TTL: 10,
+  JWT_REFRESH_TTL: 20,
+  AUTH_COOKIE_NAME: 'Auth-tests',
+};
+
 describe('AuthController', () => {
   let controller: AuthController;
 
   const mockConfigService = {
     get: <T>(key: string): T => {
-      return {
-        LOG_LEVELS: 'error,warn',
-        JWT_ACCESS_TTL: 10,
-        JWT_REFRESH_TTL: 20,
-        AUTH_COOKIE_NAME: 'Auth-tests',
-      }[key] as unknown as T;
+      return envVarsBase[key] as unknown as T;
     },
   };
 
@@ -148,9 +150,7 @@ describe('AuthController', () => {
             .spyOn(mockConfigService, 'get')
             .mockImplementation(<T>(key: string): T => {
               return {
-                LOG_LEVELS: 'error,warn',
-                JWT_ACCESS_TTL: 10,
-                AUTH_COOKIE_NAME: 'Auth-tests',
+                ...envVarsBase,
                 AUTH_COOKIE_ENABLED: true,
               }[key] as unknown as T;
             });
@@ -195,9 +195,7 @@ describe('AuthController', () => {
             .spyOn(mockConfigService, 'get')
             .mockImplementation(<T>(key: string): T => {
               return {
-                LOG_LEVELS: 'error,warn',
-                JWT_ACCESS_TTL: 10,
-                AUTH_COOKIE_NAME: 'Auth-tests',
+                ...envVarsBase,
                 AUTH_COOKIE_ENABLED: false,
               }[key] as unknown as T;
             });
@@ -292,10 +290,7 @@ describe('AuthController', () => {
             .spyOn(mockConfigService, 'get')
             .mockImplementation(<T>(key: string): T => {
               return {
-                LOG_LEVELS: 'error,warn',
-                JWT_ACCESS_TTL: 10,
-                JWT_REFRESH_TTL: 20,
-                AUTH_COOKIE_NAME: 'Auth-tests',
+                ...envVarsBase,
                 AUTH_COOKIE_ENABLED: true,
               }[key] as unknown as T;
             });
@@ -323,10 +318,7 @@ describe('AuthController', () => {
             .spyOn(mockConfigService, 'get')
             .mockImplementation(<T>(key: string): T => {
               return {
-                LOG_LEVELS: 'error,warn',
-                JWT_ACCESS_TTL: 10,
-                JWT_REFRESH_TTL: 21,
-                AUTH_COOKIE_NAME: 'Auth-tests',
+                ...envVarsBase,
                 AUTH_COOKIE_ENABLED: false,
               }[key] as unknown as T;
             });
