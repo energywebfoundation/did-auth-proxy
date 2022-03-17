@@ -14,7 +14,7 @@ import { Request } from 'express';
 import { LoginGuard } from './login.guard';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { JwtAuthGuard } from './jwt.guard';
-import { LoginResponseDataDto } from './dto/login-response-data.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -53,11 +53,11 @@ export class AuthController {
   @Post('login')
   @UseGuards(LoginGuard)
   @ApiBody({ type: LoginDataDTO })
-  @ApiOkResponse({ type: LoginResponseDataDto })
+  @ApiOkResponse({ type: LoginResponseDto })
   async login(
     @Body() body: LoginDataDTO,
     @Req() req: Request,
-  ): Promise<LoginResponseDataDto> {
+  ): Promise<LoginResponseDto> {
     this.logger.debug(`user has been logged in`);
     this.logger.debug(
       `identity token received: ${maskString(body.identityToken, 20, 20)}`,
@@ -87,7 +87,7 @@ export class AuthController {
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
     });
 
-    return new LoginResponseDataDto({ accessToken, refreshToken });
+    return new LoginResponseDto({ accessToken, refreshToken });
   }
 
   @Get('token-introspection')
@@ -101,8 +101,8 @@ export class AuthController {
 
   @Post('refresh-token')
   @ApiBody({ type: RefreshDto })
-  @ApiOkResponse({ type: LoginResponseDataDto })
-  async refresh(@Body() body: RefreshDto): Promise<LoginResponseDataDto> {
+  @ApiOkResponse({ type: LoginResponseDto })
+  async refresh(@Body() body: RefreshDto): Promise<LoginResponseDto> {
     const tokenIsValid = await this.authService.validateRefreshToken(
       body.refreshToken,
     );
@@ -114,7 +114,7 @@ export class AuthController {
       body.refreshToken,
     );
 
-    return new LoginResponseDataDto({ accessToken, refreshToken });
+    return new LoginResponseDto({ accessToken, refreshToken });
   }
 }
 
