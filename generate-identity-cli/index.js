@@ -21,7 +21,7 @@ const header = {
 };
 
 (async () => {
-    const did = `did:ethr:${await signer.getAddress()}`;
+    const did = `did:ethr:volta:${await signer.getAddress()}`;
 
     logger(`generating identityToken for ${did}`, verbose);
 
