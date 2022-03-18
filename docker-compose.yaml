@@ -41,7 +41,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redis
       - JWT_SECRET=asecretstring
-      - ACCEPTED_ROLES=role1.roles.app-test2.apps.artur.iam.ewc
+      - ACCEPTED_ROLES=
       - JWT_ACCESS_TTL=3600
       - JWT_REFRESH_TTL=86400
     networks:
