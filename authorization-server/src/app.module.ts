@@ -50,6 +50,9 @@ export const validationSchema = Joi.object({
   AUTH_COOKIE_NAME: Joi.string().default('Auth'),
   AUTH_COOKIE_ENABLED: Joi.boolean().default(false),
   AUTH_COOKIE_SECURE: Joi.boolean().default(true),
+  AUTH_COOKIE_SAMESITE_POLICY: Joi.string()
+    .regex(/(none|lax|strict)/)
+    .default('strict'),
 });
 
 @Module({
