@@ -32,6 +32,8 @@ export const validationSchema = Joi.object({
   CACHE_SERVER_LOGIN_PRVKEY: Joi.string()
     .regex(/^(0x)?[0-9a-f]+$/)
     .required(),
+  DID_REGISTRY_ADDRESS: Joi.string().required(),
+  ENS_REGISTRY_ADDRESS: Joi.string().required(),
 
   ACCEPTED_ROLES: Joi.string().required(),
 
