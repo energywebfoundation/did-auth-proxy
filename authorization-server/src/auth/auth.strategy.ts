@@ -17,6 +17,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       cacheServerUrl: process.env.CACHE_SERVER_URL,
       acceptedRoles: parseAcceptedRoles(process.env.ACCEPTED_ROLES),
       privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
+      didContractAddress: process.env.DID_REGISTRY_ADDRESS,
+      ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
     });
 
     this.logger.setContext(AuthStrategy.name);
