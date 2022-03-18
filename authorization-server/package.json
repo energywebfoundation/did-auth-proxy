@@ -9,7 +9,7 @@
     "clean": "rimraf dist node_modules",
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "build:docker": "yarn build:docker:stage:build && yarn build:docker:stage:dependencies-prod && docker build . -t authorization-service",
+    "build:docker": "yarn build:docker:stage:build && yarn build:docker:stage:dependencies-prod && docker build . -t did-auth-proxy-auth-server",
     "build:docker:stage:build": "docker build . --target build -t authorization-service-stage-build",
     "build:docker:stage:dependencies-prod": "docker build . --target dependencies-prod -t authorization-service-stage-dependencies-prod",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
