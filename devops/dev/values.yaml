@@ -92,6 +92,8 @@ did-auth-proxy-helm:
     ACCEPTED_ROLES: didauthtest.roles.didauthkamil.iam.ewc
     JWT_ACCESS_TTL: 3600
     JWT_REFRESH_TTL: 86400
+    DID_REGISTRY_ADDRESS: 0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
+    ENS_REGISTRY_ADDRESS: 0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
 
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
@@ -134,5 +136,6 @@ did-auth-proxy-helm:
   # Redis
 
   redis:
+    architecture: standalone
     auth:
       password: redis

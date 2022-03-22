@@ -3,6 +3,8 @@ name: Build and deploy
 on:
   push:
     branches: [develop]
+    paths-ignore:
+      - 'devops/**'
   workflow_dispatch:
 
 jobs:
