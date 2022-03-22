@@ -76,6 +76,24 @@ export class AuthController {
       req.user as string,
     ) as unknown as IDidAccessTokenPayload;
 
+    const acceptedRoles =
+      this.configService.get('ACCEPTED_ROLES')?.split(',') || [];
+    const didAccessTokenRoles = didAccessTokenPayload.verifiedRoles.map(
+      (r) => r.namespace,
+    );
+
+    if (
+      acceptedRoles.length > 0 &&
+      !didAccessTokenRoles.some((r) => acceptedRoles.includes(r))
+    ) {
+      throw new Error(
+        `unexpected verifiedRoles (${didAccessTokenPayload}) ` +
+          `for identity token: ${JSON.stringify(
+            decodeJWT(body.identityToken),
+          )}`,
+      );
+    }
+
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
     );
