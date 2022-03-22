@@ -135,10 +135,8 @@ jobs:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
 
-      - name: ArgoCD logout
-        uses: clowdhaus/argo-cd-action/@v1.10.0
-        with:
-          command: logout ${{ steps.env_vars.outputs.argocd_url }}
+      - name: Reset ArgoCD
+        run: rm -rf /home/runner/argocd
 
       - name: ArgoCD(DDhub-dev) login
         uses: clowdhaus/argo-cd-action/@v1.8.0
