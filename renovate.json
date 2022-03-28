@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "github>energywebfoundation/shared-configs"
+  ],
+  "assignees": [
+    "artursudnik"
+  ],
+  "reviewers": [
+    "artursudnik"
+  ]
+}
