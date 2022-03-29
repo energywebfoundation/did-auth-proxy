@@ -115,6 +115,7 @@ describe('AppController (e2e)', () => {
         });
       });
     });
+    //TODO: implement tests for malformed identity token once passport-did-auth is fixed (https://github.com/energywebfoundation/passport-did-auth/issues/294)
   });
 
   describe('/auth/token-introspection (GET)', function () {
