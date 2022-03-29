@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { Response } from 'supertest';
 import { AppModule } from '../src/app.module';
 import { Server } from 'http';
-import { decode, JwtPayload } from 'jsonwebtoken';
+import { decode, JwtPayload, sign } from 'jsonwebtoken';
 import { IAccessTokenPayload } from '../src/auth/auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { LoginResponseDto } from '../src/auth/dto/login-response.dto';
@@ -178,6 +178,28 @@ describe('AppController (e2e)', () => {
         expect(response.statusCode).toBe(401);
       });
     });
+
+    describe('when called with token with invalid signature', function () {
+      let invalidAccessToken: string;
+
+      beforeAll(async function () {
+        const { accessToken } = await logIn(appHttpServer, identityToken);
+        const { id, did, roles } = decode(accessToken) as IAccessTokenPayload;
+        invalidAccessToken = sign({ id, did, roles }, 'invalid secret');
+      }, 15000);
+
+      beforeEach(async function () {
+        response = await request(appHttpServer)
+          .get('/auth/token-introspection')
+          .set({
+            Authorization: `Bearer ${invalidAccessToken}`,
+          });
+      });
+
+      it('should respond with 401 status code', async function () {
+        expect(response.statusCode).toBe(401);
+      });
+    });
   });
 
   describe('/auth/refresh-token (POST)', function () {
@@ -252,6 +274,42 @@ describe('AppController (e2e)', () => {
         expect(newRefreshTokenDecoded.roles.sort()).toEqual(
           accessTokenDecoded.roles.sort(),
         );
+      });
+    });
+
+    describe('when called without access token', function () {
+      let response: Response;
+      beforeAll(async function () {
+        response = await request(appHttpServer).post('/auth/refresh-token');
+      });
+
+      it('should respond with 400 status code', async function () {
+        expect(response.statusCode).toBe(400);
+      });
+    });
+
+    describe('when called with token with invalid signature', function () {
+      let response: Response;
+
+      beforeEach(async function () {
+        const { refreshToken: validRefreshToken } = await logIn(
+          appHttpServer,
+          identityToken,
+        );
+
+        const { id, did, roles } = decode(
+          validRefreshToken,
+        ) as IAccessTokenPayload;
+
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({
+            refreshToken: sign({ id, did, roles }, 'invalid secret'),
+          });
+      }, 15000);
+
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
       });
     });
 
