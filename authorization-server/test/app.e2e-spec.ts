@@ -9,6 +9,7 @@ import { IAccessTokenPayload } from '../src/auth/auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { LoginResponseDto } from '../src/auth/dto/login-response.dto';
 import { setTimeout } from 'timers/promises';
+import { parse as parseCookies } from 'set-cookie-parser';
 
 describe('AppController (e2e)', () => {
   const identityToken = process.env.IDENTITY_TOKEN;
@@ -68,6 +69,22 @@ describe('AppController (e2e)', () => {
             expires_in: expect.any(Number),
           }),
         );
+      });
+
+      it('should respond with Auth cookie set correctly', async function () {
+        expect(response.headers['set-cookie']).toBeDefined();
+
+        const cookies = parseCookies(response.headers['set-cookie'], {
+          map: true,
+        });
+
+        expect(cookies['Auth']).toBeDefined();
+
+        const authCookie = cookies['Auth'];
+
+        expect(authCookie.httpOnly).toBe(true);
+        expect(authCookie.secure).toBe(true);
+        expect(authCookie.sameSite).toBe('Strict');
       });
 
       describe('should respond with access token that', function () {
