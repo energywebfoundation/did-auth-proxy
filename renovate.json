@@ -7,8 +7,5 @@
   ],
   "reviewers": [
     "artursudnik"
-  ],
-  "ignorePaths": [
-    "**/.github/workflows/**"
   ]
 }
