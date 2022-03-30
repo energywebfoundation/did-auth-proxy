@@ -124,14 +124,14 @@ jobs:
           docker push $ACR_REGISTRY/$REPO_NAME:canary
 
       - name: ArgoCD login
-        uses: clowdhaus/argo-cd-action/@v1.10.0
+        uses: clowdhaus/argo-cd-action/@v1.11.0
         id: argocd_login
         with:
           command: login ${{ steps.env_vars.outputs.argocd_url }}
           options: --insecure --password ${{ steps.env_vars.outputs.argocd_password }} --username ${{ steps.env_vars.outputs.argocd_username }}
 
       - name: ArgoCD overvrite HELM values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.10.0
+        uses: clowdhaus/argo-cd-action/@v1.11.0
         id: argocd_image_helm_tag_overwrite
         with:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
@@ -141,13 +141,13 @@ jobs:
         run: rm -rf /home/runner/argocd
 
       - name: ArgoCD(DDhub-dev) login
-        uses: clowdhaus/argo-cd-action/@v1.8.0
+        uses: clowdhaus/argo-cd-action/@v1.11.0
         with:
           command: login ${{ secrets.ARGOCD_DDHUB_DEV_URL }}
           options: --insecure --password ${{ secrets.ARGOCD_DDHUB_DEV_PASS }} --username ${{ secrets.ARGOCD_DDHUB_DEV_USERNAME }}
 
       - name: ArgoCD(DDhub-dev) overvrite values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.8.0
+        uses: clowdhaus/argo-cd-action/@v1.11.0
         with:
           command: app set ddhub-messagebroker-dev
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
