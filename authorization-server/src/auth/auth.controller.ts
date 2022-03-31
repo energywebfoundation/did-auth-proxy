@@ -126,18 +126,11 @@ export class AuthController {
   ): Promise<void> {
     const tokenDecoded = decodeJWT(body.refreshToken) as IRefreshTokenPayload;
 
-    this.logger.debug(
-      `logging out ${tokenDecoded.did}, refresh token id=${tokenDecoded.id}`,
-    );
-
-    if (body.allDevices) {
-      await this.authService.invalidateAllRefreshTokens(tokenDecoded.did);
-    } else {
-      await this.authService.invalidateRefreshToken(
-        tokenDecoded.did,
-        tokenDecoded.id,
-      );
-    }
+    await this.authService.logout({
+      did: tokenDecoded.did,
+      refreshTokenId: tokenDecoded.id,
+      allDevices: body.allDevices,
+    });
 
     if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
       res.cookie(this.configService.get<string>('AUTH_COOKIE_NAME'), '', {

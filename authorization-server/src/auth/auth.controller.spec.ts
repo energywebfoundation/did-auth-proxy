@@ -31,6 +31,7 @@ describe('AuthController', () => {
     invalidateRefreshToken: () => {},
     invalidateAllRefreshTokens: () => {},
     refreshTokens: () => {},
+    logout: () => {},
   };
 
   beforeEach(async () => {
@@ -267,21 +268,14 @@ describe('AuthController', () => {
     });
 
     describe('when called', function () {
-      let mockInvalidateRefreshToken: jest.SpyInstance;
-      let mockInvalidateAllRefreshTokens: jest.SpyInstance;
+      let mockLogOut: jest.SpyInstance;
       let refreshToken: string;
       let responseCookies: Record<string, ResponseCookie>;
 
       beforeEach(async function () {
         const expResponse = createResponse();
-        mockInvalidateRefreshToken = jest.spyOn(
-          mockAuthService,
-          'invalidateRefreshToken',
-        );
-        mockInvalidateAllRefreshTokens = jest.spyOn(
-          mockAuthService,
-          'invalidateAllRefreshTokens',
-        );
+
+        mockLogOut = jest.spyOn(mockAuthService, 'logout');
 
         refreshToken = sign(
           {
@@ -306,19 +300,15 @@ describe('AuthController', () => {
       });
 
       afterEach(async function () {
-        mockInvalidateRefreshToken.mockClear().mockRestore();
-        mockInvalidateAllRefreshTokens.mockClear().mockRestore();
+        mockLogOut.mockClear().mockRestore();
       });
 
-      it('should invalidate refresh token', async function () {
-        expect(mockInvalidateRefreshToken).toHaveBeenCalledWith(
-          'some-did',
-          'some-id',
-        );
-      });
-
-      it('should leave other refresh tokens intact', async function () {
-        expect(mockInvalidateAllRefreshTokens).not.toHaveBeenCalled();
+      it('should log out the refresh token', async function () {
+        expect(mockLogOut).toHaveBeenCalledWith({
+          did: 'some-did',
+          refreshTokenId: 'some-id',
+          allDevices: false,
+        });
       });
 
       describe('when AUTH_COOKIE_ENABLED=true', function () {
@@ -373,50 +363,6 @@ describe('AuthController', () => {
 
           expect(cookie).toBeUndefined();
         });
-      });
-    });
-
-    describe('when called with a valid refresh token and allDevices=true', function () {
-      let mockValidateRefreshToken: jest.SpyInstance;
-      let mockInvalidateAllRefreshTokens: jest.SpyInstance;
-
-      beforeEach(async function () {
-        mockValidateRefreshToken = jest
-          .spyOn(mockAuthService, 'validateRefreshToken')
-          .mockImplementation(() => true);
-
-        mockInvalidateAllRefreshTokens = jest.spyOn(
-          mockAuthService,
-          'invalidateAllRefreshTokens',
-        );
-
-        const refreshToken = sign(
-          {
-            did: 'some-did',
-            id: 'some-id',
-          },
-          'asecret',
-          {
-            expiresIn: mockConfigService.get<number>('JWT_REFRESH_TTL'),
-          },
-        );
-
-        await controller.logout(
-          {
-            refreshToken,
-            allDevices: true,
-          },
-          createResponse(),
-        );
-      });
-
-      afterEach(async function () {
-        mockValidateRefreshToken.mockClear().mockRestore();
-        mockInvalidateAllRefreshTokens.mockClear().mockRestore();
-      });
-
-      it('should delete all tokens for the did', async function () {
-        expect(mockInvalidateAllRefreshTokens).toHaveBeenCalledWith('some-did');
       });
     });
 

@@ -105,4 +105,32 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  public async logout({
+    refreshTokenId,
+    did,
+    allDevices,
+  }: {
+    refreshTokenId?: string;
+    did: string;
+    allDevices: boolean;
+  }) {
+    if (!allDevices && isNil(refreshTokenId)) {
+      throw new Error(
+        `refreshTokenId needs to be provided when allDevices==false`,
+      );
+    }
+
+    this.logger.debug(
+      `logging out ${did}, ${
+        refreshTokenId ? `refreshTokenId=${refreshTokenId}` : ''
+      } ${allDevices ? ' on all devices' : ''}`,
+    );
+
+    if (allDevices) {
+      await this.invalidateAllRefreshTokens(did);
+    } else {
+      await this.invalidateRefreshToken(did, refreshTokenId);
+    }
+  }
 }
