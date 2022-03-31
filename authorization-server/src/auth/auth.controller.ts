@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Post,
   Req,
@@ -33,6 +32,7 @@ import {
 } from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
 import { LogoutDto } from './dto/logout.dto';
+import { ValidRefreshTokenGuard } from './guards/valid-refresh-token.guard';
 
 @Controller('auth')
 @UsePipes(
@@ -117,16 +117,13 @@ export class AuthController {
   }
 
   @Post('logout')
+  @UseGuards(ValidRefreshTokenGuard)
   @ApiBody({ type: LogoutDto })
   @ApiCreatedResponse()
   async logout(
     @Body() body: LogoutDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    if (!(await this.authService.validateRefreshToken(body.refreshToken))) {
-      throw new ForbiddenException('invalid refresh token');
-    }
-
     const tokenDecoded = decodeJWT(body.refreshToken) as IRefreshTokenPayload;
 
     this.logger.debug(
@@ -159,16 +156,10 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @UseGuards(ValidRefreshTokenGuard)
   @ApiBody({ type: RefreshDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async refresh(@Body() body: RefreshDto): Promise<LoginResponseDto> {
-    const tokenIsValid = await this.authService.validateRefreshToken(
-      body.refreshToken,
-    );
-    if (!tokenIsValid) {
-      throw new ForbiddenException('invalid refresh token');
-    }
-
     const { accessToken, refreshToken } = await this.authService.refreshTokens(
       body.refreshToken,
     );

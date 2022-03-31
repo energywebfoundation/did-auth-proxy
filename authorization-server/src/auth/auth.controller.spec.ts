@@ -4,8 +4,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
-import { sign as sign } from 'jsonwebtoken';
-import { ForbiddenException } from '@nestjs/common';
+import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { LoggerService } from '../logger/logger.service';
 
@@ -267,8 +266,7 @@ describe('AuthController', () => {
       expect(controller.logout).toBeDefined();
     });
 
-    describe('when called with a valid refresh token', function () {
-      let mockValidateRefreshToken: jest.SpyInstance;
+    describe('when called', function () {
       let mockInvalidateRefreshToken: jest.SpyInstance;
       let mockInvalidateAllRefreshTokens: jest.SpyInstance;
       let refreshToken: string;
@@ -276,9 +274,6 @@ describe('AuthController', () => {
 
       beforeEach(async function () {
         const expResponse = createResponse();
-        mockValidateRefreshToken = jest
-          .spyOn(mockAuthService, 'validateRefreshToken')
-          .mockImplementation(() => true);
         mockInvalidateRefreshToken = jest.spyOn(
           mockAuthService,
           'invalidateRefreshToken',
@@ -311,13 +306,8 @@ describe('AuthController', () => {
       });
 
       afterEach(async function () {
-        mockValidateRefreshToken.mockClear().mockRestore();
         mockInvalidateRefreshToken.mockClear().mockRestore();
         mockInvalidateAllRefreshTokens.mockClear().mockRestore();
-      });
-
-      it('should check validity of the refresh token', async function () {
-        expect(mockValidateRefreshToken).toHaveBeenCalledWith(refreshToken);
       });
 
       it('should invalidate refresh token', async function () {
@@ -497,7 +487,7 @@ describe('AuthController', () => {
 
   describe('refresh()', function () {
     describe('when called with valid refresh token', function () {
-      let spyRefresh: jest.SpyInstance, spyValidate: jest.SpyInstance;
+      let spyRefresh: jest.SpyInstance;
       let response: LoginResponseDto;
       let refreshToken: string, newRefreshToken: string, newAccessToken: string;
 
@@ -510,10 +500,6 @@ describe('AuthController', () => {
 
         newRefreshToken = `regenerated-refresh-token-${Math.random()}`;
 
-        spyValidate = jest
-          .spyOn(mockAuthService, 'validateRefreshToken')
-          .mockImplementation(async () => true);
-
         spyRefresh = jest
           .spyOn(mockAuthService, 'refreshTokens')
           .mockImplementation(async () => ({
@@ -522,10 +508,6 @@ describe('AuthController', () => {
           }));
 
         response = await controller.refresh({ refreshToken });
-      });
-
-      it('should validate refresh token', async function () {
-        expect(spyValidate).toHaveBeenCalledWith(refreshToken);
       });
 
       it('should regenerate tokens pair using provided refresh token', async function () {
@@ -555,7 +537,6 @@ describe('AuthController', () => {
       });
 
       afterEach(() => {
-        spyValidate.mockClear().mockRestore();
         spyRefresh.mockClear().mockRestore();
       });
     });
@@ -565,8 +546,10 @@ describe('AuthController', () => {
 
       beforeEach(async () => {
         spy = jest
-          .spyOn(mockAuthService, 'validateRefreshToken')
-          .mockImplementation(async () => false);
+          .spyOn(mockAuthService, 'refreshTokens')
+          .mockImplementation(async () => {
+            throw new JsonWebTokenError('invalid refresh token');
+          });
 
         try {
           await controller.refresh({ refreshToken: 'invalid' });
@@ -579,12 +562,8 @@ describe('AuthController', () => {
         spy.mockClear().mockRestore();
       });
 
-      it('should validate refresh token', async function () {
-        expect(spy).toHaveBeenCalledWith('invalid');
-      });
-
       it('should throw an exception', async function () {
-        expect(exceptionThrown).toBeInstanceOf(ForbiddenException);
+        expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
       });
     });
   });

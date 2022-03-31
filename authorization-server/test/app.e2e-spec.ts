@@ -301,8 +301,8 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).post('/auth/refresh-token');
       });
 
-      it('should respond with 400 status code', async function () {
-        expect(response.statusCode).toBe(400);
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
       });
     });
 

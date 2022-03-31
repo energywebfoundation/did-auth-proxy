@@ -928,6 +928,11 @@
     ethers "^5.4.6"
     key-encoder "^2.0.3"
 
+"@golevelup/ts-jest@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@golevelup/ts-jest/-/ts-jest-0.3.2.tgz#ea199827fb77cd52a0d013796460ce884f0fe7ec"
+  integrity sha512-hv+j/vau2oj5CuhY1CrTs48Qu+ZVXpm/56OzKcL2KVN8+yc0ZIMbvTIld1wbrT1RrvAuwfDmUM2s3aSy7veuwg==
+
 "@google-cloud/dlp@^0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@google-cloud/dlp/-/dlp-0.12.0.tgz#fd974ecb15ada953e0f877a140dbcea3d18b861f"
