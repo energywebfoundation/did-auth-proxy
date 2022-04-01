@@ -353,6 +353,57 @@ describe('AppController (e2e)', () => {
       });
     });
   });
+
+  describe('/auth/logout', function () {
+    describe('whan called with a valid refresh token', function () {
+      let refreshToken: string;
+      let response: Response;
+
+      beforeAll(async function () {
+        ({ refreshToken } = await logIn(appHttpServer, identityToken));
+
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({
+            refreshToken,
+          });
+      }, 15000);
+
+      it('should respond with 201 status code', async function () {
+        expect(response.statusCode).toBe(201);
+      });
+    });
+
+    describe('when called without a refresh token', function () {
+      let response: Response;
+
+      beforeAll(async function () {
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({});
+      });
+
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
+      });
+    });
+
+    describe('when called with invalid refresh token', function () {
+      let response: Response;
+
+      beforeAll(async function () {
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({
+            refreshToken: 'invalid',
+          });
+      });
+
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
+      });
+    });
+  });
 });
 
 async function logIn(
