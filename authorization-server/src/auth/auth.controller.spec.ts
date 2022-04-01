@@ -7,21 +7,29 @@ import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { LoggerService } from '../logger/logger.service';
-
-const envVarsBase: Record<string, unknown> = {
-  LOG_LEVELS: 'error,warn',
-  JWT_ACCESS_TTL: 10,
-  JWT_REFRESH_TTL: 20,
-  AUTH_COOKIE_NAME: 'Auth-tests',
-};
+import { CookieOptions } from 'express';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
   const mockConfigService = {
     get: <T>(key: string): T => {
-      return envVarsBase[key] as unknown as T;
+      return {
+        LOG_LEVELS: 'error,warn',
+        JWT_ACCESS_TTL: 10,
+        JWT_REFRESH_TTL: 20,
+      }[key] as unknown as T;
     },
+  };
+
+  const authCookieSettingsBase = {
+    enabled: true,
+    name: 'Auth',
+    options: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'strict',
+    } as CookieOptions,
   };
 
   const mockAuthService = {
@@ -32,6 +40,7 @@ describe('AuthController', () => {
     invalidateAllRefreshTokens: () => {},
     refreshTokens: () => {},
     logout: () => {},
+    getAuthCookieSettings: () => authCookieSettingsBase,
   };
 
   beforeEach(async () => {
@@ -140,25 +149,11 @@ describe('AuthController', () => {
         expect(response).toMatchObject({ type: 'Bearer' });
       });
 
-      describe('when AUTH_COOKIE_ENABLED=true', function () {
+      describe('when auth cookie enabled', function () {
         let cookieName: string;
-        let mockConfigGet: jest.SpyInstance;
 
         beforeAll(async function () {
-          cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
-          mockConfigGet = jest
-            .spyOn(mockConfigService, 'get')
-            .mockImplementation(<T>(key: string): T => {
-              return {
-                ...envVarsBase,
-                AUTH_COOKIE_ENABLED: true,
-                AUTH_COOKIE_SECURE: true,
-              }[key] as unknown as T;
-            });
-        });
-
-        afterAll(async function () {
-          mockConfigGet.mockClear().mockRestore();
+          cookieName = mockAuthService.getAuthCookieSettings().name;
         });
 
         it('should set cookie', async function () {
@@ -192,42 +187,28 @@ describe('AuthController', () => {
         });
 
         describe('when AUTH_COOKIE_SECURE=true', function () {
-          beforeAll(async function () {
-            mockConfigGet = jest
-              .spyOn(mockConfigService, 'get')
-              .mockImplementation(<T>(key: string): T => {
-                return {
-                  ...envVarsBase,
-                  AUTH_COOKIE_ENABLED: true,
-                  AUTH_COOKIE_SECURE: true,
-                }[key] as unknown as T;
-              });
-          });
-
-          afterAll(async function () {
-            mockConfigGet.mockClear().mockRestore();
-          });
-
           it('should set secure cookie', async function () {
             expect(responseCookies[cookieName].options.secure).toBe(true);
           });
         });
 
         describe('when AUTH_COOKIE_SECURE=false', function () {
+          let mockGetAuthCookieOptions: jest.SpyInstance;
+
           beforeAll(async function () {
-            mockConfigGet = jest
-              .spyOn(mockConfigService, 'get')
-              .mockImplementation(<T>(key: string): T => {
-                return {
-                  ...envVarsBase,
-                  AUTH_COOKIE_ENABLED: true,
-                  AUTH_COOKIE_SECURE: false,
-                }[key] as unknown as T;
-              });
+            mockGetAuthCookieOptions = jest
+              .spyOn(mockAuthService, 'getAuthCookieSettings')
+              .mockImplementation(() => ({
+                ...authCookieSettingsBase,
+                options: {
+                  ...authCookieSettingsBase,
+                  secure: false,
+                } as CookieOptions,
+              }));
           });
 
           afterAll(async function () {
-            mockConfigGet.mockClear().mockRestore();
+            mockGetAuthCookieOptions.mockClear().mockRestore();
           });
 
           it('should set secure cookie', async function () {
@@ -236,26 +217,24 @@ describe('AuthController', () => {
         });
       });
 
-      describe('when AUTH_COOKIE_ENABLED=false', function () {
-        let mockConfigGet: jest.SpyInstance;
+      describe('when auth cookie disabled', function () {
+        let mockGetAuthCookieOptions: jest.SpyInstance;
 
         beforeAll(async function () {
-          mockConfigGet = jest
-            .spyOn(mockConfigService, 'get')
-            .mockImplementation(<T>(key: string): T => {
-              return {
-                ...envVarsBase,
-                AUTH_COOKIE_ENABLED: false,
-              }[key] as unknown as T;
-            });
+          mockGetAuthCookieOptions = jest
+            .spyOn(mockAuthService, 'getAuthCookieSettings')
+            .mockImplementation(() => ({
+              ...authCookieSettingsBase,
+              enabled: false,
+            }));
         });
 
         afterAll(async function () {
-          mockConfigGet.mockClear().mockRestore();
+          mockGetAuthCookieOptions.mockClear().mockRestore();
         });
 
         it('should skip setting the cookie', async function () {
-          const cookieName = mockConfigService.get<string>('AUTH_COOKIE_NAME');
+          const cookieName = mockAuthService.getAuthCookieSettings().name;
           expect(responseCookies[cookieName]).toBeUndefined();
         });
       });
@@ -313,7 +292,7 @@ describe('AuthController', () => {
 
       it('should unset auth cookie', async function () {
         const cookie =
-          responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
+          responseCookies[mockAuthService.getAuthCookieSettings().name];
 
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
@@ -360,7 +339,7 @@ describe('AuthController', () => {
 
       it('should send no auth cookie', async function () {
         const cookie =
-          responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
+          responseCookies[mockAuthService.getAuthCookieSettings().name];
 
         expect(cookie).toBeUndefined();
       });

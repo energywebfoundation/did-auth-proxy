@@ -95,22 +95,14 @@ export class AuthController {
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
     });
 
-    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
-      res.cookie(
-        this.configService.get<string>('AUTH_COOKIE_NAME'),
-        accessToken,
-        {
-          maxAge:
-            (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
-            Date.now(),
-          httpOnly: true,
-          secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
-          sameSite:
-            this.configService.get<'none' | 'lax' | 'strict'>(
-              'AUTH_COOKIE_SAMESITE_POLICY',
-            ) || 'strict',
-        },
-      );
+    if (this.authService.getAuthCookieSettings().enabled) {
+      const { name, options } = this.authService.getAuthCookieSettings();
+      res.cookie(name, accessToken, {
+        ...options,
+        maxAge:
+          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
+          Date.now(),
+      });
     }
 
     return new LoginResponseDto({ accessToken, refreshToken });
@@ -132,7 +124,7 @@ export class AuthController {
       allDevices: body.allDevices,
     });
 
-    res.cookie(this.configService.get<string>('AUTH_COOKIE_NAME'), '', {
+    res.cookie(this.authService.getAuthCookieSettings().name, '', {
       expires: new Date(0),
     });
   }

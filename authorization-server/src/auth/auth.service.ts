@@ -10,6 +10,7 @@ import {
 } from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
 import { isNil } from '@nestjs/common/utils/shared.utils';
+import { CookieOptions } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -46,6 +47,25 @@ export class AuthService {
     await this.refreshTokenRepository.saveToken(token);
 
     return token;
+  }
+
+  public getAuthCookieSettings(): {
+    enabled: boolean;
+    name: string;
+    options: CookieOptions;
+  } {
+    return {
+      enabled: this.configService.get<boolean>('AUTH_COOKIE_ENABLED'),
+      name: this.configService.get<string>('AUTH_COOKIE_NAME'),
+      options: {
+        httpOnly: true,
+        secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
+        sameSite:
+          this.configService.get<'none' | 'lax' | 'strict'>(
+            'AUTH_COOKIE_SAMESITE_POLICY',
+          ) || 'strict',
+      },
+    };
   }
 
   public async validateRefreshToken(token: string): Promise<boolean> {
