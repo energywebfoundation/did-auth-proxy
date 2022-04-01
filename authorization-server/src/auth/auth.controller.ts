@@ -132,11 +132,9 @@ export class AuthController {
       allDevices: body.allDevices,
     });
 
-    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
-      res.cookie(this.configService.get<string>('AUTH_COOKIE_NAME'), '', {
-        expires: new Date(0),
-      });
-    }
+    res.cookie(this.configService.get<string>('AUTH_COOKIE_NAME'), '', {
+      expires: new Date(0),
+    });
   }
 
   @Get('token-introspection')

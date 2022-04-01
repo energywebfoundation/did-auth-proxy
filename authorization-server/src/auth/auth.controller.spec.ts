@@ -311,58 +311,13 @@ describe('AuthController', () => {
         });
       });
 
-      describe('when AUTH_COOKIE_ENABLED=true', function () {
-        let mockConfigGet: jest.SpyInstance;
+      it('should unset auth cookie', async function () {
+        const cookie =
+          responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
 
-        beforeAll(async function () {
-          mockConfigGet = jest
-            .spyOn(mockConfigService, 'get')
-            .mockImplementation(<T>(key: string): T => {
-              return {
-                ...envVarsBase,
-                AUTH_COOKIE_ENABLED: true,
-              }[key] as unknown as T;
-            });
-        });
-
-        afterAll(async function () {
-          mockConfigGet.mockClear().mockRestore();
-        });
-
-        it('should unset auth cookie', async function () {
-          const cookie =
-            responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
-
-          expect(cookie).toBeDefined();
-          expect(cookie.value).toBe('');
-          expect(cookie.options.expires).toEqual(new Date(0));
-        });
-      });
-
-      describe('when AUTH_COOKIE_ENABLED=false', function () {
-        let mockConfigGet: jest.SpyInstance;
-
-        beforeAll(async function () {
-          mockConfigGet = jest
-            .spyOn(mockConfigService, 'get')
-            .mockImplementation(<T>(key: string): T => {
-              return {
-                ...envVarsBase,
-                AUTH_COOKIE_ENABLED: false,
-              }[key] as unknown as T;
-            });
-        });
-
-        afterAll(async function () {
-          mockConfigGet.mockClear().mockRestore();
-        });
-
-        it('should send no auth cookie', async function () {
-          const cookie =
-            responseCookies[mockConfigService.get<string>('AUTH_COOKIE_NAME')];
-
-          expect(cookie).toBeUndefined();
-        });
+        expect(cookie).toBeDefined();
+        expect(cookie.value).toBe('');
+        expect(cookie.options.expires).toEqual(new Date(0));
       });
     });
 
