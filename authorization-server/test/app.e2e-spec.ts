@@ -293,6 +293,24 @@ describe('AppController (e2e)', () => {
           accessTokenDecoded.roles.sort(),
         );
       });
+
+      it('should respond with Auth cookie set correctly', async function () {
+        expect(response.headers['set-cookie']).toBeDefined();
+
+        const cookies = parseCookies(response.headers['set-cookie'], {
+          map: true,
+        });
+
+        expect(cookies['Auth']).toBeDefined();
+
+        const authCookie = cookies['Auth'];
+
+        expect(authCookie.value).toBe(response.body.access_token);
+
+        expect(authCookie.httpOnly).toBe(true);
+        expect(authCookie.secure).toBe(true);
+        expect(authCookie.sameSite).toBe('Strict');
+      });
     });
 
     describe('when called without access token', function () {

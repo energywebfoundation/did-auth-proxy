@@ -369,6 +369,7 @@ describe('AuthController', () => {
     describe('when called with valid refresh token', function () {
       let spyRefresh: jest.SpyInstance;
       let response: LoginResponseDto;
+      let responseCookies: Record<string, ResponseCookie>;
       let refreshToken: string, newRefreshToken: string, newAccessToken: string;
 
       beforeEach(async () => {
@@ -387,7 +388,11 @@ describe('AuthController', () => {
             refreshToken: newRefreshToken,
           }));
 
-        response = await controller.refresh({ refreshToken });
+        const expResponse = createResponse();
+
+        response = await controller.refresh({ refreshToken }, expResponse);
+
+        responseCookies = expResponse.cookies;
       });
 
       it('should regenerate tokens pair using provided refresh token', async function () {
@@ -416,6 +421,72 @@ describe('AuthController', () => {
         expect(response).toMatchObject({ type: 'Bearer' });
       });
 
+      describe('when auth cookie enabled', function () {
+        let cookieName: string;
+
+        beforeAll(async function () {
+          cookieName = mockAuthService.getAuthCookieSettings().name;
+        });
+
+        it('should set auth cookie', async function () {
+          expect(responseCookies[cookieName]).toBeDefined();
+        });
+
+        it('should set cookie with a correct value', async function () {
+          expect(responseCookies[cookieName].value).toBe(newAccessToken);
+        });
+
+        it('should set http-only cookie', async function () {
+          expect(responseCookies[cookieName].options.httpOnly).toBe(true);
+        });
+
+        it('should set cookie with "strict" SameSite policy', async function () {
+          expect(responseCookies[cookieName].options.sameSite).toBe('strict');
+        });
+
+        it('should set secure cookie', async function () {
+          expect(responseCookies[cookieName].options.secure).toBe(true);
+        });
+
+        it('should set cookie with a correct expiration time', async function () {
+          expect(
+            responseCookies[cookieName].options.maxAge / 1000,
+          ).toBeGreaterThanOrEqual(
+            mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
+          );
+
+          expect(
+            responseCookies[cookieName].options.maxAge / 1000,
+          ).toBeLessThanOrEqual(
+            mockConfigService.get<number>('JWT_ACCESS_TTL'),
+          );
+        });
+      });
+
+      describe('when auth cookie is disabled', function () {
+        let cookieName: string;
+        let mockGetAuthCookieOptions: jest.SpyInstance;
+
+        beforeAll(async function () {
+          mockGetAuthCookieOptions = jest
+            .spyOn(mockAuthService, 'getAuthCookieSettings')
+            .mockImplementation(() => ({
+              ...authCookieSettingsBase,
+              enabled: false,
+            }));
+
+          cookieName = mockAuthService.getAuthCookieSettings().name;
+        });
+
+        afterAll(async function () {
+          mockGetAuthCookieOptions.mockClear().mockRestore();
+        });
+
+        it('should not set auth cookie', async function () {
+          expect(responseCookies[cookieName]).toBeUndefined();
+        });
+      });
+
       afterEach(() => {
         spyRefresh.mockClear().mockRestore();
       });
@@ -423,6 +494,8 @@ describe('AuthController', () => {
 
     describe('when called with invalid refresh token', function () {
       let spy: jest.SpyInstance, exceptionThrown: Error;
+      let responseCookies: { [key: string]: ResponseCookie };
+      let authCookieName: string;
 
       beforeEach(async () => {
         spy = jest
@@ -431,11 +504,17 @@ describe('AuthController', () => {
             throw new JsonWebTokenError('invalid refresh token');
           });
 
+        authCookieName = mockAuthService.getAuthCookieSettings().name;
+
+        const expResponse = createResponse();
+
         try {
-          await controller.refresh({ refreshToken: 'invalid' });
+          await controller.refresh({ refreshToken: 'invalid' }, expResponse);
         } catch (err) {
           exceptionThrown = err;
         }
+
+        responseCookies = expResponse.cookies;
       });
 
       afterEach(() => {
@@ -444,6 +523,10 @@ describe('AuthController', () => {
 
       it('should throw an exception', async function () {
         expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+      });
+
+      it('should not set auth cookie', async function () {
+        expect(responseCookies[authCookieName]).toBeUndefined();
       });
     });
   });

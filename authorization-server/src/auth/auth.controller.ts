@@ -142,10 +142,23 @@ export class AuthController {
   @UseGuards(ValidRefreshTokenGuard)
   @ApiBody({ type: RefreshDto })
   @ApiOkResponse({ type: LoginResponseDto })
-  async refresh(@Body() body: RefreshDto): Promise<LoginResponseDto> {
+  async refresh(
+    @Body() body: RefreshDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto> {
     const { accessToken, refreshToken } = await this.authService.refreshTokens(
       body.refreshToken,
     );
+
+    if (this.authService.getAuthCookieSettings().enabled) {
+      const { name, options } = this.authService.getAuthCookieSettings();
+      res.cookie(name, accessToken, {
+        ...options,
+        maxAge:
+          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
+          Date.now(),
+      });
+    }
 
     return new LoginResponseDto({ accessToken, refreshToken });
   }
