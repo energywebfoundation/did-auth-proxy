@@ -13,13 +13,17 @@ services:
     volumes:
       - ./nginx/nginx.dev.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
 
-  backend:
+  home-assistant:
+    image: homeassistant/home-assistant:2022.3
     restart: unless-stopped
-    image: did-auth-proxy-backend
-    build:
-      context: backend-server
+    ports:
+      - "127.0.0.1:8123:8123"
+    environment:
+      - TZ=Europe/Berlin
     networks:
       dev-backend:
+    volumes:
+      - ./volumes/home-assistant-data:/config
 
   redis:
     image: bitnami/redis:latest
