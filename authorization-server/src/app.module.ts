@@ -53,6 +53,10 @@ export const validationSchema = Joi.object({
   AUTH_COOKIE_SAMESITE_POLICY: Joi.string()
     .regex(/(none|lax|strict)/)
     .default('strict'),
+
+  HOME_ASSISTANT_TOKENS_FILE: Joi.string().default(
+    './config/home-assistant-tokens.json',
+  ),
 });
 
 @Module({

@@ -8,6 +8,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoggerModule } from '../logger/logger.module';
+import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
 
 @Global()
 @Module({
@@ -22,6 +23,12 @@ import { LoggerModule } from '../logger/logger.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthStrategy, JwtStrategy, RefreshTokenRepository],
+  providers: [
+    AuthService,
+    AuthStrategy,
+    HomeAssistantTokenRepository,
+    JwtStrategy,
+    RefreshTokenRepository,
+  ],
 })
 export class AuthModule {}
