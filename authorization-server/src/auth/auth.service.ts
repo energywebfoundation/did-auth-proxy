@@ -47,6 +47,38 @@ export class AuthService {
     return token;
   }
 
+  public async generateTokensPair({
+    did,
+    roles,
+  }: {
+    did: string;
+    roles: string[];
+  }): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const accessToken = await this.generateAccessToken({ did, roles });
+    const refreshToken = await this.generateRefreshToken({ did, roles });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  public async logIn({
+    did,
+    roles,
+  }: {
+    did: string;
+    roles: string[];
+  }): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    return this.generateTokensPair({ did, roles });
+  }
+
   public async validateRefreshToken(token: string): Promise<boolean> {
     let tokenDecoded: IRefreshTokenPayload;
 
@@ -71,12 +103,7 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokenDecoded = this.jwtService.verify(token) as IRefreshTokenPayload;
 
-    const accessToken = await this.generateAccessToken({
-      did: tokenDecoded.did,
-      roles: tokenDecoded.roles,
-    });
-
-    const refreshToken = await this.generateRefreshToken({
+    const { accessToken, refreshToken } = await this.generateTokensPair({
       did: tokenDecoded.did,
       roles: tokenDecoded.roles,
     });
