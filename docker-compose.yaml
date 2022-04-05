@@ -33,6 +33,8 @@ services:
     image: did-auth-proxy-auth-server
     build:
       context: authorization-server
+    volumes:
+      - ./authorization-server/config:/config
     environment:
       - LOG_LEVELS=log,warn,error,debug,verbose
       - PORT=80
