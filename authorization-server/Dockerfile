@@ -24,6 +24,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV BIND=0.0.0.0
+ENV HOME_ASSISTANT_TOKENS_FILE=/config/home-assistant-tokens.json
 
 COPY --from=dependencies-prod /app/node_modules ./node_modules
 COPY --from=build /app/dist ./
