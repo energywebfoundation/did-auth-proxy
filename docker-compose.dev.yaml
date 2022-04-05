@@ -1,6 +1,26 @@
 version: "3.8"
 
 services:
+  webserver:
+    restart: unless-stopped
+    image: did-auth-proxy-webserver
+    build:
+      context: nginx
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      dev-backend:
+    volumes:
+      - ./nginx/nginx.dev.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
+
+  backend:
+    restart: unless-stopped
+    image: did-auth-proxy-backend
+    build:
+      context: backend-server
+    networks:
+      dev-backend:
+
   redis:
     image: bitnami/redis:latest
     restart: unless-stopped

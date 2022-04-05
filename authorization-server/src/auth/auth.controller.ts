@@ -85,12 +85,7 @@ export class AuthController {
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
     );
 
-    const accessToken = await this.authService.generateAccessToken({
-      did: didAccessTokenPayload.did,
-      roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
-    });
-
-    const refreshToken = await this.authService.generateRefreshToken({
+    const { accessToken, refreshToken } = await this.authService.logIn({
       did: didAccessTokenPayload.did,
       roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
     });

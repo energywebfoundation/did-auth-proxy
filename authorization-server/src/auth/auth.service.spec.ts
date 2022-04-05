@@ -171,6 +171,87 @@ describe('AuthService', () => {
     });
   });
 
+  describe('generateTokensPair()', function () {
+    it('should be defined', async function () {
+      expect(service.generateTokensPair).toBeDefined();
+    });
+
+    describe('when called', function () {
+      let spyGenerateAccessToken: jest.SpyInstance;
+      let spyGenerateRefreshToken: jest.SpyInstance;
+      let result: unknown;
+
+      beforeEach(async function () {
+        spyGenerateAccessToken = jest
+          .spyOn(service, 'generateAccessToken')
+          .mockResolvedValue('accessToken');
+
+        spyGenerateRefreshToken = jest
+          .spyOn(service, 'generateRefreshToken')
+          .mockResolvedValue('refreshToken');
+
+        result = await service.generateTokensPair(payload);
+      });
+
+      afterEach(async function () {
+        spyGenerateAccessToken.mockClear().mockRestore();
+        spyGenerateRefreshToken.mockClear().mockRestore();
+      });
+
+      it('should generate access token', async function () {
+        expect(spyGenerateAccessToken).toHaveBeenCalledWith(payload);
+      });
+
+      it('should generate refresh token', async function () {
+        expect(spyGenerateRefreshToken).toHaveBeenCalledWith(payload);
+      });
+
+      it('should return tokens pair', async function () {
+        expect(result).toEqual({
+          accessToken: 'accessToken',
+          refreshToken: 'refreshToken',
+        });
+      });
+    });
+  });
+
+  describe('logIn()', function () {
+    it('should be defined', async function () {
+      expect(service.logIn).toBeDefined();
+    });
+
+    describe('when called', function () {
+      let spyGenerateTokensPair: jest.SpyInstance;
+      let result: unknown;
+
+      beforeEach(async function () {
+        spyGenerateTokensPair = jest
+          .spyOn(service, 'generateTokensPair')
+          .mockResolvedValue({
+            accessToken: 'accessToken',
+            refreshToken: 'refreshToken',
+          });
+
+        result = await service.logIn(payload);
+      });
+
+      afterEach(async function () {
+        spyGenerateTokensPair.mockClear().mockRestore();
+      });
+
+      it('should generate tokens pair', async function () {
+        expect(spyGenerateTokensPair).toHaveBeenCalledWith(payload);
+      });
+
+      it('should return tokens pair', async function () {
+        expect(result).toEqual({
+          accessToken: 'accessToken',
+          refreshToken: 'refreshToken',
+        });
+      });
+    });
+  });
+
   describe('validateRefreshToken()', function () {
     describe('when called with valid whitelisted refresh token', function () {
       let refreshToken, refreshTokenDecoded: IRefreshTokenPayload;

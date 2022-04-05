@@ -33,8 +33,7 @@ describe('AuthController', () => {
   };
 
   const mockAuthService = {
-    generateAccessToken: () => {},
-    generateRefreshToken: () => {},
+    logIn: () => {},
     validateRefreshToken: () => {},
     invalidateRefreshToken: () => {},
     invalidateAllRefreshTokens: () => {},
@@ -62,8 +61,7 @@ describe('AuthController', () => {
 
   describe('login()', function () {
     describe('when executed', () => {
-      let spyGenerateRefreshToken: jest.SpyInstance;
-      let spyGenerateAccessToken: jest.SpyInstance;
+      let spyLogIn: jest.SpyInstance;
       let accessToken: string, refreshToken: string;
       let response: LoginResponseDto;
       let responseCookies: Record<string, ResponseCookie>;
@@ -89,13 +87,14 @@ describe('AuthController', () => {
 
         const expResponse = createResponse();
 
-        spyGenerateAccessToken = jest
-          .spyOn(mockAuthService, 'generateAccessToken')
-          .mockImplementation(() => accessToken);
-
-        spyGenerateRefreshToken = jest
-          .spyOn(mockAuthService, 'generateRefreshToken')
-          .mockImplementation(() => refreshToken);
+        spyLogIn = jest
+          .spyOn(mockAuthService, 'logIn')
+          .mockImplementation(() => {
+            return {
+              accessToken,
+              refreshToken,
+            };
+          });
 
         expRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
 
@@ -109,8 +108,7 @@ describe('AuthController', () => {
       });
 
       afterEach(() => {
-        spyGenerateRefreshToken.mockClear().mockRestore();
-        spyGenerateRefreshToken.mockClear().mockRestore();
+        spyLogIn.mockClear().mockRestore();
       });
 
       it('should respond with access token', async function () {
@@ -122,14 +120,14 @@ describe('AuthController', () => {
       });
 
       it('should create access token with correct parameters', async function () {
-        expect(spyGenerateAccessToken).toHaveBeenCalledWith({
+        expect(spyLogIn).toHaveBeenCalledWith({
           did: didAccessTokenPayload.did,
           roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
         });
       });
 
       it('should create refresh token with correct parameters', async function () {
-        expect(spyGenerateRefreshToken).toHaveBeenCalledWith({
+        expect(spyLogIn).toHaveBeenCalledWith({
           did: didAccessTokenPayload.did,
           roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
         });
