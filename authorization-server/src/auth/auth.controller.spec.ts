@@ -3,14 +3,21 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
-import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
+import {
+  createRequest,
+  createResponse,
+  MockResponse,
+  ResponseCookie,
+} from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { LoggerService } from '../logger/logger.service';
-import { CookieOptions } from 'express';
+import { CookieOptions, Request, Response } from 'express';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('AuthController', () => {
   let controller: AuthController;
+  let loggerService: LoggerService;
 
   const mockConfigService = {
     get: <T>(key: string): T => {
@@ -47,13 +54,14 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        LoggerService,
+        { provide: LoggerService, useValue: new LoggerService() },
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+    loggerService = module.get<LoggerService>(LoggerService);
   });
 
   it('should be defined', () => {
@@ -61,7 +69,7 @@ describe('AuthController', () => {
   });
 
   describe('login()', function () {
-    describe('when executed', () => {
+    describe('when executed for valid identity token', () => {
       let spyLogIn: jest.SpyInstance;
       let accessToken: string, refreshToken: string;
       let response: LoginResponseDto;
@@ -236,6 +244,81 @@ describe('AuthController', () => {
           const cookieName = mockAuthService.getAuthCookieSettings().name;
           expect(responseCookies[cookieName]).toBeUndefined();
         });
+      });
+    });
+
+    describe('when executed for valid identity token without HA long live token', function () {
+      let mockRequest: Request;
+      let mockResponse: MockResponse<Response>;
+      let spyLogIn: jest.SpyInstance;
+      let spyGetHAToken: jest.SpyInstance;
+      let spyLogWarn: jest.SpyInstance;
+      let exceptionThrown: Error;
+
+      beforeEach(async function () {
+        mockRequest = createRequest({
+          method: 'POST',
+          path: '/auth/login',
+          body: { identityToken: 'identity token' },
+        });
+
+        mockRequest.user = sign(
+          { did: 'a did', verifiedRoles: [{ name: '', namespace: '' }] },
+          'asecret',
+        );
+
+        mockResponse = createResponse();
+
+        spyLogIn = jest
+          .spyOn(mockAuthService, 'logIn')
+          .mockImplementation(() => {
+            return {
+              accessToken: sign({}, 'asecret', {
+                expiresIn: mockConfigService.get<number>('JWT_ACCESS_TTL'),
+              }),
+              refreshToken: 'refresh token',
+            };
+          });
+
+        spyGetHAToken = jest
+          .spyOn(mockAuthService, 'getHAToken')
+          .mockImplementation(() => null);
+
+        spyLogWarn = jest
+          .spyOn(loggerService, 'warn')
+          .mockImplementation(() => {});
+
+        try {
+          await controller.login(
+            { identityToken: 'validIdentityToken' },
+            mockRequest,
+            mockResponse,
+          );
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
+
+      afterEach(async function () {
+        spyLogIn.mockClear().mockRestore();
+        spyGetHAToken.mockClear().mockRestore();
+        spyLogWarn.mockClear().mockRestore();
+      });
+
+      it('should throw ForbiddenException', function () {
+        expect(exceptionThrown).toBeInstanceOf(ForbiddenException);
+      });
+
+      it('should set no auth cookie', function () {
+        expect(
+          mockResponse.cookies[mockAuthService.getAuthCookieSettings().name],
+        ).toBeUndefined();
+      });
+
+      it('should log warn message', function () {
+        expect(spyLogWarn).toHaveBeenCalledWith(
+          'no HA long live token found for a did',
+        );
       });
     });
   });
