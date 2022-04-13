@@ -28,6 +28,7 @@ describe('AuthService', () => {
     saveToken() {},
     getToken() {},
     deleteToken() {},
+    deleteAllTokens() {},
   };
 
   const payload = {
@@ -342,7 +343,9 @@ describe('AuthService', () => {
     describe('when called with invalidated refresh token', function () {
       let refreshToken: string, refreshTokenDecoded: IRefreshTokenPayload;
       let result: boolean;
-      let spyVerify: jest.SpyInstance, spyGetToken: jest.SpyInstance;
+      let spyVerify: jest.SpyInstance;
+      let spyGetToken: jest.SpyInstance;
+      let spyLogWarn: jest.SpyInstance;
 
       beforeEach(async function () {
         refreshToken = jwtService.sign({ id: '111', ...payload });
@@ -354,6 +357,9 @@ describe('AuthService', () => {
         spyGetToken = jest
           .spyOn(mockRefreshTokenRepository, 'getToken')
           .mockImplementation(() => null);
+        spyLogWarn = jest
+          .spyOn(loggerService, 'warn')
+          .mockImplementation(() => {});
 
         result = await service.validateRefreshToken(refreshToken);
       });
@@ -377,6 +383,10 @@ describe('AuthService', () => {
           refreshTokenDecoded.id,
         );
       });
+
+      it('should write warn log message', async function () {
+        expect(spyLogWarn).toHaveBeenCalled();
+      });
     });
   });
 
@@ -396,6 +406,29 @@ describe('AuthService', () => {
 
       it('should remove token entry from the repository', async function () {
         expect(spyDeleteToken).toHaveBeenCalledWith('did', 'id');
+      });
+    });
+  });
+
+  describe('invalidateAllRefreshTokens()', function () {
+    describe('when called', function () {
+      let spyDeleteAllTokens: jest.SpyInstance;
+
+      beforeEach(async function () {
+        spyDeleteAllTokens = jest.spyOn(
+          mockRefreshTokenRepository,
+          'deleteAllTokens',
+        );
+
+        await service.invalidateAllRefreshTokens('did');
+      });
+
+      afterEach(async function () {
+        spyDeleteAllTokens.mockClear().mockRestore();
+      });
+
+      it('should remove token entry from the repository', async function () {
+        expect(spyDeleteAllTokens).toHaveBeenCalledWith('did');
       });
     });
   });
@@ -478,6 +511,77 @@ describe('AuthService', () => {
 
       it('should throw an exception', async function () {
         expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+      });
+    });
+  });
+
+  describe('logout()', function () {
+    let spyInvalidateRefreshToken: jest.SpyInstance;
+    let spyInvalidateAllRefreshTokens: jest.SpyInstance;
+
+    beforeEach(async function () {
+      spyInvalidateRefreshToken = jest.spyOn(service, 'invalidateRefreshToken');
+      spyInvalidateAllRefreshTokens = jest.spyOn(
+        service,
+        'invalidateAllRefreshTokens',
+      );
+    });
+
+    afterEach(async function () {
+      spyInvalidateRefreshToken.mockClear().mockRestore();
+      spyInvalidateAllRefreshTokens.mockClear().mockRestore();
+    });
+
+    describe('when called with a given did, a given refreshTokenId and allDevices==false', function () {
+      beforeEach(async function () {
+        await service.logout({
+          did: 'a did',
+          refreshTokenId: 'a token id',
+          allDevices: false,
+        });
+      });
+
+      it('should invalidate only the token with a given id', async function () {
+        expect(spyInvalidateAllRefreshTokens).not.toHaveBeenCalled();
+        expect(spyInvalidateRefreshToken).toHaveBeenCalledWith(
+          'a did',
+          'a token id',
+        );
+      });
+    });
+
+    describe('when called with a given did, no refreshTokenId and allDevices==true', function () {
+      beforeEach(async function () {
+        await service.logout({
+          did: 'a did',
+          allDevices: true,
+        });
+      });
+
+      it('should invalidate all the tokens for a given did', async function () {
+        expect(spyInvalidateAllRefreshTokens).toHaveBeenCalledWith('a did');
+        expect(spyInvalidateRefreshToken).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when called with a given did, no refreshTokenId and allDevices==false', function () {
+      let exceptionThrown: Error;
+
+      beforeEach(async function () {
+        try {
+          await service.logout({ did: 'a did', allDevices: false });
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
+
+      it('should throw an exception', async function () {
+        expect(exceptionThrown).toBeDefined();
+      });
+
+      it('should not invalidate any tokens', async function () {
+        expect(spyInvalidateRefreshToken).not.toHaveBeenCalled();
+        expect(spyInvalidateAllRefreshTokens).not.toHaveBeenCalled();
       });
     });
   });

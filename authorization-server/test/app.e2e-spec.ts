@@ -9,6 +9,7 @@ import { IAccessTokenPayload } from '../src/auth/auth.interface';
 import { ConfigService } from '@nestjs/config';
 import { LoginResponseDto } from '../src/auth/dto/login-response.dto';
 import { setTimeout } from 'timers/promises';
+import { parse as parseCookies } from 'set-cookie-parser';
 
 describe('AppController (e2e)', () => {
   const identityToken = process.env.IDENTITY_TOKEN;
@@ -68,6 +69,22 @@ describe('AppController (e2e)', () => {
             expires_in: expect.any(Number),
           }),
         );
+      });
+
+      it('should respond with Auth cookie set correctly', async function () {
+        expect(response.headers['set-cookie']).toBeDefined();
+
+        const cookies = parseCookies(response.headers['set-cookie'], {
+          map: true,
+        });
+
+        expect(cookies['Auth']).toBeDefined();
+
+        const authCookie = cookies['Auth'];
+
+        expect(authCookie.httpOnly).toBe(true);
+        expect(authCookie.secure).toBe(true);
+        expect(authCookie.sameSite).toBe('Strict');
       });
 
       describe('should respond with access token that', function () {
@@ -276,6 +293,24 @@ describe('AppController (e2e)', () => {
           accessTokenDecoded.roles.sort(),
         );
       });
+
+      it('should respond with Auth cookie set correctly', async function () {
+        expect(response.headers['set-cookie']).toBeDefined();
+
+        const cookies = parseCookies(response.headers['set-cookie'], {
+          map: true,
+        });
+
+        expect(cookies['Auth']).toBeDefined();
+
+        const authCookie = cookies['Auth'];
+
+        expect(authCookie.value).toBe(response.body.access_token);
+
+        expect(authCookie.httpOnly).toBe(true);
+        expect(authCookie.secure).toBe(true);
+        expect(authCookie.sameSite).toBe('Strict');
+      });
     });
 
     describe('when called without access token', function () {
@@ -284,8 +319,8 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).post('/auth/refresh-token');
       });
 
-      it('should respond with 400 status code', async function () {
-        expect(response.statusCode).toBe(400);
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
       });
     });
 
@@ -333,6 +368,57 @@ describe('AppController (e2e)', () => {
         expect(response.body).not.toEqual(
           expect.objectContaining(['access_token', 'refresh_token']),
         );
+      });
+    });
+  });
+
+  describe('/auth/logout', function () {
+    describe('whan called with a valid refresh token', function () {
+      let refreshToken: string;
+      let response: Response;
+
+      beforeAll(async function () {
+        ({ refreshToken } = await logIn(appHttpServer, identityToken));
+
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({
+            refreshToken,
+          });
+      }, 15000);
+
+      it('should respond with 201 status code', async function () {
+        expect(response.statusCode).toBe(201);
+      });
+    });
+
+    describe('when called without a refresh token', function () {
+      let response: Response;
+
+      beforeAll(async function () {
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({});
+      });
+
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
+      });
+    });
+
+    describe('when called with invalid refresh token', function () {
+      let response: Response;
+
+      beforeAll(async function () {
+        response = await request(appHttpServer)
+          .post('/auth/refresh-token')
+          .send({
+            refreshToken: 'invalid',
+          });
+      });
+
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
       });
     });
   });

@@ -202,4 +202,28 @@ describe('RefreshTokenRepository', () => {
       });
     });
   });
+
+  describe('deleteAllTokens()', function () {
+    it('should be defined', async function () {
+      expect(repository.deleteAllTokens).toBeDefined();
+    });
+
+    describe('when called', function () {
+      let spy: jest.SpyInstance;
+
+      beforeEach(async function () {
+        spy = jest.spyOn(mockRedisService, 'del');
+
+        await repository.deleteAllTokens(payload.did);
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should delete all tokens for the given DID', async function () {
+        expect(spy).toHaveBeenCalledWith(`refresh-token:${payload.did}:*`);
+      });
+    });
+  });
 });
