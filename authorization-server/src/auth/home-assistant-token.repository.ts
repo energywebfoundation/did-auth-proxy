@@ -60,7 +60,7 @@ export class HomeAssistantTokenRepository implements OnModuleInit {
     this.logger.debug(`loaded tokens for dids: ${Object.keys(this.tokens)}`);
   }
 
-  public getToken(did: string): string {
+  public async getToken(did: string): Promise<string | null> {
     if (!this.tokens[did]) {
       this.logger.warn(`no token found for did: ${did}`);
       return null;

@@ -11,6 +11,7 @@ import {
 import { LoggerService } from '../logger/logger.service';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 import { CookieOptions } from 'express';
+import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private configService: ConfigService,
     private jwtService: JwtService,
     private refreshTokenRepository: RefreshTokenRepository,
+    private haTokenRepository: HomeAssistantTokenRepository,
     private logger: LoggerService,
   ) {
     this.logger.setContext(AuthService.name);
@@ -85,6 +87,10 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  public async getHAToken(did: string): Promise<string | null> {
+    return await this.haTokenRepository.getToken(did);
   }
 
   public async logIn({

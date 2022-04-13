@@ -34,7 +34,7 @@ import {
 import { LoggerService } from '../logger/logger.service';
 import { LogoutDto } from './dto/logout.dto';
 import { ValidRefreshTokenGuard } from './guards/valid-refresh-token.guard';
-import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
+import { isNil } from '@nestjs/common/utils/shared.utils';
 
 @Controller('auth')
 @UsePipes(
@@ -47,7 +47,6 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly logger: LoggerService,
-    private readonly haTokenRepository: HomeAssistantTokenRepository,
   ) {
     this.logger.setContext(AuthController.name);
   }
@@ -88,7 +87,7 @@ export class AuthController {
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
     );
 
-    if (!this.haTokenRepository.getToken(didAccessTokenPayload.did)) {
+    if (isNil(await this.authService.getHAToken(didAccessTokenPayload.did))) {
       const errorMessage = `no HA long live token found for ${didAccessTokenPayload.did}`;
       this.logger.warn(errorMessage);
       throw new ForbiddenException(errorMessage);
@@ -146,9 +145,9 @@ export class AuthController {
 
     const did = (req.user as IAccessTokenPayload).did;
 
-    const longLiveAccessToken = this.haTokenRepository.getToken(did);
+    const longLiveAccessToken: string = await this.authService.getHAToken(did);
 
-    if (!longLiveAccessToken) {
+    if (isNil(longLiveAccessToken)) {
       this.logger.warn(`no HA long live token found for ${did}`);
     } else {
       res.setHeader('X-HA-Token', longLiveAccessToken);

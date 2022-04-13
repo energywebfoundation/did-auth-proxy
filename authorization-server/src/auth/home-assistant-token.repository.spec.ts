@@ -330,7 +330,7 @@ describe('HomeAssistantTokenRepository', function () {
           .spyOn(loggerService, 'warn')
           .mockImplementation(() => {});
 
-        result = repository.getToken('did:example:000000000000000000');
+        result = await repository.getToken('did:example:000000000000000000');
       });
 
       afterEach(async function () {

@@ -7,6 +7,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
 import { LoggerService } from '../logger/logger.service';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './auth.interface';
+import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -29,6 +30,10 @@ describe('AuthService', () => {
     getToken() {},
     deleteToken() {},
     deleteAllTokens() {},
+  };
+
+  const mockHomeAssistantTokenRepository = {
+    getToken: (did: string) => `ha-long-live-token-for-${did}`,
   };
 
   const payload = {
@@ -56,6 +61,10 @@ describe('AuthService', () => {
         {
           provide: RefreshTokenRepository,
           useValue: mockRefreshTokenRepository,
+        },
+        {
+          provide: HomeAssistantTokenRepository,
+          useValue: mockHomeAssistantTokenRepository,
         },
       ],
     }).compile();
