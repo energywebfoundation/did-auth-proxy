@@ -224,6 +224,60 @@ describe('AuthService', () => {
     });
   });
 
+  describe('getHAToken()', function () {
+    it('should be defined', function () {
+      expect(service.getHAToken).toBeDefined();
+    });
+
+    describe('when called for did having HA token', function () {
+      let spy: jest.SpyInstance;
+      let hAToken: string;
+
+      beforeEach(async function () {
+        spy = jest
+          .spyOn(mockHomeAssistantTokenRepository, 'getToken')
+          .mockImplementation((did: string) => `HA token for ${did}`);
+        hAToken = await service.getHAToken('a did');
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should call repository getToken()', async function () {
+        expect(spy).toHaveBeenCalledWith('a did');
+      });
+
+      it('should return HA token', async function () {
+        expect(hAToken).toBe('HA token for a did');
+      });
+    });
+
+    describe('when called for did not having HA token', function () {
+      let spy: jest.SpyInstance;
+      let hAToken: string;
+
+      beforeEach(async function () {
+        spy = jest
+          .spyOn(mockHomeAssistantTokenRepository, 'getToken')
+          .mockImplementation(() => null);
+        hAToken = await service.getHAToken('a did2');
+      });
+
+      afterEach(async function () {
+        spy.mockClear().mockRestore();
+      });
+
+      it('should call repository getToken()', async function () {
+        expect(spy).toHaveBeenCalledWith('a did2');
+      });
+
+      it('should return null', async function () {
+        expect(hAToken).toBeNull();
+      });
+    });
+  });
+
   describe('logIn()', function () {
     it('should be defined', async function () {
       expect(service.logIn).toBeDefined();
