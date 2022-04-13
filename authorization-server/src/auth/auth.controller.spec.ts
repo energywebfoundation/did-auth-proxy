@@ -368,7 +368,10 @@ describe('AuthController', () => {
         iat: Math.floor(Date.now() / 1000 - 1800),
         exp: Math.floor(Date.now() / 100 + 1800),
       };
-      await controller.introspect(request);
+
+      const response = createResponse();
+
+      await controller.introspect(request, response);
     });
   });
 

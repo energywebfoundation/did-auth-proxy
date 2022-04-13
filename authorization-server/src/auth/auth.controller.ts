@@ -136,10 +136,23 @@ export class AuthController {
   @Get('token-introspection')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
-  async introspect(@Req() req: Request) {
+  async introspect(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     this.logger.debug(
       `successful access token introspection: ${JSON.stringify(req.user)}`,
     );
+
+    const did = (req.user as IAccessTokenPayload).did;
+
+    const longLiveAccessToken = this.haTokenRepository.getToken(did);
+
+    if (!longLiveAccessToken) {
+      this.logger.warn(`no HA long live token found for ${did}`);
+    } else {
+      res.setHeader('X-HA-Token', longLiveAccessToken);
+    }
   }
 
   @Post('refresh-token')
