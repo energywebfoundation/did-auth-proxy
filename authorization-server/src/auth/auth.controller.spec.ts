@@ -8,6 +8,7 @@ import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { LoggerService } from '../logger/logger.service';
 import { CookieOptions } from 'express';
+import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -42,6 +43,10 @@ describe('AuthController', () => {
     getAuthCookieSettings: () => authCookieSettingsBase,
   };
 
+  const mockHomeAssistantTokenRepository = {
+    getToken: (did: string) => `ha-long-live-token-for-${did}`,
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -49,6 +54,10 @@ describe('AuthController', () => {
         LoggerService,
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
+        {
+          provide: HomeAssistantTokenRepository,
+          useValue: mockHomeAssistantTokenRepository,
+        },
       ],
     }).compile();
 

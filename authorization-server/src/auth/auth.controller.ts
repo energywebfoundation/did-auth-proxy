@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Post,
   Req,
@@ -33,6 +34,7 @@ import {
 import { LoggerService } from '../logger/logger.service';
 import { LogoutDto } from './dto/logout.dto';
 import { ValidRefreshTokenGuard } from './guards/valid-refresh-token.guard';
+import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
 
 @Controller('auth')
 @UsePipes(
@@ -45,6 +47,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly logger: LoggerService,
+    private readonly haTokenRepository: HomeAssistantTokenRepository,
   ) {
     this.logger.setContext(AuthController.name);
   }
@@ -84,6 +87,12 @@ export class AuthController {
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
     );
+
+    if (!this.haTokenRepository.getToken(didAccessTokenPayload.did)) {
+      const errorMessage = `no HA long live token found for ${didAccessTokenPayload.did}`;
+      this.logger.warn(errorMessage);
+      throw new ForbiddenException(errorMessage);
+    }
 
     const { accessToken, refreshToken } = await this.authService.logIn({
       did: didAccessTokenPayload.did,
