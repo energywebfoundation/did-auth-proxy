@@ -5,6 +5,10 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "engineStrict": true,
+  "engines": {
+    "node": ">=14 <17"
+  },
   "scripts": {
     "clean": "rimraf dist node_modules",
     "prebuild": "rimraf dist",
