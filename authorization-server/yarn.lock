@@ -7609,10 +7609,10 @@ parseurl@^1.3.3, parseurl@~1.3.3:
   resolved "https://registry.yarnpkg.com/parseurl/-/parseurl-1.3.3.tgz#9da19e7bee8d12dff0513ed5b76957793bc2e8d4"
   integrity sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
 
-passport-did-auth@2.0.0-alpha.2:
-  version "2.0.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.2.tgz#223faa71d66822332af4ea91400015e6f337c32b"
-  integrity sha512-yg04hChtGoSHeIRPgh9a3Lt/JnV005zlT0FXiW5I+216OUA/lEEivdeHraL2RtsU5MXjgeLQdEbAS1x/bFSWLg==
+passport-did-auth@2.0.0-alpha.4:
+  version "2.0.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.4.tgz#b03491b7543e7205857ec120871bc49cb14871f4"
+  integrity sha512-Sc6gYFEHXKgBlVwfOjZ4NTn5Q/6r+emzav7JiPysoBaaXCD2LJZZHB8sbei1HpGWir97jWCLXq+4phy88sg4UA==
   dependencies:
     "@energyweb/credential-governance" "^1.0.1-alpha.4.0"
     "@energyweb/onchain-claims" "^1.0.1-alpha.4.0"
