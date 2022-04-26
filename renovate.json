@@ -3,6 +3,7 @@
     "github>energywebfoundation/shared-configs"
   ],
   "lockFileMaintenance": { "enabled": true },
+  "labels": ["dependencies"],
   "assignees": [
     "artursudnik"
   ],
