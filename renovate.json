@@ -2,6 +2,7 @@
   "extends": [
     "github>energywebfoundation/shared-configs"
   ],
+  "lockFileMaintenance": { "enabled": true },
   "assignees": [
     "artursudnik"
   ],
