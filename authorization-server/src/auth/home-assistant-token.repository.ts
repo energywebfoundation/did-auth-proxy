@@ -3,9 +3,10 @@ import { LoggerService } from '../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
 import { readFile } from 'fs/promises';
-import { IsNotEmpty, IsString, validateSync } from 'class-validator';
+import { IsNotEmpty, IsString, validateSync, Matches } from 'class-validator';
 
 class HATokenFileRecordDto {
+  @Matches(/^did:ethr:volta:0x[0-9a-fA-F]*$/)
   @IsNotEmpty()
   @IsString()
   did: string;
@@ -26,7 +27,7 @@ class HATokenFileRecordDto {
 
 @Injectable()
 export class HomeAssistantTokenRepository implements OnModuleInit {
-  private tokens: Record<string, { token: string }> = {};
+  private tokens: Record<string, HATokenFileRecordDto> = {};
 
   constructor(
     private readonly logger: LoggerService,

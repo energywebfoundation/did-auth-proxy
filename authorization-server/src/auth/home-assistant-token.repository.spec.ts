@@ -61,7 +61,7 @@ describe('HomeAssistantTokenRepository', function () {
         spyReadFile = jest.spyOn(mockFs, 'readFile').mockImplementation(() => {
           return Promise.resolve(
             JSON.stringify([
-              { did: 'did:example:123456789abcdefghi', token: 'token' },
+              { did: 'did:ethr:volta:0x123456789abcdef', token: 'token' },
             ]),
           );
         });
@@ -78,7 +78,7 @@ describe('HomeAssistantTokenRepository', function () {
 
       it('should load token', async function () {
         expect(
-          await repository.getToken('did:example:123456789abcdefghi'),
+          await repository.getToken('did:ethr:volta:0x123456789abcdef'),
         ).toBe('token');
       });
     });
@@ -210,7 +210,7 @@ describe('HomeAssistantTokenRepository', function () {
       it('should throw an exception', async function () {
         expect(exceptionThrown).toBeDefined();
         expect(exceptionThrown.message).toContain(
-          'property did has failed the following constraints: isString, isNotEmpty',
+          'property did has failed the following constraints: ',
         );
       });
 
@@ -233,11 +233,11 @@ describe('HomeAssistantTokenRepository', function () {
           return Promise.resolve(
             JSON.stringify([
               {
-                did: 'did:example:123456789abcdefghi',
+                did: 'did:ethr:volta:0x123456789abcdef',
                 token: 'token',
               },
               {
-                did: 'did:example:123456789abcdefghi',
+                did: 'did:ethr:volta:0x123456789abcdef',
               },
             ]),
           );
@@ -306,7 +306,7 @@ describe('HomeAssistantTokenRepository', function () {
           return Promise.resolve(
             JSON.stringify([
               {
-                did: 'did:example:123456789abcdefghi',
+                did: 'did:ethr:volta:0x123456789abcdef',
                 token: 'token',
               },
             ]),
@@ -322,7 +322,7 @@ describe('HomeAssistantTokenRepository', function () {
 
       it('should return the token', async function () {
         expect(
-          await repository.getToken('did:example:123456789abcdefghi'),
+          await repository.getToken('did:ethr:volta:0x123456789abcdef'),
         ).toBe('token');
       });
     });
