@@ -1,5 +1,5 @@
-FROM bitnami/nginx:1.21
+FROM nginx:stable
 
 EXPOSE 80
 
-COPY ./nginx.conf /opt/bitnami/nginx/conf/server_blocks/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf

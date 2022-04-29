@@ -4,25 +4,12 @@ services:
   webserver:
     restart: unless-stopped
     depends_on:
-      - backend
       - auth-server
     image: did-auth-proxy-webserver
     build:
       context: nginx
     ports:
       - "127.0.0.1:8080:80"
-    networks:
-      backend:
-
-  home-assistant:
-    image: homeassistant/home-assistant:2022.3
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:8123:8123"
-    environment:
-      - TZ=Europe/Berlin
-    volumes:
-      - ./volumes/home-assistant-data:/config
     networks:
       backend:
 
@@ -47,7 +34,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=redis
       - JWT_SECRET=asecretstring
-      - ACCEPTED_ROLES=
+      - ACCEPTED_ROLES=controller.roles.homeassistant.apps.enterprise.iam.ewc
       - JWT_ACCESS_TTL=3600
       - JWT_REFRESH_TTL=86400
       - AUTH_COOKIE_NAME=Auth
@@ -57,7 +44,7 @@ services:
       backend:
 
   redis:
-    image: bitnami/redis:latest
+    image: redis:latest
     restart: unless-stopped
     ports:
       - '127.0.0.1:6379:6379'
@@ -66,7 +53,7 @@ services:
     networks:
       backend:
     volumes:
-      - redis-data:/bitnami/redis/data
+      - redis-data:/data
 
 volumes:
   redis-data:
