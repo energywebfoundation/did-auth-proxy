@@ -3,7 +3,26 @@ import { LoggerService } from '../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
 import { readFile } from 'fs/promises';
-import { isNil } from '@nestjs/common/utils/shared.utils';
+import { IsNotEmpty, IsString, validateSync } from 'class-validator';
+
+class HATokenFileRecordDto {
+  @IsNotEmpty()
+  @IsString()
+  did: string;
+
+  @IsNotEmpty()
+  @IsString()
+  token: string;
+
+  constructor(props: HATokenFileRecordDto) {
+    Object.assign(this, props);
+
+    const errors = validateSync(this);
+    if (errors.length > 0) {
+      throw new Error(errors.toString());
+    }
+  }
+}
 
 @Injectable()
 export class HomeAssistantTokenRepository implements OnModuleInit {
@@ -45,16 +64,19 @@ export class HomeAssistantTokenRepository implements OnModuleInit {
       throw new Error(`data from ${path} is not an array`);
     }
 
-    dataParsed.forEach((record: { did: string; token: string }) => {
-      if (isNil(record.did) || isNil(record.token)) {
-        this.logger.error(
-          `invalid token data record: ${JSON.stringify(record)}`,
-        );
-        throw new Error(`invalid token record in ${path}`);
-      }
+    for (const fileRecord of dataParsed) {
+      let record: HATokenFileRecordDto;
 
-      this.tokens[record.did] = { token: record.token };
-    });
+      try {
+        record = new HATokenFileRecordDto(fileRecord);
+      } catch (err) {
+        this.logger.error(
+          `invalid token data record: ${JSON.stringify(fileRecord)}`,
+        );
+        throw err;
+      }
+      this.tokens[record.did] = record;
+    }
 
     this.logger.debug(`loaded ${Object.keys(this.tokens).length} tokens`);
     this.logger.debug(`loaded tokens for dids: ${Object.keys(this.tokens)}`);

@@ -209,8 +209,8 @@ describe('HomeAssistantTokenRepository', function () {
 
       it('should throw an exception', async function () {
         expect(exceptionThrown).toBeDefined();
-        expect(exceptionThrown.message).toBe(
-          `invalid token record in ${tokensFilePath}`,
+        expect(exceptionThrown.message).toContain(
+          'property did has failed the following constraints: isString, isNotEmpty',
         );
       });
 
@@ -260,8 +260,8 @@ describe('HomeAssistantTokenRepository', function () {
 
       it('should throw an exception', async function () {
         expect(exceptionThrown).toBeDefined();
-        expect(exceptionThrown.message).toBe(
-          `invalid token record in ${tokensFilePath}`,
+        expect(exceptionThrown.message).toContain(
+          'property token has failed the following constraints: isString, isNotEmpty',
         );
       });
 
