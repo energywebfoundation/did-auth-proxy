@@ -47,7 +47,7 @@ describe('AuthController', () => {
     refreshTokens: () => {},
     logout: () => {},
     getAuthCookieSettings: () => authCookieSettingsBase,
-    getHAToken: (did: string) => `ha-long-live-token-for-${did}`,
+    getHAToken: (did: string) => `Bearer ha-long-live-token-for-${did}`,
   };
 
   beforeEach(async () => {
@@ -429,24 +429,105 @@ describe('AuthController', () => {
   });
 
   describe('introspect()', () => {
-    // eslint-disable-next-line jest/expect-expect
-    it('should execute when request passes Guards', async function () {
-      const request = createRequest({
-        method: 'GET',
-        path: '/auth/token-introspection',
+    const requestUser = {
+      id: '1f7a3006-75a2-41ef-a12a-58144252fd2c',
+      did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
+      roles: ['role1.roles.app-test2.apps.artur.iam.ewc'],
+      iat: Math.floor(Date.now() / 1000 - 1800),
+      exp: Math.floor(Date.now() / 1000 + 1800),
+    };
+
+    describe('when long live token available', function () {
+      let xHaTokenResponseHeader: string;
+      let exceptionThrown: Error;
+
+      beforeEach(async function () {
+        const request = createRequest({
+          method: 'GET',
+          path: '/auth/token-introspection',
+        });
+
+        request.user = requestUser;
+
+        const expressResponse = createResponse();
+
+        try {
+          await controller.introspect(request, expressResponse);
+          exceptionThrown = null;
+        } catch (err) {
+          exceptionThrown = err;
+        }
+
+        xHaTokenResponseHeader = expressResponse.getHeader(
+          'X-HA-Token',
+        ) as string;
       });
 
-      request.user = {
-        id: '1f7a3006-75a2-41ef-a12a-58144252fd2c',
-        did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
-        roles: ['role1.roles.app-test2.apps.artur.iam.ewc'],
-        iat: Math.floor(Date.now() / 1000 - 1800),
-        exp: Math.floor(Date.now() / 100 + 1800),
-      };
+      it('should execute when request passes Guards', async function () {
+        expect(exceptionThrown).toBeNull();
+      });
 
-      const response = createResponse();
+      it('should set response header', function () {
+        expect(xHaTokenResponseHeader).toBe(
+          'Bearer ha-long-live-token-for-did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
+        );
+      });
+    });
 
-      await controller.introspect(request, response);
+    describe('when long live token not available', function () {
+      let xHaTokenResponseHeader: string;
+      let exceptionThrown: Error;
+      let spyGetHAToken: jest.SpyInstance;
+      let spyLogWarn: jest.SpyInstance;
+
+      beforeEach(async function () {
+        spyGetHAToken = jest
+          .spyOn(mockAuthService, 'getHAToken')
+          .mockReturnValue(null);
+
+        spyLogWarn = jest
+          .spyOn(loggerService, 'warn')
+          .mockImplementation(() => {});
+
+        const request = createRequest({
+          method: 'GET',
+          path: '/auth/token-introspection',
+        });
+
+        request.user = requestUser;
+
+        const expressResponse = createResponse();
+
+        try {
+          await controller.introspect(request, expressResponse);
+          exceptionThrown = null;
+        } catch (err) {
+          exceptionThrown = err;
+        }
+
+        xHaTokenResponseHeader = expressResponse.getHeader(
+          'X-HA-Token',
+        ) as string;
+      });
+
+      afterEach(async function () {
+        spyGetHAToken?.mockClear().mockRestore();
+        spyLogWarn?.mockClear().mockRestore();
+      });
+
+      it('should execute', function () {
+        expect(exceptionThrown).toBeNull();
+      });
+
+      it('should set no response header', function () {
+        expect(xHaTokenResponseHeader).toBeUndefined();
+      });
+
+      it('should log warn message', function () {
+        expect(spyLogWarn).toHaveBeenCalledWith(
+          'no HA long live token found for did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
+        );
+      });
     });
   });
 
