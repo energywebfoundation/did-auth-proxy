@@ -75,6 +75,12 @@ describe('HomeAssistantTokenRepository', function () {
           'utf8',
         );
       });
+
+      it('should load token', async function () {
+        expect(
+          await repository.getToken('did:example:123456789abcdefghi'),
+        ).toBe('token');
+      });
     });
 
     describe('when called with non-parseable tokens file', function () {
