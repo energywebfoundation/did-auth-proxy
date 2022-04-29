@@ -172,12 +172,9 @@ describe('HomeAssistantTokenRepository', function () {
 
     describe('when called with tokens file data not containing did field', function () {
       let exceptionThrown: Error;
-      let tokensFilePath: string;
       let spyLogError: jest.SpyInstance;
 
       beforeEach(async function () {
-        tokensFilePath = resolve('tokens.json');
-
         spyReadFile = jest.spyOn(mockFs, 'readFile').mockImplementation(() => {
           return Promise.resolve(
             JSON.stringify([
@@ -223,12 +220,9 @@ describe('HomeAssistantTokenRepository', function () {
 
     describe('when called with tokens file data not containing token field', function () {
       let exceptionThrown: Error;
-      let tokensFilePath: string;
       let spyLogError: jest.SpyInstance;
 
       beforeEach(async function () {
-        tokensFilePath = resolve('tokens.json');
-
         spyReadFile = jest.spyOn(mockFs, 'readFile').mockImplementation(() => {
           return Promise.resolve(
             JSON.stringify([
