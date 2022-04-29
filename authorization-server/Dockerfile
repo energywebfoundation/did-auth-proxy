@@ -1,7 +1,7 @@
 #### TRANSPILATION STAGE
 FROM node:16 as build
 WORKDIR /app
-RUN apk add python3 make g++
+RUN apt install python3 make g++
 
 COPY ["./package.json", "yarn.lock", "./"]
 RUN yarn
@@ -12,7 +12,7 @@ RUN yarn build
 #### PRODUCTION DEPENDENCIES INSTALLATION STAGE
 FROM node:16 as dependencies-prod
 WORKDIR /app
-RUN apk add python3 make g++
+RUN apt install python3 make g++
 
 COPY --from=build /usr/local/share/.cache/yarn/v6 /usr/local/share/.cache/yarn/v6
 COPY ["./package.json", "yarn.lock", "./"]
