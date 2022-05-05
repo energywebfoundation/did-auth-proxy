@@ -11,6 +11,7 @@ import {
 import { LoggerService } from '../logger';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 import { CookieOptions } from 'express';
+import { Span } from 'nestjs-otel';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,7 @@ export class AuthService {
     this.logger.setContext(AuthService.name);
   }
 
+  @Span()
   public async generateAccessToken(
     payload: IGenerateAccessTokenPayload,
   ): Promise<string> {
@@ -34,6 +36,7 @@ export class AuthService {
     );
   }
 
+  @Span()
   public async generateRefreshToken(
     payload: IGenerateRefreshTokenPayload,
   ): Promise<string> {
@@ -49,6 +52,7 @@ export class AuthService {
     return token;
   }
 
+  @Span()
   public getAuthCookieSettings(): {
     enabled: boolean;
     name: string;
@@ -68,6 +72,7 @@ export class AuthService {
     };
   }
 
+  @Span()
   public async generateTokensPair({
     did,
     roles,
@@ -87,6 +92,7 @@ export class AuthService {
     };
   }
 
+  @Span()
   public async logIn({
     did,
     roles,
@@ -100,6 +106,7 @@ export class AuthService {
     return this.generateTokensPair({ did, roles });
   }
 
+  @Span()
   public async validateRefreshToken(token: string): Promise<boolean> {
     let tokenDecoded: IRefreshTokenPayload;
 
@@ -127,14 +134,17 @@ export class AuthService {
     }
   }
 
+  @Span()
   public async invalidateRefreshToken(did: string, id: string) {
     await this.refreshTokenRepository.deleteToken(did, id);
   }
 
+  @Span()
   public async invalidateAllRefreshTokens(did: string) {
     await this.refreshTokenRepository.deleteAllTokens(did);
   }
 
+  @Span()
   public async refreshTokens(
     token: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
@@ -153,6 +163,7 @@ export class AuthService {
     };
   }
 
+  @Span()
   public async logout({
     refreshTokenId,
     did,

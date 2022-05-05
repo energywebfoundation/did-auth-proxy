@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
 import { IRefreshTokenPayload } from './types';
 import { LoggerService } from '../logger';
+import { Span } from 'nestjs-otel';
 
 const KEY_PREFIX = 'refresh-token';
 
@@ -18,6 +19,7 @@ export class RefreshTokenRepository {
     this.logger.setContext(RefreshTokenRepository.name);
   }
 
+  @Span()
   async saveToken(token: string): Promise<void> {
     const decoded = this.jwtService.verify(token) as IRefreshTokenPayload;
     const ttl = decoded.exp - Math.floor(Date.now() / 1000);
@@ -27,6 +29,7 @@ export class RefreshTokenRepository {
     await this.redis.set(key, JSON.stringify(decoded), 'EX', ttl);
   }
 
+  @Span()
   async getToken(did: string, id: string): Promise<string | null> {
     const key = redisKey(KEY_PREFIX, did, id);
     this.logger.debug(`getting key: ${key}`);
@@ -38,12 +41,14 @@ export class RefreshTokenRepository {
     return value;
   }
 
+  @Span()
   async deleteToken(did: string, id: string): Promise<void> {
     const key = redisKey(KEY_PREFIX, did, id);
     this.logger.debug(`deleting key: ${key}`);
     await this.redis.del(key);
   }
 
+  @Span()
   async deleteAllTokens(did: string): Promise<void> {
     const key = redisKey(KEY_PREFIX, did, '*');
     this.logger.debug(`deleting key: ${key}`);
