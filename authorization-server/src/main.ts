@@ -9,7 +9,12 @@ import { otelSDK } from './tracing';
 console.log(`${new Date().toISOString()} process starting`);
 
 async function bootstrap() {
-  await otelSDK.start();
+  const openTelemetryEnabled: boolean =
+    process.env.OTEL_ENABLED === 'false' ? false : !!process.env.OTEL_ENABLED;
+
+  if (openTelemetryEnabled) {
+    await otelSDK.start();
+  }
 
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,

@@ -15,7 +15,7 @@ import { diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ERROR);
 
 const exporter = new OTLPTraceExporter({
-  url: process.env.OTEL_TRACING_URL || 'http://localhost:4318/v1/traces',
+  url: process.env.OTEL_TRACING_URL,
 });
 
 // @TODO - https://github.com/open-telemetry/opentelemetry-js/issues/2675#issuecomment-1098198722
@@ -26,10 +26,9 @@ const exporter = new OTLPTraceExporter({
 export const otelSDK = new NodeSDK({
   metricInterval: 1000,
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]:
-      process.env.OTEL_SERVICE_NAME || 'did-auth-proxy',
+    [SemanticResourceAttributes.SERVICE_NAME]: process.env.OTEL_SERVICE_NAME,
     [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]:
-      process.env.OTEL_ENVIRONMENT || 'local',
+      process.env.OTEL_ENVIRONMENT,
   }),
   traceExporter: exporter,
   textMapPropagator: new CompositePropagator({

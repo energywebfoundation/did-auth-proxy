@@ -42,4 +42,11 @@ export const envVarsValidationSchema = Joi.object({
   AUTH_COOKIE_SAMESITE_POLICY: Joi.string()
     .regex(/(none|lax|strict)/)
     .default('strict'),
+
+  OTEL_ENABLED: Joi.boolean().default(false),
+  OTEL_TRACING_URL: Joi.string()
+    .uri()
+    .default('http://localhost:4318/v1/traces'),
+  OTEL_SERVICE_NAME: Joi.string().default('did-auth-proxy'),
+  OTEL_ENVIRONMENT: Joi.string().default('local'),
 });
