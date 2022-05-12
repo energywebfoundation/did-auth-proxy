@@ -9,6 +9,8 @@ import {
   IRefreshTokenPayload,
 } from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
+import { isNil } from '@nestjs/common/utils/shared.utils';
+import { CookieOptions } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -47,8 +49,61 @@ export class AuthService {
     return token;
   }
 
+  public getAuthCookieSettings(): {
+    enabled: boolean;
+    name: string;
+    options: CookieOptions;
+  } {
+    return {
+      enabled: this.configService.get<boolean>('AUTH_COOKIE_ENABLED'),
+      name: this.configService.get<string>('AUTH_COOKIE_NAME'),
+      options: {
+        httpOnly: true,
+        secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
+        sameSite:
+          this.configService.get<'none' | 'lax' | 'strict'>(
+            'AUTH_COOKIE_SAMESITE_POLICY',
+          ) || 'strict',
+      },
+    };
+  }
+
+  public async generateTokensPair({
+    did,
+    roles,
+  }: {
+    did: string;
+    roles: string[];
+  }): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const accessToken = await this.generateAccessToken({ did, roles });
+    const refreshToken = await this.generateRefreshToken({ did, roles });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  public async logIn({
+    did,
+    roles,
+  }: {
+    did: string;
+    roles: string[];
+  }): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    return this.generateTokensPair({ did, roles });
+  }
+
   public async validateRefreshToken(token: string): Promise<boolean> {
     let tokenDecoded: IRefreshTokenPayload;
+
+    this.logger.debug(`validating refresh token`);
 
     try {
       tokenDecoded = this.jwtService.verify(token);
@@ -59,11 +114,25 @@ export class AuthService {
 
     const { id, did } = tokenDecoded;
 
-    return !!(await this.refreshTokenRepository.getToken(did, id));
+    const tokenWhitelisted = await this.refreshTokenRepository.getToken(
+      did,
+      id,
+    );
+
+    if (isNil(tokenWhitelisted)) {
+      this.logger.warn(`refresh token is not whitelisted`);
+      return false;
+    } else {
+      return true;
+    }
   }
 
   public async invalidateRefreshToken(did: string, id: string) {
     await this.refreshTokenRepository.deleteToken(did, id);
+  }
+
+  public async invalidateAllRefreshTokens(did: string) {
+    await this.refreshTokenRepository.deleteAllTokens(did);
   }
 
   public async refreshTokens(
@@ -71,12 +140,7 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const tokenDecoded = this.jwtService.verify(token) as IRefreshTokenPayload;
 
-    const accessToken = await this.generateAccessToken({
-      did: tokenDecoded.did,
-      roles: tokenDecoded.roles,
-    });
-
-    const refreshToken = await this.generateRefreshToken({
+    const { accessToken, refreshToken } = await this.generateTokensPair({
       did: tokenDecoded.did,
       roles: tokenDecoded.roles,
     });
@@ -87,5 +151,33 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  public async logout({
+    refreshTokenId,
+    did,
+    allDevices,
+  }: {
+    refreshTokenId?: string;
+    did: string;
+    allDevices: boolean;
+  }) {
+    if (!allDevices && isNil(refreshTokenId)) {
+      throw new Error(
+        `refreshTokenId needs to be provided when allDevices==false`,
+      );
+    }
+
+    this.logger.debug(
+      `logging out ${did}, ${
+        refreshTokenId ? `refreshTokenId=${refreshTokenId}` : ''
+      } ${allDevices ? ' on all devices' : ''}`,
+    );
+
+    if (allDevices) {
+      await this.invalidateAllRefreshTokens(did);
+    } else {
+      await this.invalidateRefreshToken(did, refreshTokenId);
+    }
   }
 }

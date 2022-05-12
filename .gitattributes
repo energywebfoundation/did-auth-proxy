@@ -1,0 +1,5 @@
+* text=auto eol=lf
+
+# Don't allow people to merge changes to the lock file, because the result
+# may be invalid.  You need to run "yarn install" again.
+yarn.lock merge=binary
