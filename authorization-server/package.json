@@ -45,7 +45,7 @@
     "ioredis": "^4.0.0",
     "joi": "^17.0.0",
     "jsonwebtoken": "^8.0.0",
-    "passport": "^0.5.0",
+    "passport": "^0.6.0",
     "passport-did-auth": "2.0.0-alpha.4",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",
