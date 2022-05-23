@@ -28,6 +28,7 @@ import {
   IRefreshTokenPayload,
 } from './types';
 import { LoggerService } from '../logger';
+import { RolesValidationService } from './roles-validation.service';
 
 @Controller('auth')
 @UsePipes(
@@ -40,6 +41,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly logger: LoggerService,
+    private readonly rolesValidationService: RolesValidationService,
   ) {
     this.logger.setContext(AuthController.name);
   }
@@ -76,15 +78,10 @@ export class AuthController {
       req.user as string,
     ) as unknown as IDidAccessTokenPayload;
 
-    const acceptedRoles =
-      this.configService.get('ACCEPTED_ROLES')?.split(',') || [];
-    const didAccessTokenRoles = didAccessTokenPayload.verifiedRoles.map(
-      (r) => r.namespace,
-    );
-
     if (
-      acceptedRoles.length > 0 &&
-      !didAccessTokenRoles.some((r) => acceptedRoles.includes(r))
+      !(await this.rolesValidationService.didAccessTokenRolesAreValid(
+        didAccessTokenPayload.verifiedRoles,
+      ))
     ) {
       throw new Error(
         `unexpected verifiedRoles (${didAccessTokenPayload}) ` +

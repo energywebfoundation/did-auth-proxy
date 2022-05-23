@@ -7,6 +7,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { LoggerModule } from '../logger';
+import { RolesValidationService } from './roles-validation.service';
 
 @Global()
 @Module({
@@ -21,6 +22,12 @@ import { LoggerModule } from '../logger';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthStrategy, JwtStrategy, RefreshTokenRepository],
+  providers: [
+    AuthService,
+    AuthStrategy,
+    JwtStrategy,
+    RefreshTokenRepository,
+    RolesValidationService,
+  ],
 })
 export class AuthModule {}
