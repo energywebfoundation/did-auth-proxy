@@ -1,7 +1,7 @@
 import { LoginStrategy } from 'passport-did-auth';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '../../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
