@@ -11,9 +11,8 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { LoginGuard } from './login.guard';
+import { JwtAuthGuard, LoginGuard, ValidRefreshTokenGuard } from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
-import { JwtAuthGuard } from './jwt.guard';
 import { LoginResponseDto } from './dto/login-response.dto';
 import {
   ApiBearerAuth,
@@ -32,7 +31,6 @@ import {
 } from './auth.interface';
 import { LoggerService } from '../logger/logger.service';
 import { LogoutDto } from './dto/logout.dto';
-import { ValidRefreshTokenGuard } from './guards/valid-refresh-token.guard';
 
 @Controller('auth')
 @UsePipes(
