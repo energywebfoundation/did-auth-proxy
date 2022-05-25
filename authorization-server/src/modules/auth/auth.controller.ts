@@ -11,7 +11,12 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { JwtAuthGuard, LoginGuard, ValidRefreshTokenGuard } from './guards';
+import {
+  JwtAuthGuard,
+  LoginGuard,
+  ValidRefreshTokenGuard,
+  ValidVerifiedRolesGuard,
+} from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
 import {
@@ -28,7 +33,6 @@ import {
   IRefreshTokenPayload,
 } from './types';
 import { LoggerService } from '../logger';
-import { RolesValidationService } from './roles-validation.service';
 
 @Controller('auth')
 @UsePipes(
@@ -41,7 +45,6 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly logger: LoggerService,
-    private readonly rolesValidationService: RolesValidationService,
   ) {
     this.logger.setContext(AuthController.name);
   }
@@ -55,7 +58,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LoginGuard)
+  @UseGuards(LoginGuard, ValidVerifiedRolesGuard)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async login(
@@ -77,19 +80,6 @@ export class AuthController {
     const didAccessTokenPayload = decodeJWT(
       req.user as string,
     ) as unknown as IDidAccessTokenPayload;
-
-    if (
-      !(await this.rolesValidationService.didAccessTokenRolesAreValid(
-        didAccessTokenPayload.verifiedRoles,
-      ))
-    ) {
-      throw new Error(
-        `unexpected verifiedRoles (${didAccessTokenPayload}) ` +
-          `for identity token: ${JSON.stringify(
-            decodeJWT(body.identityToken),
-          )}`,
-      );
-    }
 
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,

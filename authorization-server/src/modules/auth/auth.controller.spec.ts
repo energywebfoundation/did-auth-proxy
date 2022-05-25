@@ -163,12 +163,6 @@ describe('AuthController', () => {
         expect(response).toMatchObject({ type: 'Bearer' });
       });
 
-      it('should additionally validate verifiedRoles', function () {
-        expect(
-          mockRolesValidationService.didAccessTokenRolesAreValid,
-        ).toHaveBeenCalledWith([{ name: '', namespace: '' }]);
-      });
-
       describe('when auth cookie enabled', function () {
         let cookieName: string;
 
