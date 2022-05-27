@@ -1,8 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { AuthStrategy } from './auth.strategy';
-import { JwtStrategy } from './jwt.strategy';
+import { AuthStrategy, JwtStrategy } from './strategies';
 import { RedisModule } from '../redis/redis.module';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
