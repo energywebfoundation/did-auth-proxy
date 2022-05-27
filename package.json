@@ -1,6 +1,7 @@
 {
   "name": "nginx-auth-poc",
   "version": "1.0.0",
+  "license": "GPL-3.0",
   "scripts": {
     "lint": "cd authorization-server && yarn lint",
     "test": "cd authorization-server && yarn test",

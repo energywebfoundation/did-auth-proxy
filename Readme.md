@@ -1,31 +1,54 @@
+# DID Authorisation Proxy
+
+## Description
+The service implemented in the `authorization-server` subfolder together with the Nginx instance defined in the `nginx`
+subfolder of this repository makes possible to integrate Energy Web DID
+solution (https://energy-web-foundation.gitbook.io/energy-web/foundational-concepts/self-sovereign-identity#decentralized-identifiers-dids)
+into any REST service that requires this kind of user authentication to be added without changing its source code.
+
 ## Prerequisites
 - nodejs
 - yarn
 - docker
 - docker compose
-- jq (https://stedolan.github.io/jq/download/)
+- jq (https://stedolan.github.io/jq/download/) (for development and exploring)
 
-## Installation
+## Setting for development
+
+### Installation
 ```shell
 yarn install
 ```
 
-## Start
+### Building and starting the development stack
 ```shell
-docker-compose up --build
+docker-compose -f docker-compose.dev.yaml up --build
 ```
 
-## Test
-Put your private key into the `PRIVATE_KEY` env variable.
+### Starting the authorisation service in dev mode
+```shell
+cd authorization-server
+```
+Copy `.env.example` file to `.env` file
 
-Generate your identity token and store it in the `IDENTITY_TOKEN` env variable.
+Edit `.env` file and:
+- set `JWT_SECRET` to contain your secret phrase used to generate and validate tokens.
+- set `ACCEPTED_ROLES` to contain roles that DIDs are required to be enrolled to
 
+Execute `yarn start:dev`
+
+### How it works
+Put a private key into the `PRIVATE_KEY` env variable:
+```shell
+export PRIVATE_KEY=<your private key here>
+```
+
+Generate an identity token and store it in the `IDENTITY_TOKEN` env variable:
 ```shell
 export IDENTITY_TOKEN=$(node generate-identity-cli/index.js -p $PRIVATE_KEY -b 999999999999)
 ```
 
 Now, you can request access and refresh tokens pair:
-
 ```shell
 curl "http://localhost:8080/auth/login" \
   -Ssf \
@@ -44,7 +67,7 @@ You will see the following output:
 }
 ```
 
-You can store access_token in the `ACCESS_TOKEN` env variable:
+You can store generated access_token in the `ACCESS_TOKEN` env variable to be used in requests to the actual REST API:
 
 ```shell
 export ACCESS_TOKEN=$(curl "http://localhost:8080/auth/login" \
@@ -56,7 +79,7 @@ export ACCESS_TOKEN=$(curl "http://localhost:8080/auth/login" \
 
 Request an endpoint with the valid access token:
 ```shell
-curl http://127.0.0.1:8080/ -H "Authorization: Bearer $ACCESS_TOKEN"
+curl http://127.0.0.1:8080/any-path -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 You will see the following response created by the backend service:
@@ -91,3 +114,17 @@ curl -X POST 'http://localhost:8080/auth/refresh-token' \
 ```
 
 You will get the same response as in case of `/auth/login` endpoint if your refresh token has not expired yet.
+
+## Running on production
+
+To run this solution on production, you need to build docker images:
+```shell
+build:docker
+```
+
+Adjust docker-compose.yaml or create any other orchestrator configuration you use to:
+- replace `backend` service with your REST API service. Probably, you will need to also adjust `nginx/nginx.conf` file 
+before building the images to contain hostname of your service if it is not defined by your orchestration solution 
+- contain correct JWT_SECRET value
+- contain correct ACCEPTED_ROLES value
+- finetune any other env variables for `auth-server` service to meet your needs

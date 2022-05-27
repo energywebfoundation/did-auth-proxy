@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "GPL-3.0",
   "engineStrict": true,
   "engines": {
     "node": ">=14 <17"
@@ -45,7 +45,7 @@
     "ioredis": "^4.0.0",
     "joi": "^17.0.0",
     "jsonwebtoken": "^8.0.0",
-    "passport": "^0.5.0",
+    "passport": "^0.6.0",
     "passport-did-auth": "2.0.0-alpha.4",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",
@@ -64,7 +64,7 @@
     "@types/cookie-parser": "^1.0.0",
     "@types/express": "^4.17.13",
     "@types/ioredis": "^4.0.0",
-    "@types/jest": "27.4.1",
+    "@types/jest": "27.5.1",
     "@types/joi": "^17.0.0",
     "@types/node": "^16.0.0",
     "@types/passport-jwt": "^3.0.6",
