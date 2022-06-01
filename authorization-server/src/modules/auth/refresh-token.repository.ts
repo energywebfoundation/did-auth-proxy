@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
-import { IRefreshTokenPayload } from './auth.interface';
+import { IRefreshTokenPayload } from './types';
 import { LoggerService } from '../logger';
 
 const KEY_PREFIX = 'refresh-token';

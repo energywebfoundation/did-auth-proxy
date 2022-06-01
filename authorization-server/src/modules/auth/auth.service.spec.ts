@@ -6,7 +6,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
 import { LoggerService } from '../logger';
-import { IAccessTokenPayload, IRefreshTokenPayload } from './auth.interface';
+import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 
 describe('AuthService', () => {
   let service: AuthService;

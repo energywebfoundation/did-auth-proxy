@@ -26,7 +26,7 @@ import {
   IAccessTokenPayload,
   IDidAccessTokenPayload,
   IRefreshTokenPayload,
-} from './auth.interface';
+} from './types';
 import { LoggerService } from '../logger';
 
 @Controller('auth')
