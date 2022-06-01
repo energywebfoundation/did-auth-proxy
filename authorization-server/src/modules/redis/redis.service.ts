@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import * as Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '../logger';
 
 @Injectable()
 export class RedisService

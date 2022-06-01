@@ -2,12 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { Response } from 'supertest';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../src/modules/app';
 import { Server } from 'http';
 import { decode, JwtPayload, sign } from 'jsonwebtoken';
-import { IAccessTokenPayload } from '../src/auth/auth.interface';
+import { IAccessTokenPayload, LoginResponseDto } from '../src/modules/auth';
 import { ConfigService } from '@nestjs/config';
-import { LoginResponseDto } from '../src/auth/dto/login-response.dto';
 import { setTimeout } from 'timers/promises';
 import { parse as parseCookies } from 'set-cookie-parser';
 

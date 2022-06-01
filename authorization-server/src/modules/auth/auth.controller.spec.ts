@@ -5,8 +5,8 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
-import { LoginResponseDto } from './dto/login-response.dto';
-import { LoggerService } from '../logger/logger.service';
+import { LoginResponseDto } from './dto';
+import { LoggerService } from '../logger';
 import { CookieOptions } from 'express';
 
 describe('AuthController', () => {
