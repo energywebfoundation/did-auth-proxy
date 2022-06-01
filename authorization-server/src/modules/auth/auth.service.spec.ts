@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '../logger';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './auth.interface';
 
 describe('AuthService', () => {

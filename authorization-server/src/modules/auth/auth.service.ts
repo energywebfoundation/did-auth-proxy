@@ -8,7 +8,7 @@ import {
   IGenerateRefreshTokenPayload,
   IRefreshTokenPayload,
 } from './auth.interface';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '../logger';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 import { CookieOptions } from 'express';
 

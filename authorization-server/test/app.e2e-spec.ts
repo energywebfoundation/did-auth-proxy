@@ -5,9 +5,8 @@ import { Response } from 'supertest';
 import { AppModule } from '../src/modules/app';
 import { Server } from 'http';
 import { decode, JwtPayload, sign } from 'jsonwebtoken';
-import { IAccessTokenPayload } from '../src/modules/auth/auth.interface';
+import { IAccessTokenPayload, LoginResponseDto } from '../src/modules/auth';
 import { ConfigService } from '@nestjs/config';
-import { LoginResponseDto } from '../src/modules/auth/dto/login-response.dto';
 import { setTimeout } from 'timers/promises';
 import { parse as parseCookies } from 'set-cookie-parser';
 
