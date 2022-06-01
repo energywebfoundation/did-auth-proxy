@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { HttpLoggerMiddleware } from '../middlewares/http-logger.middleware';
+import { HttpLoggerMiddleware } from '../../middlewares/http-logger.middleware';
 import { AuthModule } from '../auth/auth.module';
 import { LoggerModule } from '../logger/logger.module';
 

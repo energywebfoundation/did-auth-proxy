@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app';
-import { LoggerService, LogLevel } from './logger/logger.service';
+import { AppModule } from './modules/app';
+import { LoggerService, LogLevel } from './modules/logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
