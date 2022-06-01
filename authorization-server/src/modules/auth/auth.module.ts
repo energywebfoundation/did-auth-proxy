@@ -2,11 +2,11 @@ import { Global, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthStrategy, JwtStrategy } from './strategies';
-import { RedisModule } from '../redis/redis.module';
+import { RedisModule } from '../redis';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoggerModule } from '../logger/logger.module';
+import { LoggerModule } from '../logger';
 import { HomeAssistantTokenRepository } from './home-assistant-token.repository';
 
 @Global()

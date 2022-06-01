@@ -3,10 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '../redis/redis.service';
+import { RedisService } from '../redis';
 import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
 import { v4 } from 'uuid';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '../logger';
 
 describe('RefreshTokenRepository', () => {
   let repository: RefreshTokenRepository;

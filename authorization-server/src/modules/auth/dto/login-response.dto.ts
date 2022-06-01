@@ -7,7 +7,7 @@ import {
   IsString,
   validateSync,
 } from 'class-validator';
-import { IAccessTokenPayload } from '../auth.interface';
+import { IAccessTokenPayload } from '../types';
 import { decode as decodeJWT } from 'jsonwebtoken';
 
 export class LoginResponseDto {

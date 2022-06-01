@@ -10,8 +10,8 @@ import {
   ResponseCookie,
 } from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
-import { LoginResponseDto } from './dto/login-response.dto';
-import { LoggerService } from '../logger/logger.service';
+import { LoginResponseDto } from './dto';
+import { LoggerService } from '../logger';
 import { CookieOptions, Request, Response } from 'express';
 import { ForbiddenException } from '@nestjs/common';
 

@@ -5,7 +5,7 @@ import {
   LogLevel,
   Scope,
 } from '@nestjs/common';
-import { isCI } from '../helpers';
+import { isCI } from '../../helpers';
 
 export { LogLevel } from '@nestjs/common';
 

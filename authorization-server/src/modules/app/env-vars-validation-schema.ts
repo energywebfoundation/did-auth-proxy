@@ -1,17 +1,6 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
-import { AuthModule } from './auth/auth.module';
-import { LoggerModule } from './logger/logger.module';
 
-const validationOptions = {
-  allowUnknown: true,
-  abortEarly: false,
-};
-
-export const validationSchema = Joi.object({
+export const envVarsValidationSchema = Joi.object({
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .default('development'),
@@ -58,22 +47,3 @@ export const validationSchema = Joi.object({
     './config/home-assistant-tokens.json',
   ),
 });
-
-@Module({
-  imports: [
-    LoggerModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationOptions,
-      validationSchema,
-    }),
-    AuthModule,
-  ],
-  controllers: [],
-  providers: [AppService],
-})
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
-  }
-}

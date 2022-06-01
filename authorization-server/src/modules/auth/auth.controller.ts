@@ -14,7 +14,7 @@ import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard, LoginGuard, ValidRefreshTokenGuard } from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
-import { LoginResponseDto } from './dto/login-response.dto';
+import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -22,16 +22,13 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { LoginDto } from './dto/login.dto';
 import { ConfigService } from '@nestjs/config';
-import { RefreshDto } from './dto/refresh.dto';
 import {
   IAccessTokenPayload,
   IDidAccessTokenPayload,
   IRefreshTokenPayload,
-} from './auth.interface';
-import { LoggerService } from '../logger/logger.service';
-import { LogoutDto } from './dto/logout.dto';
+} from './types';
+import { LoggerService } from '../logger';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 
 @Controller('auth')
