@@ -2,7 +2,7 @@ name: Build and deploy
 
 on:
   push:
-    branches: [develop]
+    branches: [release]
     paths-ignore:
       - 'devops/**'
   workflow_dispatch:
@@ -33,15 +33,10 @@ jobs:
         run: |
           echo "Running on branch ${{ github.ref }}"
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "::set-output name=aws_access_key_id::${{ secrets.DEV_AWS_ACCESS_KEY_ID }}"
-            echo "::set-output name=aws_secret_key::${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
-            echo "::set-output name=aws_region::${{ secrets.DEV_AWS_REGION }}"
-            echo "::set-output name=aws_ecr_repository::${{ secrets.DEV_ECR_REPOSITORY }}"
-            echo "::set-output name=argocd_url::${{ secrets.DEV_ARGOCD_URL }}"
-            echo "::set-output name=argocd_username::${{ secrets.DEV_ARGOCD_USERNAME }}"
-            echo "::set-output name=argocd_password::${{ secrets.DEV_ARGOCD_PASS }}"
-            echo "::set-output name=argocd_app_name::"did-auth-proxy"
-            echo "::set-output name=argocd_tag::"did-auth-proxy-helm.image.tag"
+            echo "::set-output name=aws_access_key_id::${{ secrets.SECOPS_PROD_AWS_ACCESS_KEY_ID }}"
+            echo "::set-output name=aws_secret_key::${{ secrets.SECOPS_PROD_AWS_SECRET_ACCESS_KEY }}"
+            echo "::set-output name=aws_region::${{ secrets.SECOPS_PROD_AWS_REGION }}"
+            echo "::set-output name=aws_ecr_repository::${{ secrets.SECOPS_PROD_ECR_REPOSITORY }}"
           else
             echo "Branch ${{ github.ref }} is not configured for deployment"
             exit 1
@@ -104,50 +99,4 @@ jobs:
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
-      
-      - name: Login to Azure registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_REGISTRY_USERNAME }}
-          password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
 
-      - name: Push image (Azure)
-        env:
-          BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
-          REPO_NAME: ${{ steps.env_vars.outputs.aws_ecr_repository }}
-        run: |
-          docker tag ${{ steps.login-ecr.outputs.registry }}/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker push $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker tag $ACR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
-          docker push $ACR_REGISTRY/$REPO_NAME:canary
-
-      - name: ArgoCD login
-        uses: clowdhaus/argo-cd-action/@v1.12.1
-        id: argocd_login
-        with:
-          command: login ${{ steps.env_vars.outputs.argocd_url }}
-          options: --insecure --password ${{ steps.env_vars.outputs.argocd_password }} --username ${{ steps.env_vars.outputs.argocd_username }}
-
-      - name: ArgoCD overvrite HELM values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.12.1
-        id: argocd_image_helm_tag_overwrite
-        with:
-          command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
-          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
-
-      - name: Reset ArgoCD
-        run: rm -rf /home/runner/argocd
-
-      - name: ArgoCD(DDhub-dev) login
-        uses: clowdhaus/argo-cd-action/@v1.12.1
-        with:
-          command: login ${{ secrets.ARGOCD_DDHUB_DEV_URL }}
-          options: --insecure --password ${{ secrets.ARGOCD_DDHUB_DEV_PASS }} --username ${{ secrets.ARGOCD_DDHUB_DEV_USERNAME }}
-
-      - name: ArgoCD(DDhub-dev) overvrite values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.12.1
-        with:
-          command: app set ddhub-messagebroker-dev
-          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
