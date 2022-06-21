@@ -90,9 +90,9 @@ jobs:
 
         run: |
           docker build -t public.ecr.aws/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
-          docker push public.ecr.aws/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
-          docker tag public.ecr.aws/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID public.ecr.aws/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
-          docker push public.ecr.aws/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+          docker push public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
+          docker tag public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+          docker push public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
 
       - name: Logout of Amazon ECR
         if: always()
