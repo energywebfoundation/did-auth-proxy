@@ -82,9 +82,14 @@ jobs:
           aws-secret-access-key: ${{ steps.env_vars.outputs.aws_secret_key }}
           aws-region: ${{ steps.env_vars.outputs.aws_region }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Public ECR
+        uses: docker/login-action@v2
+        with:
+          registry: public.ecr.aws
+          username: ${{ steps.env_vars.outputs.aws_access_key_id }}
+          password: ${{ steps.env_vars.outputs.aws_secret_key }}
+        env:
+          AWS_REGION: ${{ steps.env_vars.outputs.aws_region }}
 
       - name: Build & push docker images (AWS)
         env:
