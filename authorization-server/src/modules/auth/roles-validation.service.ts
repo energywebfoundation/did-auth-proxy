@@ -18,6 +18,12 @@ export class RolesValidationService {
     const acceptedRoles = this.configService
       .get('ACCEPTED_ROLES', '')
       .split(',');
+
+    if (acceptedRoles.length === 0) {
+      this.logger.error(`acceptedRoles is empty`);
+      return false;
+    }
+
     const roles = verifiedRoles.map((r) => r.namespace);
 
     this.logger.debug(
