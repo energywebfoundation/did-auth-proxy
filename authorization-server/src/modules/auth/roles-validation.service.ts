@@ -15,8 +15,9 @@ export class RolesValidationService {
   public async didAccessTokenRolesAreValid(
     verifiedRoles: IDidAccessTokenPayload['verifiedRoles'],
   ): Promise<boolean> {
-    const acceptedRoles =
-      this.configService.get('ACCEPTED_ROLES')?.split(',') || [];
+    const acceptedRoles = this.configService
+      .get('ACCEPTED_ROLES', [])
+      .split(',');
     const roles = verifiedRoles.map((r) => r.namespace);
 
     this.logger.debug(
