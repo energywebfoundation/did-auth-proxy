@@ -37,12 +37,12 @@ export class ValidVerifiedRolesGuard implements CanActivate {
       );
 
     if (!verifiedRolesAreValid) {
-      this.logger.error(
-        `unexpected verified roles: ${didAccessTokenPayload.verifiedRoles}`,
-      );
-      throw new Error(
-        `unexpected verified roles: ${didAccessTokenPayload.verifiedRoles}`,
-      );
+      const errorMessage = `unexpected verified roles: ${JSON.stringify(
+        didAccessTokenPayload.verifiedRoles,
+      )}`;
+
+      this.logger.error(errorMessage);
+      throw new Error(errorMessage);
     }
 
     return verifiedRolesAreValid;
