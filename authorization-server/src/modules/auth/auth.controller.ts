@@ -11,7 +11,12 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { JwtAuthGuard, LoginGuard, ValidRefreshTokenGuard } from './guards';
+import {
+  JwtAuthGuard,
+  LoginGuard,
+  ValidRefreshTokenGuard,
+  ValidVerifiedRolesGuard,
+} from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
 import {
@@ -53,7 +58,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LoginGuard)
+  @UseGuards(LoginGuard, ValidVerifiedRolesGuard)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async login(

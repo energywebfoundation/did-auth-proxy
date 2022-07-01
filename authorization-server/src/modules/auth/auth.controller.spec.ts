@@ -8,6 +8,7 @@ import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto';
 import { LoggerService } from '../logger';
 import { CookieOptions } from 'express';
+import { RolesValidationService } from './roles-validation.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -42,6 +43,10 @@ describe('AuthController', () => {
     getAuthCookieSettings: () => authCookieSettingsBase,
   };
 
+  const mockRolesValidationService = {
+    didAccessTokenRolesAreValid: async () => true,
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -49,6 +54,10 @@ describe('AuthController', () => {
         LoggerService,
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
+        {
+          provide: RolesValidationService,
+          useValue: mockRolesValidationService,
+        },
       ],
     }).compile();
 
@@ -62,6 +71,7 @@ describe('AuthController', () => {
   describe('login()', function () {
     describe('when executed', () => {
       let spyLogIn: jest.SpyInstance;
+      let spyValidateRoles: jest.SpyInstance;
       let accessToken: string, refreshToken: string;
       let response: LoginResponseDto;
       let responseCookies: Record<string, ResponseCookie>;
@@ -96,6 +106,11 @@ describe('AuthController', () => {
             };
           });
 
+        spyValidateRoles = jest.spyOn(
+          mockRolesValidationService,
+          'didAccessTokenRolesAreValid',
+        );
+
         expRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
 
         response = await controller.login(
@@ -109,6 +124,7 @@ describe('AuthController', () => {
 
       afterEach(() => {
         spyLogIn.mockClear().mockRestore();
+        spyValidateRoles.mockClear().mockRestore();
       });
 
       it('should respond with access token', async function () {
