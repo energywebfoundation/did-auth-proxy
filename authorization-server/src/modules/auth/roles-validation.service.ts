@@ -21,7 +21,9 @@ export class RolesValidationService {
     const roles = verifiedRoles.map((r) => r.namespace);
 
     this.logger.debug(
-      `validating ${JSON.stringify(roles)} against ${acceptedRoles}`,
+      `validating ${JSON.stringify(roles)} against ${JSON.stringify(
+        acceptedRoles,
+      )}`,
     );
 
     return roles.some((r) => acceptedRoles.includes(r));
