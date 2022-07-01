@@ -17,7 +17,8 @@ export class RolesValidationService {
   ): Promise<boolean> {
     const acceptedRoles = this.configService
       .get('ACCEPTED_ROLES', '')
-      .split(',');
+      .split(',')
+      .filter(Boolean);
 
     if (acceptedRoles.length === 0) {
       this.logger.error(`acceptedRoles is empty`);
