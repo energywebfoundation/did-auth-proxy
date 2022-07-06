@@ -7153,6 +7153,11 @@ multicodec@^1.0.0, multicodec@^1.0.1:
     buffer "^5.6.0"
     varint "^5.0.0"
 
+multiformats@^9.7.0:
+  version "9.7.0"
+  resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-9.7.0.tgz#845799e8df70fbb6b15922500e45cb87cf12f7e5"
+  integrity sha512-uv/tcgwk0yN4DStopnBN4GTgvaAlYdy6KnZpuzEPFOYQd71DYFJjs0MN1ERElAflrZaYyGBWXyGxL5GgrxIx0Q==
+
 multihashes@^0.4.14, multihashes@^0.4.15, multihashes@~0.4.15:
   version "0.4.21"
   resolved "https://registry.yarnpkg.com/multihashes/-/multihashes-0.4.21.tgz#dc02d525579f334a7909ade8a122dabb58ccfcb5"
@@ -7661,10 +7666,10 @@ pascal-case@^2.0.0:
     camel-case "^3.0.0"
     upper-case-first "^1.1.0"
 
-passport-did-auth@2.0.0-alpha.4:
-  version "2.0.0-alpha.4"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.4.tgz#b03491b7543e7205857ec120871bc49cb14871f4"
-  integrity sha512-Sc6gYFEHXKgBlVwfOjZ4NTn5Q/6r+emzav7JiPysoBaaXCD2LJZZHB8sbei1HpGWir97jWCLXq+4phy88sg4UA==
+passport-did-auth@2.0.0-alpha.5:
+  version "2.0.0-alpha.5"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.5.tgz#09d7105e2947bdb3e682715ab98de156556a2ea7"
+  integrity sha512-HOPm+SyzzCpVPV0uilOJPSAISGfPFMcog6ZLJYf9jwa5TAVv6LQKjmVZAmtZRZCnew9wLoE4Y4RPlh8SMNU7fw==
   dependencies:
     "@energyweb/credential-governance" "^1.0.1-alpha.4.0"
     "@energyweb/onchain-claims" "^1.0.1-alpha.4.0"
@@ -7687,10 +7692,11 @@ passport-did-auth@2.0.0-alpha.4:
     ganache-cli "^6.12.2"
     js-sha3 "^0.8.0"
     jsonwebtoken "^8.5.1"
+    multiformats "^9.7.0"
     passport "^0.5.0"
     passport-strategy "^1.0.0"
     redact-pii "^3.2.3"
-    typescript "4.5.5"
+    typescript "4.7.4"
 
 passport-jwt@^4.0.0:
   version "4.0.0"
@@ -9284,11 +9290,6 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
-
-typescript@4.5.5:
-  version "4.5.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.5.tgz#d8c953832d28924a9e3d37c73d729c846c5896f3"
-  integrity sha512-TCTIul70LyWe6IJWT8QSYeA54WQe8EjQFU4wY52Fasj5UKx88LNYKCgBEHcOMOrFF1rKGbD8v/xcNWVUq9SymA==
 
 typescript@4.7.4, typescript@^4.3.5:
   version "4.7.4"
