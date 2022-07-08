@@ -3,7 +3,7 @@ import {
   OnApplicationShutdown,
   OnModuleInit,
 } from '@nestjs/common';
-import Redis from 'ioredis';
+import * as Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { LoggerService } from '../logger';
 
