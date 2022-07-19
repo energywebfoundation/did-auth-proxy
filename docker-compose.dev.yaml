@@ -33,6 +33,35 @@ services:
     volumes:
       - dev-redis-data:/bitnami/redis/data
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "127.0.0.1:16686:16686"
+      - "127.0.0.1:14250:14250"
+    volumes:
+      - dev-jeager-tmp:/tmp
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "127.0.0.1:9412:9411"
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.48.0
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-local-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "127.0.0.1:1888:1888"   # pprof extension
+      - "127.0.0.1:13133:13133" # health_check extension
+      - "127.0.0.1:9411:9411"   # Zipkin receiver
+      - "127.0.0.1:55679:55679" # zpages extension
+      - "127.0.0.1:55681:55681"
+      - "127.0.0.1:4318:4318"
+      - "127.0.0.1:4317:4317"
+    depends_on:
+      - jaeger
+
   redis-commander:
     image: rediscommander/redis-commander:latest
     restart: unless-stopped
@@ -45,6 +74,7 @@ services:
 
 volumes:
   dev-redis-data:
+  dev-jeager-tmp:
 
 networks:
   dev-backend:

@@ -4,10 +4,18 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
 import * as cookieParser from 'cookie-parser';
+import { otelSDK } from './tracing';
 
 console.log(`${new Date().toISOString()} process starting`);
 
 async function bootstrap() {
+  const openTelemetryEnabled: boolean =
+    process.env.OTEL_ENABLED === 'false' ? false : !!process.env.OTEL_ENABLED;
+
+  if (openTelemetryEnabled) {
+    await otelSDK.start();
+  }
+
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });

@@ -6,6 +6,7 @@ import {
 import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { LoggerService } from '../logger';
+import { Span } from 'nestjs-otel';
 
 @Injectable()
 export class RedisService
@@ -32,6 +33,7 @@ export class RedisService
     this.on('reconnecting', () => this.logger.warn(`event: reconnecting`));
   }
 
+  @Span('Redis client initialization')
   async onModuleInit() {
     try {
       this.logger.debug('connecting');
