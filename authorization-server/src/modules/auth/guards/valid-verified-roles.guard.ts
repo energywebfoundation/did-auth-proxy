@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { RolesValidationService } from '../roles-validation.service';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { IDidAccessTokenPayload } from '../types';
@@ -42,7 +47,11 @@ export class ValidVerifiedRolesGuard implements CanActivate {
       )}`;
 
       this.logger.error(errorMessage);
-      throw new Error(errorMessage);
+      throw new InternalServerErrorException({
+        statusCode: 500,
+        message: errorMessage,
+        error: 'Internal Server Error',
+      });
     }
 
     return verifiedRolesAreValid;
