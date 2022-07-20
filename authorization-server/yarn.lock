@@ -368,10 +368,10 @@
   dependencies:
     ethers "^5.5.4"
 
-"@energyweb/eslint-config@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@energyweb/eslint-config/-/eslint-config-0.0.2.tgz#be61be1007d2f413d5018684bcf9df4a471f92c2"
-  integrity sha512-BZCl84xWpXTq6hkT5aD2Q/U691FW+IDNn7HYOVej5/8QgOx+uEjOj2GimdlvXUivJViMz6XDVzzwv9yWvCwbVQ==
+"@energyweb/eslint-config@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/eslint-config/-/eslint-config-0.1.0.tgz#ffe81d64b66024d4143f140db88c8562ebaebef7"
+  integrity sha512-8XHRyDtx0owTpRTeC7b/1pfrxtKW/QfnhWjw/k9dOV8fMos0yeqMMZlW7Uyy3EEFkYITFrPL1S1Lr2MQUPoysw==
 
 "@energyweb/onchain-claims@^1.0.1-alpha.4.0":
   version "1.0.1-alpha.4.0"

@@ -55,7 +55,7 @@
     "uuid": "^8.0.0"
   },
   "devDependencies": {
-    "@energyweb/eslint-config": "^0.0.2",
+    "@energyweb/eslint-config": "^0.1.0",
     "@energyweb/prettier-config": "^0.0.1",
     "@golevelup/ts-jest": "^0.3.2",
     "@nestjs/cli": "^8.0.0",
