@@ -30,6 +30,7 @@
     "test:e2e": "cd test && jest --config ./jest-e2e.json"
   },
   "dependencies": {
+    "@energyweb/credential-governance": "^2.1.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.0.0",
     "@nestjs/core": "^8.0.0",
