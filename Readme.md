@@ -10,6 +10,11 @@ into any REST service that requires this kind of user authentication to be added
 
 ```mermaid
 sequenceDiagram
+    participant client
+    participant nginx
+    participant auth proxy
+    participant PDA as passport-did-auth
+   
     client->>nginx: /auth/login
     nginx->>auth proxy: /auth/login
     auth proxy ->> PDA: identity token
