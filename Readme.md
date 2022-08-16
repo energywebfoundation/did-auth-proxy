@@ -18,23 +18,23 @@ sequenceDiagram
     client->>nginx: /auth/login
     nginx->>auth proxy: /auth/login
     auth proxy ->> PDA: identity token
-    PDA->>auth proxy: access token
+    PDA-->>auth proxy: access token
     auth proxy->>auth proxy: generate new tokens pair
-    auth proxy->> nginx: tokens pair
-    nginx->>client: tokens pair
+    auth proxy-->> nginx: tokens pair
+    nginx-->>client: tokens pair
     client->>nginx: /any/backend/path
     nginx->>auth proxy: /auth/token-introspection
-    auth proxy->>nginx: OK
+    auth proxy-->>nginx: OK
     nginx->>backend: /any/backend/path
-    backend->>nginx: response
-    nginx->>client: response
+    backend-->>nginx: response
+    nginx-->>client: response
     client->>client: continue working with the backend API
     client->>client: detect access token expired
     client->>nginx: /auth/refresh-token
     nginx->>auth proxy: /auth/refresh-token
     auth proxy->>auth proxy: generate new tokens pair
-    auth proxy->> nginx: tokens pair
-    nginx->>client: tokens pair
+    auth proxy-->> nginx: tokens pair
+    nginx-->>client: tokens pair
     client->>client: continue working with the backend API
 ```
 
