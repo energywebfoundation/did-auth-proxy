@@ -10,20 +10,30 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     private readonly logger: LoggerService,
     private readonly configService: ConfigService,
   ) {
-    const projectId = '2DTpW5Ddx5odgzd8tY1lzPCRSeF'; // 2DT... is from JH infura porject - to be deleted
-    const projectSecret = 'f0b2110757d2c0642c5d7a62ed84d9bf'; // f0b.. is from JHInfura project - to be deleted
+    let auth;
 
-    const auth =
-      'Basic ' +
-      Buffer.from(projectId + ':' + projectSecret).toString('base64');
+    if (
+      configService.get<string>('IPFS_PROJECTID') &&
+      configService.get<string>('IPFS_PROJECTSECRET')
+    ) {
+      auth =
+        'Basic ' +
+        Buffer.from(
+          configService.get<string>('IPFS_PROJECTID') +
+            ':' +
+            configService.get<string>('IPFS_PROJECTSECRET'),
+        ).toString('base64');
+    }
 
     const ipfsClientConfig = {
-      host: 'ipfs.infura.io',
-      port: 5001,
+      host: configService.get<string>('IPFS_HOST'),
+      port: configService.get<number>('IPFS_PORT'),
       protocol: 'https',
-      headers: {
-        authorization: auth,
-      },
+      headers: auth
+        ? {
+            authorization: auth,
+          }
+        : null,
     };
 
     super({
@@ -40,6 +50,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
 
     this.logger.setContext(AuthStrategy.name);
 
+    this.logger.log(`ipfsClientConfig ${JSON.stringify(ipfsClientConfig)}`);
     this.logger.log(
       `accepted roles: ${parseAcceptedRoles(
         process.env.ACCEPTED_ROLES,
