@@ -35,7 +35,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
       didContractAddress: process.env.DID_REGISTRY_ADDRESS,
       ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
-      ipfsClientConfig: ipfsClientConfig,
+      ipfsUrl: ipfsClientConfig,
     });
 
     this.logger.setContext(AuthStrategy.name);
