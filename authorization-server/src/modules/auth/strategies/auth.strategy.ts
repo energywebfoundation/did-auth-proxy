@@ -10,6 +10,32 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     private readonly logger: LoggerService,
     private readonly configService: ConfigService,
   ) {
+    let auth;
+
+    if (
+      configService.get<string>('IPFS_PROJECTID') &&
+      configService.get<string>('IPFS_PROJECTSECRET')
+    ) {
+      auth =
+        'Basic ' +
+        Buffer.from(
+          configService.get<string>('IPFS_PROJECTID') +
+            ':' +
+            configService.get<string>('IPFS_PROJECTSECRET'),
+        ).toString('base64');
+    }
+
+    const ipfsClientConfig = {
+      host: configService.get<string>('IPFS_HOST'),
+      port: configService.get<number>('IPFS_PORT'),
+      protocol: 'https',
+      headers: auth
+        ? {
+            authorization: auth,
+          }
+        : null,
+    };
+
     super({
       jwtSecret: process.env.JWT_SECRET,
       jwtSignOptions: { algorithm: 'HS256' },
@@ -19,10 +45,12 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
       didContractAddress: process.env.DID_REGISTRY_ADDRESS,
       ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
+      ipfsUrl: ipfsClientConfig,
     });
 
     this.logger.setContext(AuthStrategy.name);
 
+    this.logger.log(`ipfsClientConfig ${JSON.stringify(ipfsClientConfig)}`);
     this.logger.log(
       `accepted roles: ${parseAcceptedRoles(
         process.env.ACCEPTED_ROLES,
