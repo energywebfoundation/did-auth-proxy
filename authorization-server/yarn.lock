@@ -1022,7 +1022,7 @@
     "@ew-did-registry/keys" "0.6.3-alpha.710.0"
     ethers "^5.6.1"
 
-"@ew-did-registry/did-resolver-interface@0.7.0":
+"@ew-did-registry/did-resolver-interface@0.7.0", "@ew-did-registry/did-resolver-interface@^0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@ew-did-registry/did-resolver-interface/-/did-resolver-interface-0.7.0.tgz#d9027d3b044bed4144cd9f9c30231587400ee2fd"
   integrity sha512-e9jw9YF8LAZu+R93NICj5fOiHnOkIfACGNvdQ6xWDROcyxgQRxJoWwUIK4zJ4bPPmPMGKKgq8PmskzvkjlDnag==
@@ -4642,7 +4642,7 @@ ethers@^4.0.0-beta.1, ethers@^4.0.32:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@^5.0.13, ethers@^5.4.5, ethers@^5.4.6, ethers@^5.6.1:
+ethers@^5.0.13, ethers@^5.4.5, ethers@^5.4.6, ethers@^5.6.1, ethers@^5.7.0:
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.0.tgz#0055da174b9e076b242b8282638bc94e04b39835"
   integrity sha512-5Xhzp2ZQRi0Em+0OkOcRHxPzCfoBfgtOQA+RUylSkuHbhTEaQklnYi2hsWbRgs3ztJsXVXd9VKBcO1ScWL8YfA==
