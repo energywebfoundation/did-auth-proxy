@@ -12,6 +12,7 @@ export const envVarsValidationSchema = Joi.object({
   PORT: Joi.number().default(3000),
   BIND: Joi.string().ip().default('127.0.0.1'),
 
+  CHAIN_ID: Joi.number().positive().default(73799),
   RPC_URL: Joi.string().uri().default('https://volta-rpc.energyweb.org/'),
   CACHE_SERVER_URL: Joi.string()
     .uri()
