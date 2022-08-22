@@ -376,15 +376,6 @@
     "@ew-did-registry/did" "^0.7.0"
     ethers "^5.6.1"
 
-"@energyweb/credential-governance@^2.1.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@energyweb/credential-governance/-/credential-governance-2.2.0.tgz#1ddd938a69eefbd1174b53ece29069fc82556f77"
-  integrity sha512-Zhmpyd8l/5LqhCpMx06RCEz5oYTibNZVSJZ+8xueyzO4dYjqZ9WFdQGc/tI/YbbHlxxBuP0HzHfprsQQpOPg/w==
-  dependencies:
-    "@ew-did-registry/credentials-interface" "^0.7.0"
-    "@ew-did-registry/did" "^0.7.0"
-    ethers "^5.6.1"
-
 "@energyweb/eslint-config@^0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@energyweb/eslint-config/-/eslint-config-0.1.0.tgz#ffe81d64b66024d4143f140db88c8562ebaebef7"
