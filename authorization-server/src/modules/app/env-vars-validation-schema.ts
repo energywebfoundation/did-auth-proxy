@@ -24,11 +24,16 @@ export const envVarsValidationSchema = Joi.object({
   DID_REGISTRY_ADDRESS: Joi.string().required(),
   ENS_REGISTRY_ADDRESS: Joi.string().required(),
 
+  IPFS_HOST: Joi.string().hostname().optional().default('ipfs.infura.io'),
+  IPFS_PORT: Joi.number().positive().optional().default(5001),
+  IPFS_PROJECTID: Joi.string().optional().allow(''),
+  IPFS_PROJECTSECRET: Joi.string().optional().allow(''),
+
   ACCEPTED_ROLES: Joi.string().required(),
 
   REDIS_HOST: Joi.string().hostname().default('127.0.0.1'),
   REDIS_PORT: Joi.number().port().default(6379),
-  REDIS_PASSWORD: Joi.string().optional(),
+  REDIS_PASSWORD: Joi.string().optional().allow(''),
 
   FAIL_ON_REDIS_UNAVAILABLE: Joi.bool().default(false),
 
