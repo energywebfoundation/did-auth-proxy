@@ -36,6 +36,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       ensRegistryAddress: configService.get<string>('ENS_REGISTRY_ADDRESS'),
       provider: provider,
     });
+
     domainReader.addKnownResolver({
       chainId: configService.get<number>('CHAIN_ID'),
       address: configService.get<string>('ENS_RESOLVER_ADDRESS'),
@@ -44,6 +45,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
 
     const issuerResolver = new RoleIssuerResolver(domainReader);
     const revokerResolver = new RoleRevokerResolver(domainReader);
+
     const credentialResolver = new RoleCredentialResolver(
       provider,
       {
@@ -79,6 +81,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         AuthStrategy.getIpfsClientConfig(configService),
       )}`,
     );
+
     this.logger.info(
       `accepted roles: ${parseAcceptedRoles(
         process.env.ACCEPTED_ROLES,
