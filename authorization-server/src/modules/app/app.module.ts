@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth';
 import { LoggerModule } from 'nestjs-pino';
 import { envVarsValidationSchema } from './env-vars-validation-schema';
@@ -14,18 +14,23 @@ const validationOptions = {
 @Module({
   imports: [
     LoggerModule.forRootAsync({
-      useFactory: () => ({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
         pinoHttp: {
           genReqId: (req: Request) => req.headers['x-request-id'] || uuidv4(),
-          transport: {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              levelFirst: true,
-              translateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
-              singleLine: true,
-            },
-          },
+          transport:
+            configService.get<string>('NODE_ENV') !== 'production'
+              ? {
+                  target: 'pino-pretty',
+                  options: {
+                    colorize: true,
+                    levelFirst: true,
+                    translateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
+                    singleLine: true,
+                  },
+                }
+              : null,
           level: 'debug',
         },
       }),
