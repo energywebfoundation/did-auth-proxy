@@ -17,7 +17,15 @@ const validationOptions = {
       useFactory: () => ({
         pinoHttp: {
           genReqId: (req: Request) => req.headers['x-request-id'] || uuidv4(),
-          transport: { target: 'pino-pretty' },
+          transport: {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              levelFirst: true,
+              translateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
+              singleLine: true,
+            },
+          },
           level: 'debug',
         },
       }),
