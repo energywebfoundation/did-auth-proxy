@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
 import * as cookieParser from 'cookie-parser';
+import { AxiosExceptionFilter } from './exception-filters/axios-exception-filter';
 
 console.log(`${new Date().toISOString()} process starting`);
 
@@ -22,6 +23,10 @@ async function bootstrap() {
     new LoggerService(null, {
       logLevels: config.get<string>('LOG_LEVELS').split(',') as LogLevel[],
     }),
+  );
+
+  app.useGlobalFilters(
+    new AxiosExceptionFilter(app.getHttpAdapter(), new LoggerService()),
   );
 
   app.enableShutdownHooks();
