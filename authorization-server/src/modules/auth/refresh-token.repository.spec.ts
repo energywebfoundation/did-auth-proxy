@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
 import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
 import { v4 } from 'uuid';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 describe('RefreshTokenRepository', () => {
   let repository: RefreshTokenRepository;
@@ -46,7 +46,7 @@ describe('RefreshTokenRepository', () => {
       ],
       providers: [
         RefreshTokenRepository,
-        LoggerService,
+        { provide: PinoLogger, useValue: new PinoLogger({}) },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: RedisService, useValue: mockRedisService },
       ],

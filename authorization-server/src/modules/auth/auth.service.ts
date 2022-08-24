@@ -8,9 +8,9 @@ import {
   IGenerateRefreshTokenPayload,
   IRefreshTokenPayload,
 } from './types';
-import { LoggerService } from '../logger';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 import { CookieOptions } from 'express';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
     private configService: ConfigService,
     private jwtService: JwtService,
     private refreshTokenRepository: RefreshTokenRepository,
-    private logger: LoggerService,
+    private logger: PinoLogger,
   ) {
     this.logger.setContext(AuthService.name);
   }
@@ -103,7 +103,7 @@ export class AuthService {
   public async validateRefreshToken(token: string): Promise<boolean> {
     let tokenDecoded: IRefreshTokenPayload;
 
-    this.logger.debug(`validating refresh token`);
+    this.logger.info(`validating refresh token`);
 
     try {
       tokenDecoded = this.jwtService.verify(token);

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from '../auth';
-import { LoggerModule } from '../logger';
+import { LoggerModule } from 'nestjs-pino';
 import { envVarsValidationSchema } from './env-vars-validation-schema';
+import { Request } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
 const validationOptions = {
   allowUnknown: true,
@@ -11,7 +13,15 @@ const validationOptions = {
 
 @Module({
   imports: [
-    LoggerModule,
+    LoggerModule.forRootAsync({
+      useFactory: () => ({
+        pinoHttp: {
+          genReqId: (req: Request) => req.headers['x-request-id'] || uuidv4(),
+          transport: { target: 'pino-pretty' },
+          level: 'debug',
+        },
+      }),
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       validationOptions,
