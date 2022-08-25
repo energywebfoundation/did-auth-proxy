@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth';
 import { LoggerModule } from 'nestjs-pino';
 import { envVarsValidationSchema } from './env-vars-validation-schema';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
 const validationOptions = {
@@ -46,6 +46,15 @@ try {
                 }
               : null,
           level: configService.get<string>('LOG_LEVEL'),
+
+          customLogLevel: function (req: Request, res: Response, err) {
+            if (res.statusCode >= 400 && res.statusCode < 500) {
+              return 'warn';
+            } else if (res.statusCode >= 500 || err) {
+              return 'error';
+            }
+            return 'info';
+          },
         },
       }),
     }),
