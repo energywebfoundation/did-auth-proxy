@@ -63,6 +63,10 @@ try {
           customSuccessMessage: function (req: Request, res: Response) {
             return `request completed: ${req.method} ${req.url} (${res.statusCode} ${res.statusMessage})`;
           },
+
+          customErrorMessage: function (req: Request, res: Response) {
+            return `request errored: ${req.method} ${req.url} (${res.statusCode} ${res.statusMessage})`;
+          },
         },
       }),
     }),
