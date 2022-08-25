@@ -31,7 +31,7 @@ const validationOptions = {
                   },
                 }
               : null,
-          level: 'debug',
+          level: configService.get<string>('LOG_LEVEL'),
         },
       }),
     }),
