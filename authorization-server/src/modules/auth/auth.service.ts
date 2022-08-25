@@ -103,7 +103,7 @@ export class AuthService {
   public async validateRefreshToken(token: string): Promise<boolean> {
     let tokenDecoded: IRefreshTokenPayload;
 
-    this.logger.info(`validating refresh token`);
+    this.logger.debug(`validating refresh token`);
 
     try {
       tokenDecoded = this.jwtService.verify(token);
