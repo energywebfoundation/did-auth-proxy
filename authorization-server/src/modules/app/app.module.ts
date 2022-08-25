@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth';
 import { LoggerModule } from 'nestjs-pino';
@@ -10,6 +10,20 @@ const validationOptions = {
   allowUnknown: true,
   abortEarly: false,
 };
+
+let config: DynamicModule;
+
+try {
+  config = ConfigModule.forRoot({
+    isGlobal: true,
+    validationOptions,
+    validationSchema: envVarsValidationSchema,
+  });
+} catch (err) {
+  console.log(err.toString());
+  console.log('exiting');
+  process.exit(1);
+}
 
 @Module({
   imports: [
@@ -35,11 +49,7 @@ const validationOptions = {
         },
       }),
     }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationOptions,
-      validationSchema: envVarsValidationSchema,
-    }),
+    config,
     AuthModule,
   ],
   controllers: [],
