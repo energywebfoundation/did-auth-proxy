@@ -22,17 +22,13 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {
-    const didStore = new DidStore(
-      AuthStrategy.getIpfsClientConfig(configService),
-    );
-
     const provider = new providers.JsonRpcProvider(
       configService.get<string>('RPC_URL'),
     );
 
     const domainReader = new DomainReader({
       ensRegistryAddress: configService.get<string>('ENS_REGISTRY_ADDRESS'),
-      provider: provider,
+      provider,
     });
 
     domainReader.addKnownResolver({
@@ -40,19 +36,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       address: configService.get<string>('ENS_RESOLVER_ADDRESS'),
       type: ResolverContractType.RoleDefinitionResolver_v2,
     });
-
-    const issuerResolver = new RoleIssuerResolver(domainReader);
-    const revokerResolver = new RoleRevokerResolver(domainReader);
-
-    const credentialResolver = new RoleCredentialResolver(
-      provider,
-      {
-        abi: ethrReg.abi,
-        address: configService.get<string>('DID_REGISTRY_ADDRESS'),
-        method: Methods.Erc1056,
-      },
-      didStore,
-    );
 
     super(
       {
@@ -66,9 +49,17 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
         ipfsUrl: AuthStrategy.getIpfsClientConfig(configService),
       },
-      issuerResolver,
-      revokerResolver,
-      credentialResolver,
+      new RoleIssuerResolver(domainReader),
+      new RoleRevokerResolver(domainReader),
+      new RoleCredentialResolver(
+        provider,
+        {
+          abi: ethrReg.abi,
+          address: configService.get<string>('DID_REGISTRY_ADDRESS'),
+          method: Methods.Erc1056,
+        },
+        new DidStore(AuthStrategy.getIpfsClientConfig(configService)),
+      ),
       verifyCredential,
     );
 
