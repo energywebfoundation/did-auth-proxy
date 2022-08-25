@@ -59,6 +59,10 @@ try {
           customReceivedMessage: function (req: Request) {
             return `request received: ${req.method} ${req.url}`;
           },
+
+          customSuccessMessage: function (req: Request, res: Response) {
+            return `request completed: ${req.method} ${req.url} (${res.statusCode} ${res.statusMessage})`;
+          },
         },
       }),
     }),
