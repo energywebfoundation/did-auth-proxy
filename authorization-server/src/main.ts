@@ -26,7 +26,30 @@ async function bootstrap() {
     new AxiosExceptionFilter(app.getHttpAdapter(), new PinoLogger({})),
   );
 
-  app.enableShutdownHooks();
+  const signals: Record<string, number> = {
+    SIGHUP: 1,
+    SIGINT: 2,
+    SIGTERM: 15,
+  };
+
+  Object.keys(signals).forEach((signal) => {
+    process.on(signal, async () => {
+      await app.close();
+
+      const exitSignal = signals[signal] + 128;
+
+      process.on('exit', () =>
+        console.log(
+          `INFO [${new Date().toISOString()}] (${
+            process.pid
+          }) exiting with signal ${exitSignal}`,
+        ),
+      );
+
+      await app.flushLogs();
+      process.exit(exitSignal);
+    });
+  });
 
   SwaggerModule.setup(
     'swagger',
