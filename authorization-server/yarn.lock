@@ -1013,7 +1013,7 @@
     "@ew-did-registry/keys" "0.6.3-alpha.710.0"
     ethers "^5.6.1"
 
-"@ew-did-registry/did-resolver-interface@0.7.0", "@ew-did-registry/did-resolver-interface@^0.7.0":
+"@ew-did-registry/did-resolver-interface@0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@ew-did-registry/did-resolver-interface/-/did-resolver-interface-0.7.0.tgz#d9027d3b044bed4144cd9f9c30231587400ee2fd"
   integrity sha512-e9jw9YF8LAZu+R93NICj5fOiHnOkIfACGNvdQ6xWDROcyxgQRxJoWwUIK4zJ4bPPmPMGKKgq8PmskzvkjlDnag==
