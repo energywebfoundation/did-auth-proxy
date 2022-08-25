@@ -21,6 +21,7 @@ async function bootstrap() {
   }
 
   app.useLogger(app.get(Logger));
+  app.flushLogs();
 
   app.useGlobalFilters(
     new AxiosExceptionFilter(app.getHttpAdapter(), new PinoLogger({})),
