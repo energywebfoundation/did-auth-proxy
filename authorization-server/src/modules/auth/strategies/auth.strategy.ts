@@ -1,5 +1,10 @@
 import {
+  DidStore,
+  DomainReader,
+  ethrReg,
   LoginStrategy,
+  Methods,
+  ResolverContractType,
   RoleCredentialResolver,
   RoleIssuerResolver,
   RoleRevokerResolver,
@@ -9,13 +14,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { verifyCredential } from 'didkit-wasm-node';
-import { ethrReg } from '@ew-did-registry/did-ethr-resolver';
-import { Methods } from '@ew-did-registry/did';
-import {
-  DomainReader,
-  ResolverContractType,
-} from '@energyweb/credential-governance';
-import { DidStore } from '@ew-did-registry/did-ipfs-store';
 import { providers } from 'ethers';
 
 @Injectable()
