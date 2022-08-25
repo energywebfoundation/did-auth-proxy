@@ -55,6 +55,10 @@ try {
             }
             return 'info';
           },
+
+          customReceivedMessage: function (req: Request) {
+            return `request received: ${req.method} ${req.url}`;
+          },
         },
       }),
     }),
