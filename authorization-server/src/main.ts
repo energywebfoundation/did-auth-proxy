@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule, LoggerService, LogLevel } from './modules';
+import { AppModule } from './modules';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
 import * as cookieParser from 'cookie-parser';
 import { AxiosExceptionFilter } from './exception-filters/axios-exception-filter';
+import { Logger, PinoLogger } from 'nestjs-pino';
 
 console.log(`${new Date().toISOString()} process starting`);
 
@@ -19,17 +20,41 @@ async function bootstrap() {
     app.use(cookieParser());
   }
 
-  app.useLogger(
-    new LoggerService(null, {
-      logLevels: config.get<string>('LOG_LEVELS').split(',') as LogLevel[],
-    }),
-  );
+  app.useLogger(app.get(Logger));
+  app.flushLogs();
 
   app.useGlobalFilters(
-    new AxiosExceptionFilter(app.getHttpAdapter(), new LoggerService()),
+    new AxiosExceptionFilter(app.getHttpAdapter(), new PinoLogger({})),
   );
 
-  app.enableShutdownHooks();
+  const signals: Record<string, number> = {
+    SIGHUP: 1,
+    SIGINT: 2,
+    SIGTERM: 15,
+  };
+
+  Object.keys(signals).forEach((signal) => {
+    process.on(signal, async () => {
+      await app.close();
+
+      /** default behavior of the nodejs when receiving `SIGTERM` and `SIGINT` signals is to
+       *  exit with code 128 + signal number. Here, we overwrite default handlers, so to keep
+       *  this behavior unchanged, process needs to exit with `signals[signal] + 128` exit signal
+       */
+      const exitSignal = signals[signal] + 128;
+
+      process.on('exit', () =>
+        console.log(
+          `INFO [${new Date().toISOString()}] (${
+            process.pid
+          }) exiting with signal ${exitSignal}`,
+        ),
+      );
+
+      await app.flushLogs();
+      process.exit(exitSignal);
+    });
+  });
 
   SwaggerModule.setup(
     'swagger',
@@ -57,12 +82,12 @@ async function bootstrap() {
   const PORT = config.get('PORT');
   const BIND = config.get('BIND');
 
-  const webserverLogger = new LoggerService('webserver', {
-    logLevels: config.get<string>('LOG_LEVELS').split(',') as LogLevel[],
-  });
+  const webserverLogger = new PinoLogger({});
+
+  webserverLogger.setContext('webserver');
 
   await app.listen(PORT, BIND, () => {
-    webserverLogger.log(
+    webserverLogger.info(
       `Listening at http://localhost:${PORT}, bound to ${BIND}`,
     );
   });
@@ -76,7 +101,7 @@ async function bootstrap() {
 
 bootstrap();
 
-function connectionHandler(socket: Socket, logger: LoggerService) {
+function connectionHandler(socket: Socket, logger: PinoLogger) {
   logger.debug(`connection from ${socket.remoteAddress}:${socket.remotePort}`);
 
   const start = Date.now();

@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '../logger';
 import { IDidAccessTokenPayload } from './types';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class RolesValidationService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(RolesValidationService.name);
   }

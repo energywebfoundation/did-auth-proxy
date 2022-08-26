@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 import { CookieOptions } from 'express';
 import { RolesValidationService } from './roles-validation.service';
 
@@ -51,7 +51,7 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
-        LoggerService,
+        { provide: PinoLogger, useValue: new PinoLogger({}) },
         { provide: AuthService, useValue: mockAuthService },
         { provide: ConfigService, useValue: mockConfigService },
         {

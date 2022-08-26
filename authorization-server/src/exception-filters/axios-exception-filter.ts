@@ -1,11 +1,11 @@
 import { BaseExceptionFilter } from '@nestjs/core';
 import { ArgumentsHost, Catch, HttpServer } from '@nestjs/common';
 import { AxiosError } from 'axios';
-import { LoggerService } from '../modules';
+import { PinoLogger } from 'nestjs-pino';
 
 @Catch(AxiosError)
 export class AxiosExceptionFilter extends BaseExceptionFilter {
-  constructor(server: HttpServer, private readonly logger: LoggerService) {
+  constructor(server: HttpServer, private readonly logger: PinoLogger) {
     logger.setContext(AxiosExceptionFilter.name);
     super(server);
   }

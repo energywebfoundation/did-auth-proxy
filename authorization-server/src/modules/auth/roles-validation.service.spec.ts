@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RolesValidationService } from './roles-validation.service';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 const mockConfigService = {
   get: <T>(key: string): T => {
@@ -20,7 +20,7 @@ describe('RolesValidationService', function () {
       providers: [
         RolesValidationService,
         { provide: ConfigService, useValue: mockConfigService },
-        LoggerService,
+        { provide: PinoLogger, useValue: new PinoLogger({}) },
       ],
     }).compile();
 

@@ -29,6 +29,7 @@ FROM base as final
 
 ENV NODE_ENV=production
 ENV BIND=0.0.0.0
+ENV LOG_LEVEL=info
 
 COPY --from=dependencies-prod /app/node_modules ./node_modules
 COPY --from=build /app/dist ./

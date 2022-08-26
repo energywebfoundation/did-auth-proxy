@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
 import { IRefreshTokenPayload } from './types';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 const KEY_PREFIX = 'refresh-token';
 
@@ -13,7 +13,7 @@ export class RefreshTokenRepository {
     private jwtService: JwtService,
     private configService: ConfigService,
     private redis: RedisService,
-    private logger: LoggerService,
+    private logger: PinoLogger,
   ) {
     this.logger.setContext(RefreshTokenRepository.name);
   }

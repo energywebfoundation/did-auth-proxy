@@ -7,14 +7,14 @@ import {
 import { RolesValidationService } from '../roles-validation.service';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { IDidAccessTokenPayload } from '../types';
-import { LoggerService } from '../../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 //TODO: test like this: https://stackoverflow.com/questions/55848238/nestjs-unit-test-mock-method-guard
 
 export class ValidVerifiedRolesGuard implements CanActivate {
   constructor(
-    @Inject(LoggerService)
-    private readonly logger: LoggerService,
+    @Inject(PinoLogger)
+    private readonly logger: PinoLogger,
     private readonly rolesValidationService: RolesValidationService,
   ) {
     logger.setContext(ValidVerifiedRolesGuard.name);
