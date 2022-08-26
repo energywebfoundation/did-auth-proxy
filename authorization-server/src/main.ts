@@ -37,6 +37,10 @@ async function bootstrap() {
     process.on(signal, async () => {
       await app.close();
 
+      /** default behavior of the nodejs when receiving `SIGTERM` and `SIGINT` signals is to
+       *  exit with code 128 + signal number. Here, we overwrite default handlers, so to keep
+       *  this behavior unchanged, process needs to exit with `signals[signal] + 128` exit signal
+       */
       const exitSignal = signals[signal] + 128;
 
       process.on('exit', () =>
