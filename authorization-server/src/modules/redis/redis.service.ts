@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import Redis from 'ioredis';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class RedisService
@@ -14,7 +14,7 @@ export class RedisService
 {
   constructor(
     private readonly configService: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: PinoLogger,
   ) {
     super({
       host: configService.get('REDIS_HOST'),
@@ -25,11 +25,11 @@ export class RedisService
 
     this.logger.setContext(RedisService.name);
 
-    this.on('connect', () => this.logger.debug(`event: connect`));
-    this.on('ready', () => this.logger.log(`event: ready`));
-    this.on('end', () => this.logger.log(`event: disconnected`));
-    this.on('error', (err) => this.logger.error(`${err}`));
-    this.on('reconnecting', () => this.logger.warn(`event: reconnecting`));
+    this.on('connect', () => this.logger.debug({ event: 'connect' }));
+    this.on('ready', () => this.logger.info({ event: 'ready' }));
+    this.on('end', () => this.logger.info({ event: 'disconnected' }));
+    this.on('error', (err) => this.logger.error(err));
+    this.on('reconnecting', () => this.logger.warn({ event: 'reconnecting' }));
   }
 
   async onModuleInit() {

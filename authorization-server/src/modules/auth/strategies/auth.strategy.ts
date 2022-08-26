@@ -1,13 +1,13 @@
 import { LoginStrategy } from 'passport-did-auth';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { LoggerService } from '../../logger';
 import { ConfigService } from '@nestjs/config';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
   constructor(
-    private readonly logger: LoggerService,
+    private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {
     let auth;
@@ -50,8 +50,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
 
     this.logger.setContext(AuthStrategy.name);
 
-    this.logger.log(`ipfsClientConfig ${JSON.stringify(ipfsClientConfig)}`);
-    this.logger.log(
+    this.logger.info(`ipfsClientConfig ${JSON.stringify(ipfsClientConfig)}`);
+    this.logger.info(
       `accepted roles: ${parseAcceptedRoles(
         process.env.ACCEPTED_ROLES,
       ).join()}`,

@@ -2,11 +2,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from './redis.service';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 describe('RedisService', () => {
   let service: RedisService;
-  let loggerService: LoggerService;
+  let loggerService: PinoLogger;
 
   const mockConfigService = {
     get(key: string): string | number | boolean | undefined {
@@ -21,15 +21,15 @@ describe('RedisService', () => {
       providers: [
         RedisService,
         {
-          provide: LoggerService,
-          useValue: new LoggerService(),
+          provide: PinoLogger,
+          useValue: new PinoLogger({}),
         },
         { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
 
     service = module.get<RedisService>(RedisService);
-    loggerService = module.get(LoggerService);
+    loggerService = module.get<PinoLogger>(PinoLogger);
   });
 
   it('should be defined', () => {

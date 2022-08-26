@@ -32,7 +32,7 @@ import {
   IDidAccessTokenPayload,
   IRefreshTokenPayload,
 } from './types';
-import { LoggerService } from '../logger';
+import { PinoLogger } from 'nestjs-pino';
 
 @Controller('auth')
 @UsePipes(
@@ -44,7 +44,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(AuthController.name);
   }
