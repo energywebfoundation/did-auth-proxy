@@ -12,6 +12,7 @@ export const envVarsValidationSchema = Joi.object({
   PORT: Joi.number().default(3000),
   BIND: Joi.string().ip().default('127.0.0.1'),
 
+  CHAIN_ID: Joi.number().positive().default(73799),
   RPC_URL: Joi.string().uri().default('https://volta-rpc.energyweb.org/'),
   CACHE_SERVER_URL: Joi.string()
     .uri()
@@ -21,6 +22,7 @@ export const envVarsValidationSchema = Joi.object({
     .required(),
   DID_REGISTRY_ADDRESS: Joi.string().required(),
   ENS_REGISTRY_ADDRESS: Joi.string().required(),
+  ENS_RESOLVER_ADDRESS: Joi.string().required(),
 
   IPFS_HOST: Joi.string().hostname().optional().default('ipfs.infura.io'),
   IPFS_PORT: Joi.number().positive().optional().default(5001),
