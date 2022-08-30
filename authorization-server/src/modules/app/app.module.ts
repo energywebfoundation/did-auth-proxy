@@ -38,7 +38,7 @@ try {
               ? {
                   target: 'pino-pretty',
                   options: {
-                    colorize: true,
+                    colorize: !configService.get<string>('NO_COLOR'),
                     levelFirst: true,
                     translateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss.l'Z'",
                     singleLine: true,
