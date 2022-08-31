@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Socket } from 'net';
 import * as cookieParser from 'cookie-parser';
 import { AxiosExceptionFilter } from './exception-filters/axios-exception-filter';
-import { Logger, PinoLogger } from 'nestjs-pino';
+import { Logger, LoggerErrorInterceptor, PinoLogger } from 'nestjs-pino';
 
 console.log(`${new Date().toISOString()} process starting`);
 
@@ -23,6 +23,7 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.flushLogs();
 
+  app.useGlobalInterceptors(new LoggerErrorInterceptor());
   app.useGlobalFilters(
     new AxiosExceptionFilter(app.getHttpAdapter(), new PinoLogger({})),
   );
