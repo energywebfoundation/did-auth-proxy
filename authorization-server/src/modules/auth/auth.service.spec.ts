@@ -5,14 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
-import { LoggerService } from '../logger/logger.service';
-import { IAccessTokenPayload, IRefreshTokenPayload } from './auth.interface';
+import { PinoLogger } from 'nestjs-pino';
+import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
   let configService: ConfigService;
-  let loggerService: LoggerService;
+  let loggerService: PinoLogger;
 
   const mockConfigService = {
     get(key: string) {
@@ -49,8 +49,8 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         {
-          provide: LoggerService,
-          useValue: new LoggerService(),
+          provide: PinoLogger,
+          useValue: new PinoLogger({}),
         },
         { provide: ConfigService, useValue: mockConfigService },
         {
@@ -64,7 +64,7 @@ describe('AuthService', () => {
     configService = module.get<ConfigService>(ConfigService);
     jwtService = module.get<JwtService>(JwtService);
 
-    loggerService = module.get(LoggerService);
+    loggerService = module.get<PinoLogger>(PinoLogger);
   });
 
   it('should be defined', () => {

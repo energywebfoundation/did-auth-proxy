@@ -10,7 +10,7 @@ did-auth-proxy-helm:
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
 
-  imagePullSecrets: 
+  imagePullSecrets:
     - name: regcred
   nameOverride: "did-auth-proxy-helm"
   fullnameOverride: "did-auth-proxy-helm"
@@ -40,7 +40,7 @@ did-auth-proxy-helm:
   service:
     type: ClusterIP
     port: 80
-    
+
   #example with influx as a backend service
 
   ingress:
@@ -94,6 +94,7 @@ did-auth-proxy-helm:
     JWT_REFRESH_TTL: 86400
     DID_REGISTRY_ADDRESS: 0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
     ENS_REGISTRY_ADDRESS: 0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
+    ENS_RESOLVER_ADDRESS: 0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
 
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
@@ -101,6 +102,9 @@ did-auth-proxy-helm:
     REDIS_HOST: did-auth-proxy-redis-master.did-auth-proxy.svc.cluster.local
     REDIS_PORT: 6379
     REDIS_PASSWORD: redis
+    IPFS_HOST: ipfs.infura.io
+    IPFS_PORT: 5001
+    IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -128,9 +132,10 @@ did-auth-proxy-helm:
   affinity: {}
 
   sealedSecret:
-    enabled: false
+    enabled: true
     annotations: {}
-    encryptedData: {}
+    encryptedData:
+      IPFS_PROJECTSECRET: AgCnApFbM7NTtWcL+CUo4WadFhRAdlRqNIo57JRtvRE5++IdJhh9MBZ+nKrpI+TO9e1eWXMbjjBKiAnlIZLd5D5Gn2KGTdeMl0e3ZOZKnEkxU6US5rajcMQ5tvzHU0uy/pEY6r/pAzhl40NvhGlPyTY5USaZRevki8ns/A0p5xkdNq9HUO/SnTIJ9n3TjoTj6UD6LyT4EGJKhX96ZswcKJTPiM7SOq3m5ZMr+HlgOCKyNDOPEfS0SXn0Yb0gugyrET6C4pmTFTi1UjcEX5FLMBMIIN6Y514xyx/s8fC6ioPGd5SkT6GzAOBbd99Vem+rJQD7c+ks4UOBEBRvitnlH8SyQIbUasvl8va7lzSyPbgwM5oDOBjk2AYXPKbQ9qo2w5nDro/4MYY5QM0+uP4snMkbZVa2QXRJNxCkFWt/bgdBV6Z8rc0PZ0QzxDtpaKoh3f7UU9rETGaVDoU8TQv7QtsD6D7h/Fh66xlmb4oGQNhuIhqU/+aMJWpy9CuHsklpKpQehWaCTl/PpKanRNHQ9KRg+Qu5eGHLpGbXE7V6jtzhNsiGUa1GIH0cZlWQQS5qkDzDraOoLbabuZ/Erxtux5fT6XKcUBaxWTG4wD75qncJ+mAhjviwlT9wSGrTvzDXSRyREmVKaDEKRDtLtH32vA+fifZAGh9qWjdZVF6lOml/2gLorn9++dzN+fo+Lk0zlsUrZ+rGmoEnROePkls1+15b6NPgovuPRMu/LA9ql3Kjow==
 
   ########
   # Redis

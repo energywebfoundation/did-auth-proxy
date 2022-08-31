@@ -7,10 +7,10 @@ import {
   IGenerateAccessTokenPayload,
   IGenerateRefreshTokenPayload,
   IRefreshTokenPayload,
-} from './auth.interface';
-import { LoggerService } from '../logger/logger.service';
+} from './types';
 import { isNil } from '@nestjs/common/utils/shared.utils';
 import { CookieOptions } from 'express';
+import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
     private configService: ConfigService,
     private jwtService: JwtService,
     private refreshTokenRepository: RefreshTokenRepository,
-    private logger: LoggerService,
+    private logger: PinoLogger,
   ) {
     this.logger.setContext(AuthService.name);
   }

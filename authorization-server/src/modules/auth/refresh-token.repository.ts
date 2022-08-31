@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '../redis/redis.service';
-import { IRefreshTokenPayload } from './auth.interface';
-import { LoggerService } from '../logger/logger.service';
+import { RedisService } from '../redis';
+import { IRefreshTokenPayload } from './types';
+import { PinoLogger } from 'nestjs-pino';
 
 const KEY_PREFIX = 'refresh-token';
 
@@ -13,7 +13,7 @@ export class RefreshTokenRepository {
     private jwtService: JwtService,
     private configService: ConfigService,
     private redis: RedisService,
-    private logger: LoggerService,
+    private logger: PinoLogger,
   ) {
     this.logger.setContext(RefreshTokenRepository.name);
   }
