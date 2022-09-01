@@ -104,24 +104,6 @@ jobs:
       - name: Logout of Amazon ECR
         if: always()
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
-      
-      - name: Login to Azure registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_REGISTRY_USERNAME }}
-          password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
-
-      - name: Push image (Azure)
-        env:
-          BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
-          REPO_NAME: ${{ steps.env_vars.outputs.aws_ecr_repository }}
-        run: |
-          docker tag ${{ steps.login-ecr.outputs.registry }}/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker push $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker tag $ACR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
-          docker push $ACR_REGISTRY/$REPO_NAME:canary
 
       - name: ArgoCD login
         uses: clowdhaus/argo-cd-action/@v1.12.1
@@ -135,19 +117,4 @@ jobs:
         id: argocd_image_helm_tag_overwrite
         with:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
-          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
-
-      - name: Reset ArgoCD
-        run: rm -rf /home/runner/argocd
-
-      - name: ArgoCD(DDhub-dev) login
-        uses: clowdhaus/argo-cd-action/@v1.12.1
-        with:
-          command: login ${{ secrets.ARGOCD_DDHUB_DEV_URL }}
-          options: --insecure --password ${{ secrets.ARGOCD_DDHUB_DEV_PASS }} --username ${{ secrets.ARGOCD_DDHUB_DEV_USERNAME }}
-
-      - name: ArgoCD(DDhub-dev) overvrite values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.12.1
-        with:
-          command: app set ddhub-messagebroker-dev
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
