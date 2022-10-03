@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: styfle/cancel-workflow-action@0.10.0
+      - uses: styfle/cancel-workflow-action@0.10.1
         with:
           access_token: ${{ github.token }}
   unique_id:
@@ -106,14 +106,14 @@ jobs:
         run: docker logout ${{ steps.login-ecr.outputs.registry }}
 
       - name: ArgoCD login
-        uses: clowdhaus/argo-cd-action/@v1.12.1
+        uses: clowdhaus/argo-cd-action/@v1.14.0
         id: argocd_login
         with:
           command: login ${{ steps.env_vars.outputs.argocd_url }}
           options: --insecure --password ${{ steps.env_vars.outputs.argocd_password }} --username ${{ steps.env_vars.outputs.argocd_username }}
 
       - name: ArgoCD overvrite HELM values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.12.1
+        uses: clowdhaus/argo-cd-action/@v1.14.0
         id: argocd_image_helm_tag_overwrite
         with:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}

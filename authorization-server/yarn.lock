@@ -8031,10 +8031,10 @@ pascal-case@^2.0.0:
     camel-case "^3.0.0"
     upper-case-first "^1.1.0"
 
-passport-did-auth@2.0.0-alpha.16:
-  version "2.0.0-alpha.16"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.16.tgz#d92d7f00f1b6b920157eddbd3f4e040bd24985b4"
-  integrity sha512-CbG4ekRGy5Y4FS5dLjMlQAghl10x5f1GCx1nH+PfR2aruJLI9543dYZ9FB7j0s49+20HB3b2+HQ/3rgkzCFELg==
+passport-did-auth@2.0.0-alpha.18:
+  version "2.0.0-alpha.18"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.18.tgz#58e12ccb2c07a55ef42c4055628d1e8c6de6582c"
+  integrity sha512-Fl2P2BFhknNJHfLMytwYyamC2hsRfM2nkVR3bXcHxP/m+77sjASDGMbcC1EEYOXkjd/Da0JBR/EDXRSp3+nF7A==
   dependencies:
     "@energyweb/credential-governance" "^2.2.1-alpha.293.0"
     "@energyweb/onchain-claims" "^2.2.1-alpha.293.0"
