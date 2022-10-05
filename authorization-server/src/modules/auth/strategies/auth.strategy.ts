@@ -37,6 +37,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       type: ResolverContractType.RoleDefinitionResolver_v2,
     });
 
+    const ipfsConfig = AuthStrategy.getIpfsClientConfig(configService);
+
     super(
       {
         jwtSecret: process.env.JWT_SECRET,
@@ -47,7 +49,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
         didContractAddress: process.env.DID_REGISTRY_ADDRESS,
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
-        ipfsUrl: AuthStrategy.getIpfsClientConfig(configService),
+        ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
       },
       new RoleIssuerResolver(domainReader),
       new RoleRevokerResolver(domainReader),
@@ -58,7 +60,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           address: configService.get<string>('DID_REGISTRY_ADDRESS'),
           method: Methods.Erc1056,
         },
-        new DidStore(AuthStrategy.getIpfsClientConfig(configService)),
+        new DidStore(ipfsConfig.url, ipfsConfig.headers),
       ),
       verifyCredential,
     );
@@ -79,9 +81,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
   }
 
   static getIpfsClientConfig(configService: ConfigService): {
-    host: string;
-    port: number;
-    protocol: string;
+    url: string;
     headers: Record<string, string> | null;
   } {
     let auth;
@@ -99,10 +99,14 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         ).toString('base64');
     }
 
+    const port =
+      configService.get<number>('IPFS_PORT') &&
+      configService.get<number>('IPFS_PORT') !== 443
+        ? ':' + configService.get<number>('IPFS_PORT')
+        : '';
+
     return {
-      host: configService.get<string>('IPFS_HOST'),
-      port: configService.get<number>('IPFS_PORT'),
-      protocol: 'https',
+      url: `https://${configService.get<string>('IPFS_HOST')}${port}`,
       headers: auth
         ? {
             authorization: auth,
