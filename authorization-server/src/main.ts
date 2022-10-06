@@ -7,6 +7,23 @@ import * as cookieParser from 'cookie-parser';
 import { AxiosExceptionFilter } from './exception-filters/axios-exception-filter';
 import { Logger, LoggerErrorInterceptor, PinoLogger } from 'nestjs-pino';
 
+import * as http from 'node:http';
+import * as https from 'node:https';
+import { Config, logOutgoingRequests } from './utilities/log-outgoing-requests';
+
+const httpLogOptions: Config = {
+  logStartOfRequest: false,
+  logRequestStartTime: true,
+  logStackTrace: false,
+  logStackTraceErrorsOnly: true,
+  logRequestBodies: false,
+  logRequestHeaders: false,
+  logResponseBodies: false,
+};
+
+logOutgoingRequests(http, httpLogOptions);
+logOutgoingRequests(https, httpLogOptions);
+
 console.log(`${new Date().toISOString()} process starting`);
 
 async function bootstrap() {
