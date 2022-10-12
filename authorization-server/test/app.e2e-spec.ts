@@ -53,7 +53,7 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).post('/auth/login').send({
           identityToken,
         });
-      }, 15000);
+      }, 30000);
 
       it('should respond with 200 status code', async function () {
         expect(response.statusCode).toBe(201);
