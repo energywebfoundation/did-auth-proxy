@@ -12,6 +12,11 @@ import { parse as parseCookies } from 'set-cookie-parser';
 
 import { RedisMemoryServer } from 'redis-memory-server';
 
+if (!process.env.IDENTITY_TOKEN) {
+  console.log('IDENTITY_TOKEN env var not set');
+  process.exit(1);
+}
+
 describe('AppController (e2e)', () => {
   const identityToken = process.env.IDENTITY_TOKEN;
   let app: INestApplication;
