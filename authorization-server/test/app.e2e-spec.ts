@@ -10,13 +10,30 @@ import { ConfigService } from '@nestjs/config';
 import { setTimeout } from 'timers/promises';
 import { parse as parseCookies } from 'set-cookie-parser';
 
+import { RedisMemoryServer } from 'redis-memory-server';
+
+if (!process.env.IDENTITY_TOKEN) {
+  console.log('IDENTITY_TOKEN env var not set');
+  process.exit(1);
+}
+
 describe('AppController (e2e)', () => {
   const identityToken = process.env.IDENTITY_TOKEN;
   let app: INestApplication;
   let appHttpServer: Server;
   let configService: ConfigService;
+  let redisServer: RedisMemoryServer;
 
   beforeAll(async () => {
+    redisServer = new RedisMemoryServer({
+      instance: {
+        port: parseInt(process.env.REDIS_PORT) | 61379,
+      },
+      autoStart: true,
+    });
+
+    await redisServer.ensureInstance();
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -31,6 +48,7 @@ describe('AppController (e2e)', () => {
 
   afterAll(async function () {
     await app.close();
+    await redisServer.stop();
   });
 
   describe('/auth (GET)', function () {
