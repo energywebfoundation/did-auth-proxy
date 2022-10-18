@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { v4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import {
   IGenerateAccessTokenPayload,
@@ -27,7 +27,7 @@ export class AuthService {
     payload: IGenerateAccessTokenPayload,
   ): Promise<string> {
     return this.jwtService.sign(
-      { id: v4(), ...payload },
+      { id: randomUUID(), ...payload },
       {
         expiresIn: this.configService.get<number>('JWT_ACCESS_TTL'),
       },
@@ -38,7 +38,7 @@ export class AuthService {
     payload: IGenerateRefreshTokenPayload,
   ): Promise<string> {
     const token = this.jwtService.sign(
-      { id: v4(), ...payload },
+      { id: randomUUID(), ...payload },
       {
         expiresIn: this.configService.get<number>('JWT_REFRESH_TTL'),
       },

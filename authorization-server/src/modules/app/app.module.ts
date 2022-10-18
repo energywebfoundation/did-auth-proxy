@@ -4,7 +4,7 @@ import { AuthModule } from '../auth';
 import { LoggerModule } from 'nestjs-pino';
 import { envVarsValidationSchema } from './env-vars-validation-schema';
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const validationOptions = {
   allowUnknown: true,
@@ -32,7 +32,8 @@ try {
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         pinoHttp: {
-          genReqId: (req: Request) => req.headers['x-request-id'] || uuidv4(),
+          genReqId: (req: Request) =>
+            req.headers['x-request-id'] || randomUUID(),
           transport:
             configService.get<string>('NODE_ENV') !== 'production'
               ? {
