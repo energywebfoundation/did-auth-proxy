@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IDidAccessTokenPayload } from './types';
+import { RoleStatus } from 'passport-did-auth';
 import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class RolesValidationService {
   }
 
   public async didAccessTokenRolesAreValid(
-    verifiedRoles: IDidAccessTokenPayload['verifiedRoles'],
+    userRoles: RoleStatus[],
   ): Promise<boolean> {
     const acceptedRoles = this.configService
       .get('ACCEPTED_ROLES', '')
@@ -25,7 +25,7 @@ export class RolesValidationService {
       return false;
     }
 
-    const roles = verifiedRoles.map((r) => r.namespace);
+    const roles = userRoles.map((r) => r.namespace);
 
     this.logger.debug(
       `validating ${JSON.stringify(roles)} against ${JSON.stringify(

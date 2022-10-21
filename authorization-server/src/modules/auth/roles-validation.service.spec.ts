@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RolesValidationService } from './roles-validation.service';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
+import { RoleCredentialStatus } from 'passport-did-auth';
 
 const mockConfigService = {
   get: <T>(key: string): T => {
@@ -35,7 +36,11 @@ describe('RolesValidationService', function () {
     it('should resolve to true', async function () {
       expect(
         await service.didAccessTokenRolesAreValid([
-          { name: 'role1', namespace: 'role1.roles.app1.apps.org1.iam.ewc' },
+          {
+            name: 'role1',
+            namespace: 'role1.roles.app1.apps.org1.iam.ewc',
+            status: RoleCredentialStatus.VALID,
+          },
         ]),
       ).toBe(true);
     });
@@ -45,7 +50,11 @@ describe('RolesValidationService', function () {
     it('should resolve to false', async function () {
       expect(
         await service.didAccessTokenRolesAreValid([
-          { name: 'role2', namespace: 'role2.roles.app1.apps.org1.iam.ewc' },
+          {
+            name: 'role2',
+            namespace: 'role2.roles.app1.apps.org1.iam.ewc',
+            status: RoleCredentialStatus.VALID,
+          },
         ]),
       ).toBe(false);
     });
