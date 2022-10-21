@@ -15,7 +15,7 @@ import {
   JwtAuthGuard,
   LoginGuard,
   ValidRefreshTokenGuard,
-  ValidVerifiedRolesGuard,
+  ValidUserRolesGuard,
 } from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
@@ -55,7 +55,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LoginGuard, ValidVerifiedRolesGuard)
+  @UseGuards(LoginGuard, ValidUserRolesGuard)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async login(
