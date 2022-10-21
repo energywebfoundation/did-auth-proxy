@@ -78,9 +78,23 @@ describe('AuthController', () => {
       let responseCookies: Record<string, ResponseCookie>;
 
       const didAccessTokenPayload: AuthorisedUser = {
-        did: '',
+        did: '12344567',
         userRoles: [
-          { name: '', namespace: '', status: RoleCredentialStatus.VALID },
+          {
+            name: 'valid',
+            namespace: 'valid.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.VALID,
+          },
+          {
+            name: 'revoked',
+            namespace: 'revoked.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.REVOKED,
+          },
+          {
+            name: 'expired',
+            namespace: 'expired.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.EXPIRED,
+          },
         ],
         authorisationStatus: true,
       };
@@ -142,14 +156,18 @@ describe('AuthController', () => {
       it('should create access token with correct parameters', async function () {
         expect(spyLogIn).toHaveBeenCalledWith({
           did: didAccessTokenPayload.did,
-          roles: didAccessTokenPayload.userRoles.map((r) => r.namespace),
+          roles: didAccessTokenPayload.userRoles
+            .filter((r) => r.status === RoleCredentialStatus.VALID)
+            .map((r) => r.namespace),
         });
       });
 
       it('should create refresh token with correct parameters', async function () {
         expect(spyLogIn).toHaveBeenCalledWith({
           did: didAccessTokenPayload.did,
-          roles: didAccessTokenPayload.userRoles.map((r) => r.namespace),
+          roles: didAccessTokenPayload.userRoles
+            .filter((r) => r.status === RoleCredentialStatus.VALID)
+            .map((r) => r.namespace),
         });
       });
 

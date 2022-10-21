@@ -29,7 +29,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 import { PinoLogger } from 'nestjs-pino';
-import { AuthorisedUser } from 'passport-did-auth';
+import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 
 @Controller('auth')
 @UsePipes(
@@ -84,7 +84,9 @@ export class AuthController {
 
     const { accessToken, refreshToken } = await this.authService.logIn({
       did: didAccessTokenPayload.did,
-      roles: didAccessTokenPayload.userRoles.map((r) => r.namespace),
+      roles: didAccessTokenPayload.userRoles
+        .filter((role) => role.status === RoleCredentialStatus.VALID)
+        .map((role) => role.namespace),
     });
 
     if (this.authService.getAuthCookieSettings().enabled) {
