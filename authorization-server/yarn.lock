@@ -372,7 +372,7 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@energyweb/credential-governance@2.2.1-alpha.304.0", "@energyweb/credential-governance@^2.2.1-alpha.303.0":
+"@energyweb/credential-governance@2.2.1-alpha.304.0", "@energyweb/credential-governance@^2.2.1-alpha.304.0":
   version "2.2.1-alpha.304.0"
   resolved "https://registry.yarnpkg.com/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.304.0.tgz#bad80001a0394b76e6b7e7ea5d210a82c03a83c4"
   integrity sha512-GzzIM5FAD1Fl38s6rUDBf7OSogY4XKzlIsQnxvmS1brfiGMveLhnfbnfcLrGoJCXoGQkKiP03usi+NOsiCdxdg==
@@ -386,7 +386,7 @@
   resolved "https://registry.yarnpkg.com/@energyweb/eslint-config/-/eslint-config-0.1.0.tgz#ffe81d64b66024d4143f140db88c8562ebaebef7"
   integrity sha512-8XHRyDtx0owTpRTeC7b/1pfrxtKW/QfnhWjw/k9dOV8fMos0yeqMMZlW7Uyy3EEFkYITFrPL1S1Lr2MQUPoysw==
 
-"@energyweb/onchain-claims@2.2.1-alpha.304.0", "@energyweb/onchain-claims@^2.2.1-alpha.303.0":
+"@energyweb/onchain-claims@2.2.1-alpha.304.0", "@energyweb/onchain-claims@^2.2.1-alpha.304.0":
   version "2.2.1-alpha.304.0"
   resolved "https://registry.yarnpkg.com/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.304.0.tgz#bd675ad0283380acd208e8c4dee351b95c84c47e"
   integrity sha512-d95J7HasujR9pz5EQ2vZeu+wbVxM78Zo+KxC5/D7ZhXoW9l6bR+179SfP1vYYwhtC9HSNmNjKiORiMMcsS6PnQ==
@@ -402,7 +402,7 @@
   resolved "https://registry.yarnpkg.com/@energyweb/prettier-config/-/prettier-config-0.0.1.tgz#fc159fdb6b5b8badf846c8d8a70729959a0d3fc1"
   integrity sha512-4Bh2nbDO1JkGRVZ2Ub0fdgmRTLMQa2eoB2U5jo7o8M/ivqFxyZbPRWSgwfahyHvxjev1bUi25FayWee5zMRrkg==
 
-"@energyweb/vc-verification@^2.2.1-alpha.303.0":
+"@energyweb/vc-verification@^2.2.1-alpha.304.0":
   version "2.2.1-alpha.304.0"
   resolved "https://registry.yarnpkg.com/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.304.0.tgz#03b19295cc49cd5f5b0991e85da93b889773e19c"
   integrity sha512-daRCy/nHdcBLsFCEhFTdYeepohPKU+NETvgZghREInKPtsz87EMZjIXfzPt7kqs4k9gzujniSBeZcyUqnWYjag==
@@ -8307,14 +8307,14 @@ pascal-case@^2.0.0:
     camel-case "^3.0.0"
     upper-case-first "^1.1.0"
 
-passport-did-auth@2.0.0-alpha.21:
-  version "2.0.0-alpha.21"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.21.tgz#444dc7154ed334556ca80c7b1a458ff0e5472994"
-  integrity sha512-wPxszdzRKungRMq6vhrONG1kvhwfP4MB3rWViGECMgG2qbks0NOr+0g8SvoHIUx3o94h5b7eXx85dp0b342PGA==
+passport-did-auth@2.0.0-alpha.24:
+  version "2.0.0-alpha.24"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.0.0-alpha.24.tgz#2062384bf60cced5420a73261b65069638c14b32"
+  integrity sha512-7//k48idEAljh5W33KmWIK6Zq3qg817zIDFQF1/BUkr6W09eSX5S4BZ5u3SVL7Bt4fE/fys5ZTCnoqeVtP4QSw==
   dependencies:
-    "@energyweb/credential-governance" "^2.2.1-alpha.303.0"
-    "@energyweb/onchain-claims" "^2.2.1-alpha.303.0"
-    "@energyweb/vc-verification" "^2.2.1-alpha.303.0"
+    "@energyweb/credential-governance" "^2.2.1-alpha.304.0"
+    "@energyweb/onchain-claims" "^2.2.1-alpha.304.0"
+    "@energyweb/vc-verification" "^2.2.1-alpha.304.0"
     "@ensdomains/ens-contracts" "0.0.8"
     "@ethersproject/providers" "^5.4.4"
     "@ew-did-registry/claims" "^0.8.1-alpha.933.0"

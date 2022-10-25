@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common';
 import { RolesValidationService } from '../roles-validation.service';
 import { decode as decodeJWT } from 'jsonwebtoken';
-import { IDidAccessTokenPayload } from '../types';
+import { AuthorisedUser } from 'passport-did-auth';
 import { PinoLogger } from 'nestjs-pino';
 
 //TODO: test like this: https://stackoverflow.com/questions/55848238/nestjs-unit-test-mock-method-guard
 
-export class ValidVerifiedRolesGuard implements CanActivate {
+export class ValidUserRolesGuard implements CanActivate {
   constructor(
     @Inject(PinoLogger)
     private readonly logger: PinoLogger,
     private readonly rolesValidationService: RolesValidationService,
   ) {
-    logger.setContext(ValidVerifiedRolesGuard.name);
+    logger.setContext(ValidUserRolesGuard.name);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -26,24 +26,21 @@ export class ValidVerifiedRolesGuard implements CanActivate {
       return false;
     }
 
-    const didAccessTokenPayload = decodeJWT(
-      user,
-    ) as unknown as IDidAccessTokenPayload;
+    const didAccessTokenPayload = decodeJWT(user) as unknown as AuthorisedUser;
 
     this.logger.debug(
       `validating verified roles: ${JSON.stringify(
-        didAccessTokenPayload.verifiedRoles,
+        didAccessTokenPayload.userRoles,
       )}`,
     );
 
-    const verifiedRolesAreValid =
-      await this.rolesValidationService.didAccessTokenRolesAreValid(
-        didAccessTokenPayload.verifiedRoles,
-      );
-
-    if (!verifiedRolesAreValid) {
+    if (
+      !(await this.rolesValidationService.didAccessTokenRolesAreValid(
+        didAccessTokenPayload.userRoles,
+      ))
+    ) {
       const errorMessage = `unexpected verified roles: ${JSON.stringify(
-        didAccessTokenPayload.verifiedRoles,
+        didAccessTokenPayload.userRoles,
       )}`;
 
       this.logger.error(errorMessage);
@@ -54,6 +51,6 @@ export class ValidVerifiedRolesGuard implements CanActivate {
       });
     }
 
-    return verifiedRolesAreValid;
+    return true;
   }
 }

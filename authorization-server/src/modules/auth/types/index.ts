@@ -1,8 +1,3 @@
-export interface IDidAccessTokenPayload {
-  did: string;
-  verifiedRoles: { name: string; namespace: string }[];
-}
-
 export interface IGenerateAccessTokenPayload {
   did: string;
   roles: string[];

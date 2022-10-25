@@ -15,7 +15,7 @@ import {
   JwtAuthGuard,
   LoginGuard,
   ValidRefreshTokenGuard,
-  ValidVerifiedRolesGuard,
+  ValidUserRolesGuard,
 } from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
@@ -27,12 +27,9 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import {
-  IAccessTokenPayload,
-  IDidAccessTokenPayload,
-  IRefreshTokenPayload,
-} from './types';
+import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 import { PinoLogger } from 'nestjs-pino';
+import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 
 @Controller('auth')
 @UsePipes(
@@ -58,7 +55,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LoginGuard, ValidVerifiedRolesGuard)
+  @UseGuards(LoginGuard, ValidUserRolesGuard)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async login(
@@ -79,7 +76,7 @@ export class AuthController {
 
     const didAccessTokenPayload = decodeJWT(
       req.user as string,
-    ) as unknown as IDidAccessTokenPayload;
+    ) as unknown as AuthorisedUser;
 
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
@@ -87,7 +84,9 @@ export class AuthController {
 
     const { accessToken, refreshToken } = await this.authService.logIn({
       did: didAccessTokenPayload.did,
-      roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+      roles: didAccessTokenPayload.userRoles
+        .filter((role) => role.status === RoleCredentialStatus.VALID)
+        .map((role) => role.namespace),
     });
 
     if (this.authService.getAuthCookieSettings().enabled) {

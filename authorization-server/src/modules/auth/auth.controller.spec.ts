@@ -9,6 +9,7 @@ import { LoginResponseDto } from './dto';
 import { PinoLogger } from 'nestjs-pino';
 import { CookieOptions } from 'express';
 import { RolesValidationService } from './roles-validation.service';
+import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -76,9 +77,26 @@ describe('AuthController', () => {
       let response: LoginResponseDto;
       let responseCookies: Record<string, ResponseCookie>;
 
-      const didAccessTokenPayload = {
-        did: '',
-        verifiedRoles: [{ name: '', namespace: '' }],
+      const didAccessTokenPayload: AuthorisedUser = {
+        did: '12344567',
+        userRoles: [
+          {
+            name: 'valid',
+            namespace: 'valid.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.VALID,
+          },
+          {
+            name: 'revoked',
+            namespace: 'revoked.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.REVOKED,
+          },
+          {
+            name: 'expired',
+            namespace: 'expired.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.EXPIRED,
+          },
+        ],
+        authorisationStatus: true,
       };
 
       beforeEach(async () => {
@@ -138,14 +156,18 @@ describe('AuthController', () => {
       it('should create access token with correct parameters', async function () {
         expect(spyLogIn).toHaveBeenCalledWith({
           did: didAccessTokenPayload.did,
-          roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+          roles: didAccessTokenPayload.userRoles
+            .filter((r) => r.status === RoleCredentialStatus.VALID)
+            .map((r) => r.namespace),
         });
       });
 
       it('should create refresh token with correct parameters', async function () {
         expect(spyLogIn).toHaveBeenCalledWith({
           did: didAccessTokenPayload.did,
-          roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+          roles: didAccessTokenPayload.userRoles
+            .filter((r) => r.status === RoleCredentialStatus.VALID)
+            .map((r) => r.namespace),
         });
       });
 
