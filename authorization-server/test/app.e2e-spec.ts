@@ -44,6 +44,8 @@ describe('AppController (e2e)', () => {
     configService = app.get<ConfigService>(ConfigService);
 
     appHttpServer = app.getHttpServer();
+
+    await setTimeout(3000); // delaying to get rid of errors caused by passsport-did-auth
   });
 
   afterAll(async function () {
