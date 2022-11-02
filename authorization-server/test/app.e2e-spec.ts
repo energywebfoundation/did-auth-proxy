@@ -39,6 +39,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
     await app.init();
 
     configService = app.get<ConfigService>(ConfigService);
