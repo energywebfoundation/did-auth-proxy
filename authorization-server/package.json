@@ -40,7 +40,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.0.0",
     "class-transformer": "^0.5.0",
-    "class-validator": "^0.13.0",
+    "class-validator": "^0.14.0",
     "cookie-parser": "^1.0.0",
     "didkit-wasm-node": "^0.1.6",
     "ethers": "^5.7.0",
