@@ -1,0 +1,90 @@
+version: "3.8"
+
+services:
+  webserver:
+    restart: unless-stopped
+    depends_on:
+      - backend-1
+      - backend-2
+      - auth-server
+    image: did-auth-proxy-webserver
+    pull_policy: never
+    build:
+      context: nginx
+    volumes:
+      - ./nginx/nginx.two-backends.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      backend:
+
+  backend-1:
+    restart: unless-stopped
+    image: did-auth-proxy-backend
+    pull_policy: never
+    build:
+      context: backend-server
+    environment:
+      BACKEND_INSTANCE_ID: backend-1
+    networks:
+      backend:
+
+  backend-2:
+    restart: unless-stopped
+    image: did-auth-proxy-backend
+    pull_policy: never
+    build:
+      context: backend-server
+    environment:
+      BACKEND_INSTANCE_ID: backend-2
+    networks:
+      backend:
+
+  auth-server:
+    depends_on:
+      - redis
+    restart: unless-stopped
+    image: did-auth-proxy-auth-server
+    build:
+      context: authorization-server
+    environment:
+      - LOG_LEVEL=info
+      - PORT=80
+      - RPC_URL=https://volta-rpc.energyweb.org/
+      - CACHE_SERVER_URL=https://identitycache-dev.energyweb.org/v1
+      - CACHE_SERVER_LOGIN_PRVKEY=eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
+      - DID_REGISTRY_ADDRESS=0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
+      - ENS_REGISTRY_ADDRESS=0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
+      - ENS_RESOLVER_ADDRESS=0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
+      - IPFS_HOST=ewipfsgwtest.infura-ipfs.io
+      - IPFS_PORT=443
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis
+      - JWT_SECRET=asecretstring
+      - ACCEPTED_ROLES=
+      - JWT_ACCESS_TTL=3600
+      - JWT_REFRESH_TTL=86400
+      - AUTH_COOKIE_NAME=Auth
+      - AUTH_COOKIE_ENABLED=false
+      - AUTH_COOKIE_SECURE=true
+    networks:
+      backend:
+
+  redis:
+    image: bitnami/redis:latest
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:6379:6379'
+    environment:
+      - REDIS_PASSWORD=redis
+    networks:
+      backend:
+    volumes:
+      - redis-data:/bitnami/redis/data
+
+volumes:
+  redis-data:
+
+networks:
+  backend:
