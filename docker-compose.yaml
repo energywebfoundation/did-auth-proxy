@@ -7,6 +7,7 @@ services:
       - backend
       - auth-server
     image: did-auth-proxy-webserver
+    pull_policy: never
     build:
       context: nginx
     ports:
@@ -17,6 +18,7 @@ services:
   backend:
     restart: unless-stopped
     image: did-auth-proxy-backend
+    pull_policy: never
     build:
       context: backend-server
     networks:
