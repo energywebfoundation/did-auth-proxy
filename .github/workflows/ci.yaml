@@ -63,4 +63,5 @@ jobs:
           AUTH_COOKIE_ENABLED: true
           IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
           ACCEPTED_ROLES: 'role1.roles.app1.apps.artur3.iam.ewc'
+          INCLUDE_ALL_ROLES: false
         run: yarn test

@@ -50,7 +50,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         didContractAddress: process.env.DID_REGISTRY_ADDRESS,
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
         ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
-        includeAllRoles: false,
+        includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
       },
       new RoleIssuerResolver(domainReader),
       new RoleRevokerResolver(domainReader),
