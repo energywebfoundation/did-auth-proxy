@@ -25,8 +25,7 @@ export class RolesValidationService {
       .filter(Boolean);
 
     if (acceptedRoles.length === 0) {
-      this.logger.error(`acceptedRoles is empty`);
-      return false;
+      return true;
     }
 
     const roles = userRoles
