@@ -29,7 +29,8 @@ export const envVarsValidationSchema = Joi.object({
   IPFS_PROJECTID: Joi.string().optional().allow(''),
   IPFS_PROJECTSECRET: Joi.string().optional().allow(''),
 
-  ACCEPTED_ROLES: Joi.string().required(),
+  ACCEPTED_ROLES: Joi.string().optional().allow(''),
+  INCLUDE_ALL_ROLES: Joi.boolean().required(),
 
   REDIS_HOST: Joi.string().hostname().default('127.0.0.1'),
   REDIS_PORT: Joi.number().port().default(6379),
