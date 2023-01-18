@@ -4,23 +4,39 @@ services:
   webserver:
     restart: unless-stopped
     depends_on:
-      - backend
+      - backend-1
+      - backend-2
       - auth-server
     image: did-auth-proxy-webserver
     pull_policy: never
     build:
       context: nginx
+    volumes:
+      - ./nginx/nginx.two-backends.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
     ports:
       - "127.0.0.1:8080:80"
     networks:
       backend:
 
-  backend:
+  backend-1:
     restart: unless-stopped
     image: did-auth-proxy-backend
     pull_policy: never
     build:
       context: backend-server
+    environment:
+      BACKEND_INSTANCE_ID: backend-1
+    networks:
+      backend:
+
+  backend-2:
+    restart: unless-stopped
+    image: did-auth-proxy-backend
+    pull_policy: never
+    build:
+      context: backend-server
+    environment:
+      BACKEND_INSTANCE_ID: backend-2
     networks:
       backend:
 
