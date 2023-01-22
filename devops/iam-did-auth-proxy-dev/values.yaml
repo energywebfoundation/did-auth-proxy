@@ -5,7 +5,7 @@ did-auth-proxy-helm:
   replicaCount: 1
 
   image:
-    repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/iam-did-auth-proxy
+    repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
@@ -48,17 +48,18 @@ did-auth-proxy-helm:
     className: ""
     annotations:
       kubernetes.io/ingress.class: nginx
+      external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
       nginx.ingress.kubernetes.io/server-snippet: |
         location ~ / {
             auth_request /token_introspection;
-            proxy_pass http://backend-nginx-influxdb.iam-did-auth-proxy.svc.cluster.local:8086;
+            proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
         }
         location = /token_introspection {
               internal;
               proxy_method      GET;
               proxy_set_header  Authorization "$http_authorization";
               proxy_set_header  Content-Length "";
-              proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
+              proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
         }
     hosts:
       - host: iam-did-auth-proxy-dev.energyweb.org
@@ -73,11 +74,6 @@ did-auth-proxy-helm:
           pathType: Prefix
         - path: /
           pathType: Prefix
-
-    tls:
-        - secretName: iam-did-auth-proxy-secret
-          hosts:
-            - iam-did-auth-proxy-dev.energyweb.org
 
   config:
     enabled: false
@@ -135,7 +131,7 @@ did-auth-proxy-helm:
     enabled: true
     annotations: {}
     encryptedData:
-      IPFS_PROJECTSECRET: AgCnApFbM7NTtWcL+CUo4WadFhRAdlRqNIo57JRtvRE5++IdJhh9MBZ+nKrpI+TO9e1eWXMbjjBKiAnlIZLd5D5Gn2KGTdeMl0e3ZOZKnEkxU6US5rajcMQ5tvzHU0uy/pEY6r/pAzhl40NvhGlPyTY5USaZRevki8ns/A0p5xkdNq9HUO/SnTIJ9n3TjoTj6UD6LyT4EGJKhX96ZswcKJTPiM7SOq3m5ZMr+HlgOCKyNDOPEfS0SXn0Yb0gugyrET6C4pmTFTi1UjcEX5FLMBMIIN6Y514xyx/s8fC6ioPGd5SkT6GzAOBbd99Vem+rJQD7c+ks4UOBEBRvitnlH8SyQIbUasvl8va7lzSyPbgwM5oDOBjk2AYXPKbQ9qo2w5nDro/4MYY5QM0+uP4snMkbZVa2QXRJNxCkFWt/bgdBV6Z8rc0PZ0QzxDtpaKoh3f7UU9rETGaVDoU8TQv7QtsD6D7h/Fh66xlmb4oGQNhuIhqU/+aMJWpy9CuHsklpKpQehWaCTl/PpKanRNHQ9KRg+Qu5eGHLpGbXE7V6jtzhNsiGUa1GIH0cZlWQQS5qkDzDraOoLbabuZ/Erxtux5fT6XKcUBaxWTG4wD75qncJ+mAhjviwlT9wSGrTvzDXSRyREmVKaDEKRDtLtH32vA+fifZAGh9qWjdZVF6lOml/2gLorn9++dzN+fo+Lk0zlsUrZ+rGmoEnROePkls1+15b6NPgovuPRMu/LA9ql3Kjow==
+      IPFS_PROJECTSECRET: AgCRDaqFag2LAt7pDfJr0bW0HYjAZtz0lt0Qd2uDyrInOcrMKKEGnrLhyjphjadz0jj/kLjfoDXexPOi6M7lJpTtWd6aj9zap0rgjLms90vLCSue8OkHCWu+NmNPdiF5gzCXGjw065JIBtEi11CqQ+Zy8vYhdZf9wvCmxgXsz+NUXnjim4oyoAeViZbgV7EbHZO2htFQ8tcx04ROcQYDeNMhm49o9nFkaSdkKSfgO4fZbyLZjErfg6w79HNS0vbpHXCGHXnlpY+K9QrkjP3FqiKXq1bFy9XjAm8pAln3OPICWe3ByBJzm85yqrmAme3fNtLBk5a6ba9GdTj6lYJ0DmAEzyR7Y1gTwqf9NwUUbxEvgQSvn1zOoZv9OuOmMquRh+zq20PAazNnvJNNVm4zdGhmOqVJX84R51zy1YV5qYsh9bxCK/rXjirZNEAsZbWtrXKQfdyT5Ot0a0uthLav7gmUV3x6u2+RORakMd9B77NxtbDPiI/A24xJtfn03p8fObtEt7Rfqtbbakt6PIsgxRu+IBrHTXtqFKNjfvShQZDAZnO0fCIsYjvmZBN4/HFVb/IMADLp6X2JHi0/1XWyYp0xJ2CtxNHv5C8hwcxEZEIv97McXSi9OQBfWO25vDe0Xp6LC4jSoQqlJr8SswS3KEzEaQndc/8LE/mMI279I/tG7dzRDkylCAmczkje41xQ/VShpA0p6Phv07CEhj17bR9lgT3PBkHTKVppsjQAPZtuoA==
 
   ########
   # Redis
