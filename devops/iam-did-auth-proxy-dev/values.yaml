@@ -1,0 +1,143 @@
+  # Default values for did-auth-proxy-helm.
+  # This is a YAML-formatted file.
+  # Declare variables to be passed into your templates.
+did-auth-proxy-helm:
+  replicaCount: 1
+
+  image:
+    repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  imagePullSecrets:
+    - name: regcred
+  nameOverride: "did-auth-proxy-helm"
+  fullnameOverride: "did-auth-proxy-helm"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  #example with influx as a backend service
+
+  ingress:
+    enabled: true
+    className: ""
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+      nginx.ingress.kubernetes.io/server-snippet: |
+        location ~ / {
+            auth_request /token_introspection;
+            proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
+        }
+        location = /token_introspection {
+              internal;
+              proxy_method      GET;
+              proxy_set_header  Authorization "$http_authorization";
+              proxy_set_header  Content-Length "";
+              proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
+        }
+    hosts:
+      - host: iam-did-auth-proxy-dev.energyweb.org
+        paths:
+        - path: /auth
+          pathType: Prefix
+        - path: /auth/login
+          pathType: Prefix
+        - path: /auth/refresh-token
+          pathType: Prefix
+        - path: /auth/token-introspection
+          pathType: Prefix
+        - path: /
+          pathType: Prefix
+
+  config:
+    enabled: false
+    secretRefName: {}
+    configRefName: {}
+
+  #for now dummy configs
+  appValues:
+    PORT: 80
+    CACHE_SERVER_LOGIN_PRVKEY: eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
+    JWT_SECRET: asecretstring
+    ACCEPTED_ROLES: didauthtest.roles.didauthkamil.iam.ewc
+    JWT_ACCESS_TTL: 3600
+    JWT_REFRESH_TTL: 86400
+    DID_REGISTRY_ADDRESS: 0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
+    ENS_REGISTRY_ADDRESS: 0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
+    ENS_RESOLVER_ADDRESS: 0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
+    INCLUDE_ALL_ROLES: false
+
+  opsValues:
+    RPC_URL: https://volta-rpc.energyweb.org/
+    CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
+    REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
+    REDIS_PORT: 6379
+    REDIS_PASSWORD: redis
+    IPFS_HOST: ipfs.infura.io
+    IPFS_PORT: 5001
+    IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  sealedSecret:
+    enabled: true
+    annotations: {}
+    encryptedData:
+      IPFS_PROJECTSECRET: AgCRDaqFag2LAt7pDfJr0bW0HYjAZtz0lt0Qd2uDyrInOcrMKKEGnrLhyjphjadz0jj/kLjfoDXexPOi6M7lJpTtWd6aj9zap0rgjLms90vLCSue8OkHCWu+NmNPdiF5gzCXGjw065JIBtEi11CqQ+Zy8vYhdZf9wvCmxgXsz+NUXnjim4oyoAeViZbgV7EbHZO2htFQ8tcx04ROcQYDeNMhm49o9nFkaSdkKSfgO4fZbyLZjErfg6w79HNS0vbpHXCGHXnlpY+K9QrkjP3FqiKXq1bFy9XjAm8pAln3OPICWe3ByBJzm85yqrmAme3fNtLBk5a6ba9GdTj6lYJ0DmAEzyR7Y1gTwqf9NwUUbxEvgQSvn1zOoZv9OuOmMquRh+zq20PAazNnvJNNVm4zdGhmOqVJX84R51zy1YV5qYsh9bxCK/rXjirZNEAsZbWtrXKQfdyT5Ot0a0uthLav7gmUV3x6u2+RORakMd9B77NxtbDPiI/A24xJtfn03p8fObtEt7Rfqtbbakt6PIsgxRu+IBrHTXtqFKNjfvShQZDAZnO0fCIsYjvmZBN4/HFVb/IMADLp6X2JHi0/1XWyYp0xJ2CtxNHv5C8hwcxEZEIv97McXSi9OQBfWO25vDe0Xp6LC4jSoQqlJr8SswS3KEzEaQndc/8LE/mMI279I/tG7dzRDkylCAmczkje41xQ/VShpA0p6Phv07CEhj17bR9lgT3PBkHTKVppsjQAPZtuoA==
+
+  ########
+  # Redis
+
+  redis:
+    architecture: standalone
+    auth:
+      password: redis
