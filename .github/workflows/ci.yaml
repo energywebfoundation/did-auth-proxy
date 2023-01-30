@@ -12,7 +12,44 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  install:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16 ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup app dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: |
+            authorization-server/node_modules
+            backend-server/node_modules
+            generate-identity-cli/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-
+      - run: yarn install --frozen-lockfile
+      - uses: actions/cache@v3
+        id: restore-dependencies
+        with:
+          path: ./*
+          key: ${{ github.sha }}-node-${{ matrix.node-version }}
+
   build:
+    needs: [install]
     runs-on: ubuntu-latest
 
     steps:
