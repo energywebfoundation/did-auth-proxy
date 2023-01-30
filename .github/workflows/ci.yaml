@@ -47,6 +47,31 @@ jobs:
           path: ./*
           key: ${{ github.sha }}-node-${{ matrix.node-version }}
 
+  lint:
+    name: Linting code
+    needs: [ install ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup app dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: |
+            authorization-server/node_modules
+            backend-server/node_modules
+            generate-identity-cli/node_modules
+
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+
+      - run: yarn lint
+
   build:
     needs: [install]
     runs-on: ubuntu-latest
@@ -71,9 +96,6 @@ jobs:
 
       - name: Install dependencies
         run: yarn install
-
-      - name: Check linting
-        run: yarn lint
 
       - name: Build project
         run: yarn build
