@@ -37,8 +37,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       type: ResolverContractType.RoleDefinitionResolver_v2,
     });
 
-    const ipfsConfig = AuthStrategy.getIpfsClientConfig(configService);
-
     super(
       {
         jwtSecret: process.env.JWT_SECRET,
