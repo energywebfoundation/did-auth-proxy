@@ -98,7 +98,7 @@ jobs:
       - run: yarn build
 
   tests-unit:
-    name: Execute unit tests
+    name: Unit tests
     needs: [ build ]
     runs-on: ubuntu-latest
 
@@ -123,7 +123,7 @@ jobs:
       - run: yarn test:unit
 
   tests-e2e-public:
-    name: Execute E2E tests - public IPFS gateway
+    name: E2E tests - public IPFS gateway
     needs: [ build ]
     runs-on: ubuntu-latest
 
@@ -169,7 +169,7 @@ jobs:
       - run: yarn test:e2e
 
   tests-e2e-infura:
-    name: Execute E2E tests - Infura
+    name: E2E tests - Infura
     needs: [ build ]
     runs-on: ubuntu-latest
 
