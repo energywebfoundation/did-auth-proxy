@@ -122,8 +122,8 @@ jobs:
 
       - run: yarn test:unit
 
-  tests-e2e:
-    name: Execute E2E tests
+  tests-e2e-public:
+    name: Execute E2E tests - public IPFS gateway
     needs: [ build ]
     runs-on: ubuntu-latest
 
