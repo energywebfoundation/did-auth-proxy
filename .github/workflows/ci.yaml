@@ -98,7 +98,7 @@ jobs:
       - run: yarn build
 
   tests-unit:
-    name: Execute unit tests
+    name: Unit tests
     needs: [ build ]
     runs-on: ubuntu-latest
 
@@ -123,7 +123,7 @@ jobs:
       - run: yarn test:unit
 
   tests-e2e-public:
-    name: Execute E2E tests - public IPFS gateway
+    name: E2E tests - public IPFS gateway
     needs: [ build ]
     runs-on: ubuntu-latest
 
@@ -135,7 +135,7 @@ jobs:
       DID_REGISTRY_ADDRESS: '0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af'
       ENS_REGISTRY_ADDRESS: '0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac'
       ENS_RESOLVER_ADDRESS: '0xcf72f16Ab886776232bea2fcf3689761a0b74EfE'
-      IPFS_HOST: 'ewipfsgwtest.infura-ipfs.io'
+      IPFS_HOST: 'ipfs.io'
       IPFS_PORT: 443
       REDIS_HOST: 'localhost'
       REDIS_PORT: 61379
@@ -169,7 +169,7 @@ jobs:
       - run: yarn test:e2e
 
   tests-e2e-infura:
-    name: Execute E2E tests - Infura
+    name: E2E tests - Infura
     needs: [ build ]
     runs-on: ubuntu-latest
 

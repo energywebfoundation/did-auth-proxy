@@ -37,8 +37,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       type: ResolverContractType.RoleDefinitionResolver_v2,
     });
 
-    const ipfsConfig = AuthStrategy.getIpfsClientConfig(configService);
-
     super(
       {
         jwtSecret: process.env.JWT_SECRET,
@@ -61,7 +59,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           address: configService.get<string>('DID_REGISTRY_ADDRESS'),
           method: Methods.Erc1056,
         },
-        new DidStore(ipfsConfig.url, ipfsConfig.headers),
+        new DidStore(AuthStrategy.getIpfsClientConfig(configService)),
       ),
       verifyCredential,
     );
