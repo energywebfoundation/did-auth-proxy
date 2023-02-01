@@ -6,7 +6,7 @@ did-auth-proxy-helm:
 
   image:
     repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
 
