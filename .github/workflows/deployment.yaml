@@ -140,3 +140,10 @@ jobs:
         with:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
+          
+      - name: ArgoCD overvrite IAM-DID-AUTH-PROXY values.yaml
+        uses: clowdhaus/argo-cd-action/@v1.12.1
+        id: argocd_image_helm_tag_overwrite_iam
+        with:
+          command: app set iam-did-auth-proxy
+          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
