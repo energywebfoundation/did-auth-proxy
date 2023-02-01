@@ -67,6 +67,8 @@ Edit `.env` file and:
 - set `JWT_SECRET` to contain your secret phrase used to generate and validate tokens.
 - set `ACCEPTED_ROLES` to contain roles that DIDs are required to be enrolled to
 
+For the detailed env variables description check [this document](./docs/ENV_VARS.md).
+
 Execute `yarn start:dev`
 
 ### How it works
