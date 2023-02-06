@@ -1,0 +1,71 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~ / {
+          auth_request /token_introspection;
+          proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
+      }
+      location = /token_introspection {
+            internal;
+            proxy_method      GET;
+            proxy_set_header  Authorization "$http_authorization";
+            proxy_set_header  Content-Length "";
+            proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
+      }
+  labels:
+    app.kubernetes.io/instance: iam-did-auth-proxy
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: did-auth-proxy-helm
+    app.kubernetes.io/version: 0.0.11
+    argocd.argoproj.io/instance: iam-did-auth-proxy
+    helm.sh/chart: did-auth-proxy-helm-0.0.12
+  name: did-auth-proxy-helm
+  namespace: iam-did-auth-proxy
+spec:
+  rules:
+    - host: iam-did-auth-proxy-dev.energyweb.org
+      http:
+        paths:
+          - backend:
+              service:
+                name: did-auth-proxy-helm
+                port:
+                  number: 80
+            path: /auth
+            pathType: Prefix
+          - backend:
+              service:
+                name: did-auth-proxy-helm
+                port:
+                  number: 80
+            path: /auth/login
+            pathType: Prefix
+          - backend:
+              service:
+                name: did-auth-proxy-helm
+                port:
+                  number: 80
+            path: /auth/refresh-token
+            pathType: Prefix
+          - backend:
+              service:
+                name: did-auth-proxy-helm
+                port:
+                  number: 80
+            path: /auth/token-introspection
+            pathType: Prefix
+          - backend:
+              service:
+                name: did-auth-proxy-helm
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - iam-did-auth-proxy-dev.energyweb.org
+      secretName: did-auth-proxy-secret
