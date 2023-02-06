@@ -7,23 +7,21 @@ metadata:
     nginx.ingress.kubernetes.io/server-snippet: |
       location ~ ^/([A-Za-z0-9]+) {
           auth_request /token_introspection;
-          proxy_pass https://gp4btc-backend-dev.energyweb.org/;
+          proxy_pass https://identitycache-dev.energyweb.org/;
       }
-      location ~ ^/auth {
-          proxy_pass https://gp4btc-backend-proxy-dev.energyweb.org;
-      }
+
       location = /token_introspection {
             internal;
             proxy_method      GET;
             proxy_set_header  Authorization "$http_authorization";
             proxy_set_header  Content-Length "";
-            proxy_pass        https://gp4btc-backend-proxy-dev.energyweb.org/auth/token-introspection;
+            proxy_pass        https://ics-proxy-dev.energyweb.org/auth/token-introspection;
       }
-  name: gp4btc-backend-proxy-dev
+  name: ics-proxy-dev
   namespace: iam-did-auth-proxy
 spec:
   rules:
-    - host: gp4btc-backend-proxy-dev.energyweb.org
+    - host: ics-proxy-dev.energyweb.org
       http:
         paths:
           - backend:
@@ -63,5 +61,5 @@ spec:
             pathType: Prefix
   tls:
     - hosts:
-        - gp4btc-backend-proxy-dev.energyweb.org
-      secretName: gp4btc-backend-proxy-dev-secret
+        - ics-proxy-dev.energyweb.org
+      secretName: ics-proxy-dev-secret
