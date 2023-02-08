@@ -63,6 +63,7 @@ services:
       - REDIS_PASSWORD=redis
       - JWT_SECRET=asecretstring
       - ACCEPTED_ROLES=
+      - INCLUDE_ALL_ROLES=true
       - JWT_ACCESS_TTL=3600
       - JWT_REFRESH_TTL=86400
       - AUTH_COOKIE_NAME=Auth
