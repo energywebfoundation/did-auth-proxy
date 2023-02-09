@@ -98,16 +98,11 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         ).toString('base64');
     }
 
-    const port =
-      configService.get<number>('IPFS_PORT') &&
-      configService.get<number>('IPFS_PORT') !== 443
-        ? ':' + configService.get<number>('IPFS_PORT')
-        : '';
-
     return {
       url:
         `${configService.get<string>('IPFS_PROTOCOL')}://` +
-        `${configService.get<string>('IPFS_HOST')}${port}`,
+        `${configService.get<string>('IPFS_HOST')}` +
+        `:${configService.get<string>('IPFS_PORT')}`,
       headers: auth
         ? {
             authorization: auth,
