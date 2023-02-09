@@ -105,7 +105,9 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         : '';
 
     return {
-      url: `https://${configService.get<string>('IPFS_HOST')}${port}`,
+      url:
+        `${configService.get<string>('IPFS_PROTOCOL')}://` +
+        `${configService.get<string>('IPFS_HOST')}${port}`,
       headers: auth
         ? {
             authorization: auth,
