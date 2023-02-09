@@ -49,4 +49,7 @@ export const envVarsValidationSchema = Joi.object({
   AUTH_COOKIE_SAMESITE_POLICY: Joi.string()
     .regex(/(none|lax|strict)/)
     .default('strict'),
+
+  DISABLE_HEALTHCHECK_RPC: Joi.boolean().default('false'),
+  DISABLE_HEALTHCHECK_IPFS: Joi.boolean().default('false'),
 });
