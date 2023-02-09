@@ -5,6 +5,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { envVarsValidationSchema } from './env-vars-validation-schema';
 import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
+import { HealthCheckModule } from '../health-check/health-check.module';
 
 const validationOptions = {
   allowUnknown: true,
@@ -73,6 +74,7 @@ try {
     }),
     config,
     AuthModule,
+    HealthCheckModule,
   ],
   controllers: [],
   providers: [],
