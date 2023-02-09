@@ -5,19 +5,16 @@ metadata:
     external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/server-snippet: |
-      location ~ ^/([A-Za-z0-9]+) {
+      location / {
           auth_request /token_introspection;
-          proxy_pass https://gp4btc-backend-dev.energyweb.org/;
-      }
-      location ~ ^/auth {
-          proxy_pass https://gp4btc-backend-proxy-dev.energyweb.org;
+          proxy_pass https://gp4btc-backend-dev.energyweb.org;
       }
       location = /token_introspection {
             internal;
             proxy_method      GET;
             proxy_set_header  Authorization "$http_authorization";
             proxy_set_header  Content-Length "";
-            proxy_pass        https://gp4btc-backend-proxy-dev.energyweb.org/auth/token-introspection;
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/token-introspection;
       }
   name: gp4btc-backend-proxy-dev
   namespace: iam-did-auth-proxy
@@ -54,13 +51,13 @@ spec:
                   number: 80
             path: /auth/token-introspection
             pathType: Prefix
-          - backend:
-              service:
-                name: did-auth-proxy-helm
-                port:
-                  number: 80
-            path: /
-            pathType: Prefix
+          # - backend:
+          #     service:
+          #       name: did-auth-proxy-helm
+          #       port:
+          #         number: 80
+          #   path: /
+          #   pathType: Prefix
   tls:
     - hosts:
         - gp4btc-backend-proxy-dev.energyweb.org
