@@ -24,8 +24,9 @@ export const envVarsValidationSchema = Joi.object({
   ENS_REGISTRY_ADDRESS: Joi.string().required(),
   ENS_RESOLVER_ADDRESS: Joi.string().required(),
 
-  IPFS_HOST: Joi.string().hostname().optional().default('ipfs.infura.io'),
-  IPFS_PORT: Joi.number().positive().optional().default(5001),
+  IPFS_PROTOCOL: Joi.string().valid('http', 'https'),
+  IPFS_HOST: Joi.string().hostname(),
+  IPFS_PORT: Joi.number().port(),
   IPFS_PROJECTID: Joi.string().optional().allow(''),
   IPFS_PROJECTSECRET: Joi.string().optional().allow(''),
 
@@ -48,4 +49,8 @@ export const envVarsValidationSchema = Joi.object({
   AUTH_COOKIE_SAMESITE_POLICY: Joi.string()
     .regex(/(none|lax|strict)/)
     .default('strict'),
+
+  DISABLE_HEALTHCHECK_RPC: Joi.boolean().default('false'),
+  DISABLE_HEALTHCHECK_IPFS: Joi.boolean().default('false'),
+  DISABLE_HEALTHCHECK_REDIS: Joi.boolean().default('false'),
 });
