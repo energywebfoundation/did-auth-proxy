@@ -9,9 +9,6 @@ import { RedisService } from '../redis';
 
 @Injectable()
 export class RedisHealthIndicator extends HealthIndicator {
-  private ipfsBaseUrl: string;
-  private ipfsAuth: string | undefined;
-
   constructor(
     private readonly config: ConfigService,
     private readonly redisService: RedisService,
