@@ -6,6 +6,7 @@ import {
 import { RpcHealthIndicator } from './rpc-health-indicator';
 import { IpfsHealthIndicator } from './ipfs-health-indicator';
 import { ConfigService } from '@nestjs/config';
+import { RedisHealthIndicator } from './redis-health-indicator';
 
 @Injectable()
 export class HealthCheckService {
@@ -16,13 +17,19 @@ export class HealthCheckService {
     private readonly terminusHealthCheckService: TerminusHealthCheckService,
     private readonly rpc: RpcHealthIndicator,
     private readonly ipfs: IpfsHealthIndicator,
+    private readonly redis: RedisHealthIndicator,
   ) {
     this.healthChecks = [
       ...(!config.get('DISABLE_HEALTHCHECK_RPC')
         ? [() => this.rpc.checkStatus('rpc')]
         : []),
+
       ...(!config.get('DISABLE_HEALTHCHECK_IPFS')
         ? [() => this.ipfs.checkStatus('ipfs')]
+        : []),
+
+      ...(!config.get('DISABLE_HEALTHCHECK_REDIS')
+        ? [() => this.redis.checkStatus('redis')]
         : []),
     ];
   }
