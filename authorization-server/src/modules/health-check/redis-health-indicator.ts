@@ -20,7 +20,6 @@ export class RedisHealthIndicator extends HealthIndicator {
   }
 
   async checkStatus(key: string): Promise<HealthIndicatorResult> {
-    console.log(this.redisService.status);
     if (this.redisService.status !== 'ready') {
       throw new HealthCheckError(
         'unexpected status',
