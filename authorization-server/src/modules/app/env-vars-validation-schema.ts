@@ -25,8 +25,8 @@ export const envVarsValidationSchema = Joi.object({
   ENS_RESOLVER_ADDRESS: Joi.string().required(),
 
   IPFS_PROTOCOL: Joi.string().valid('http', 'https'),
-  IPFS_HOST: Joi.string().hostname().optional().default('ipfs.infura.io'),
-  IPFS_PORT: Joi.number().positive().optional().default(5001),
+  IPFS_HOST: Joi.string().hostname(),
+  IPFS_PORT: Joi.number().port(),
   IPFS_PROJECTID: Joi.string().optional().allow(''),
   IPFS_PROJECTSECRET: Joi.string().optional().allow(''),
 
