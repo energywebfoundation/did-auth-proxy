@@ -81,6 +81,7 @@ jobs:
           DID_REGISTRY_ADDRESS: '0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af'
           ENS_REGISTRY_ADDRESS: '0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac'
           ENS_RESOLVER_ADDRESS: '0xcf72f16Ab886776232bea2fcf3689761a0b74EfE'
+          IPFS_PROTOCOL: https
           IPFS_HOST: ipfs.infura.io
           IPFS_PORT: 5001
           IPFS_PROJECTID: ${{ secrets.IPFS_PROJECTID }}
@@ -140,7 +141,7 @@ jobs:
         with:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
-          
+
       - name: ArgoCD overvrite IAM-DID-AUTH-PROXY values.yaml
         uses: clowdhaus/argo-cd-action/@v1.12.1
         id: argocd_image_helm_tag_overwrite_iam
