@@ -121,19 +121,19 @@ did-auth-proxy-helm:
         server_name  _;
 
         location = /auth {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth;
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth;
         }
 
         location = /auth/login {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/login;
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/login;
         }
 
         location = /auth/logout {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/logout;
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/logout;
         }
 
         location = /auth/refresh-token {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/refresh-token;
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/refresh-token;
         }
 
         location / {
@@ -146,7 +146,7 @@ did-auth-proxy-helm:
             proxy_method      GET;
             proxy_set_header  Authorization "$http_authorization";
             proxy_set_header  Content-Length "";
-            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/token-introspection;
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
         }
       }
 
