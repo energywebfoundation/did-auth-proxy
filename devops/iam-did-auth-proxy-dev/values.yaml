@@ -62,7 +62,7 @@ did-auth-proxy-helm:
     INCLUDE_ALL_ROLES: false
 
   opsValues:
-    ACCEPTED_ROLES: ""
+    ACCEPTED_ROLES: worker.roles.oep.apps.dle.iam.ewc
     RPC_URL: https://volta-rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
     REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
