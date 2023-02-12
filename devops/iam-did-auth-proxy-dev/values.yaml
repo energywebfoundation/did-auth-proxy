@@ -1,17 +1,18 @@
-  # Default values for did-auth-proxy-helm.
-  # This is a YAML-formatted file.
-  # Declare variables to be passed into your templates.
+# Default values for did-auth-proxy-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 did-auth-proxy-helm:
+  enabled: true
   replicaCount: 1
 
   image:
-    repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
-    pullPolicy: Always
+    repository: public.ecr.aws/p2b6f2f9/did-auth
+    pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "latest"
+    tag: "6732cbd3-1258-4fa0-aed7-81dca30b448e"
 
-  imagePullSecrets:
-    - name: regcred
+  imagePullSecrets: []
+
   nameOverride: "did-auth-proxy-helm"
   fullnameOverride: "did-auth-proxy-helm"
 
@@ -43,13 +44,12 @@ did-auth-proxy-helm:
 
   ingress:
     enabled: false
-    
+
   config:
     enabled: false
     secretRefName: {}
     configRefName: {}
 
-  #for now dummy configs
   appValues:
     PORT: 80
     CACHE_SERVER_LOGIN_PRVKEY: eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
@@ -62,7 +62,7 @@ did-auth-proxy-helm:
     INCLUDE_ALL_ROLES: false
 
   opsValues:
-    ACCEPTED_ROLES: 
+    ACCEPTED_ROLES: ""
     RPC_URL: https://volta-rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
     REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
@@ -102,10 +102,61 @@ did-auth-proxy-helm:
     annotations: {}
     encryptedData:
       IPFS_PROJECTSECRET: AgAIpovKHlyFYxOT6Nk4d+T6m9zKF95ZdUgQPx/fsWZw1aAQJDXzDL9CZBI++zZ4pXnra4L4EftL8hyJwKPqSSVp9IjB+IcOb2wC3EaE4IEiMl2HGbzpqKtrmMoik4NkPbC1N7pwowuO43tttE2eUZblz85+3g+ccCTz/GouzGY/ryBKpVADGEafrrbtv6X41NsGYpe+Pzu6fApjIP9gJzkdwW8nIo8l5sUqfSZHkIKlGvJuuIp29l5IKeQyQemvHk0pD4/MAOmzYoe8my6ZO/6c9l4SBnbtG7BqrIqhKlRN4hw3RINVC6bt6dkSuznlZRos24pAKOufPoRcZvdIUti2a5KheXLCVxO0l99sBOlW674mT2Qim+jdORNxAJbt3pUhy/xHwWxxBWn++J7WAgvOYpihSd/bKsKm2JcMlvHKvjFY2hGzjPlrAP38BiJKgC4SMIA3DAouylt/6y8U9Fwd2d4GnPCsKPewBvqSCdxMgT331tfV/BeTaHV70WcE02k8qX1xOrFHkmiaSQo1kimh9KCe/p9gB1EuGeN8Z3bbUbcAd8n4P4Ry0pIUaaF/VNqi4eM3+Kpgx8aS5fa8o9iKyYVKMPNTzIKEPYp63u+TQmOUX1Kj8M/67ZqItB0XiHyocVFcTdDfITrGPjilxwyxZJrrNWWIiqUFCfSJhZelBnQ+qrGrHOUNdmq29uHYKf2w5MoXwGXmeSLNbiur9QghKtl3QJPDQFTTn2Ulv/aThQ==
+      
   ########
   # Redis
-
   redis:
     architecture: standalone
     auth:
       password: redis
+      
+  ########
+  # nginx
+  nginx:
+    fullnameOverride: "did-auth-proxy-helm"
+
+    serverBlock: |-
+      server {
+        listen 0.0.0.0:8080;
+        server_name  _;
+
+        location = /auth {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth;
+        }
+
+        location = /auth/login {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/login;
+        }
+
+        location = /auth/logout {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/logout;
+        }
+
+        location = /auth/refresh-token {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/refresh-token;
+        }
+
+        location / {
+            auth_request /token_introspection;
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location = /token_introspection {
+            internal;
+            proxy_method      GET;
+            proxy_set_header  Authorization "$http_authorization";
+            proxy_set_header  Content-Length "";
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.local/auth/token-introspection;
+        }
+      }
+
+    ingress:
+      enabled: true
+      annotations: 
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+      hostname: gp4btc-backend-proxy-dev.energyweb.org
+      pathType: Prefix
+      path: /
+      tls: false # This is managed by Cloudflare
