@@ -6,10 +6,10 @@ did-auth-proxy-helm:
   replicaCount: 1
 
   image:
-    repository: public.ecr.aws/p2b6f2f9/did-auth
-    pullPolicy: IfNotPresent
+    repository: 098061033856.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
+    pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "6732cbd3-1258-4fa0-aed7-81dca30b448e"
+    tag: "latest"
 
   imagePullSecrets: []
 
@@ -70,6 +70,7 @@ did-auth-proxy-helm:
     REDIS_PASSWORD: redis
     IPFS_HOST: ipfs.infura.io
     IPFS_PORT: 5001
+    IPFS_PROTOCOL: https
     IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
 
   resources: {}
@@ -113,30 +114,19 @@ did-auth-proxy-helm:
   ########
   # nginx
   nginx:
-    fullnameOverride: "did-auth-proxy-helm"
+    fullnameOverride: "iam-did-auth-proxy-helm"
 
     serverBlock: |-
       server {
         listen 0.0.0.0:8080;
-        server_name  _;
+        server_name _;
 
-        location = /auth {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth;
+        location ~ ^/(api|healthcheck) {
+            auth_request /token_introspection;
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
         }
 
-        location = /auth/login {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/login;
-        }
-
-        location = /auth/logout {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/logout;
-        }
-
-        location = /auth/refresh-token {
-            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/refresh-token;
-        }
-
-        location / {
+        location ~ / {
             auth_request /token_introspection;
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
         }
@@ -155,6 +145,7 @@ did-auth-proxy-helm:
       annotations: 
         kubernetes.io/ingress.class: nginx
         nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/proxy-body-size: 50m
         external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
       hostname: gp4btc-backend-proxy-dev.energyweb.org
       pathType: Prefix
