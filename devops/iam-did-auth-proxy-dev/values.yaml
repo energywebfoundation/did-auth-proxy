@@ -138,12 +138,12 @@ did-auth-proxy-helm:
         }
 
         location ~ ^/(v1/health) {
-            proxy_pass http://ics.ics.svc.cluster.local;
+            proxy_pass http://ics.ics.svc.cluster.local:3000;
         }
 
-        location / {
+        location ~ / {
             auth_request /token_introspection;
-            proxy_pass http://ics.ics.svc.cluster.local;
+            proxy_pass http://ics.ics.svc.cluster.local:3000;
         }
 
         location = /token_introspection {
