@@ -119,16 +119,53 @@ did-auth-proxy-helm:
     serverBlock: |-
       server {
         listen 0.0.0.0:8080;
-        server_name _;
+        server_name gp4btc-backend-proxy-dev.energyweb.org;
 
-        location ~ ^/(api|healthcheck) {
-            auth_request /token_introspection;
+        location ~ ^/(healthcheck) {
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
         }
 
         location ~ / {
             auth_request /token_introspection;
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location = /token_introspection {
+            internal;
+            proxy_method      GET;
+            proxy_set_header  Authorization "$http_authorization";
+            proxy_set_header  Content-Length "";
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
+        }
+      }
+
+      server {
+        listen 0.0.0.0:8080;
+        server_name gp4btc-ics-proxy-dev.energyweb.org;
+
+        location = /auth {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth;
+        }
+
+        location = /auth/login {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/login;
+        }
+
+        location = /auth/logout {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/logout;
+        }
+
+        location = /auth/refresh-token {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/refresh-token;
+        }
+
+        location ~ ^/(v1/health) {
+            proxy_pass http://ics.ics.svc.cluster.local;
+        }
+
+        location / {
+            auth_request /token_introspection;
+            proxy_pass http://ics.ics.svc.cluster.local;
         }
 
         location = /token_introspection {
@@ -151,3 +188,13 @@ did-auth-proxy-helm:
       pathType: Prefix
       path: /
       tls: false # This is managed by Cloudflare
+
+    livenessProbe:
+      enabled: false
+
+    readinessProbe:
+      enabled: false
+
+    customLivenessProbe: {}
+
+    customReadinessProbe: {}
