@@ -114,7 +114,7 @@ did-auth-proxy-helm:
   ########
   # nginx
   nginx:
-    fullnameOverride: "iam-did-auth-proxy-helm"
+    fullnameOverride: "did-auth-proxy-helm"
 
     serverBlock: |-
       server {
