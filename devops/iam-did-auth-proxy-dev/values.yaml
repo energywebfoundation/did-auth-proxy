@@ -119,28 +119,6 @@ did-auth-proxy-helm:
     serverBlock: |-
       server {
         listen 0.0.0.0:8080;
-        server_name gp4btc-backend-proxy-dev.energyweb.org;
-
-        location ~ ^/(healthcheck) {
-            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
-        }
-
-        location ~ / {
-            auth_request /token_introspection;
-            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
-        }
-
-        location = /token_introspection {
-            internal;
-            proxy_method      GET;
-            proxy_set_header  Authorization "$http_authorization";
-            proxy_set_header  Content-Length "";
-            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
-        }
-      }
-
-      server {
-        listen 0.0.0.0:8080;
         server_name gp4btc-ics-proxy-dev.energyweb.org;
 
         location = /auth {
@@ -177,6 +155,28 @@ did-auth-proxy-helm:
         }
       }
 
+      server {
+        listen 0.0.0.0:8080;
+        server_name gp4btc-backend-proxy-dev.energyweb.org;
+
+        location ~ ^/(health) {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location ~ / {
+            auth_request /token_introspection;
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location = /token_introspection {
+            internal;
+            proxy_method      GET;
+            proxy_set_header  Authorization "$http_authorization";
+            proxy_set_header  Content-Length "";
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
+        }
+      }      
+
     ingress:
       enabled: true
       annotations: 
@@ -195,6 +195,12 @@ did-auth-proxy-helm:
     readinessProbe:
       enabled: false
 
-    customLivenessProbe: {}
+    customLivenessProbe:
+      httpGet:
+        path: /v1/health
+        port: http
 
-    customReadinessProbe: {}
+    customReadinessProbe:
+      httpGet:
+        path: /v1/health
+        port: http
