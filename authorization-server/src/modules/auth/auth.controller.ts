@@ -90,13 +90,17 @@ export class AuthController {
     });
 
     if (this.authService.getAuthCookieSettings().enabled) {
-      const { name, options } = this.authService.getAuthCookieSettings();
-      res.cookie(name, accessToken, {
-        ...options,
-        maxAge:
-          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
-          Date.now(),
-      });
+      const { options } = this.authService.getAuthCookieSettings();
+      res.cookie(
+        this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+        accessToken,
+        {
+          ...options,
+          maxAge:
+            (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
+            Date.now(),
+        },
+      );
     }
 
     return new LoginResponseDto({ accessToken, refreshToken });
@@ -118,9 +122,13 @@ export class AuthController {
       allDevices: body.allDevices,
     });
 
-    res.cookie(this.authService.getAuthCookieSettings().name, '', {
-      expires: new Date(0),
-    });
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+      '',
+      {
+        expires: new Date(0),
+      },
+    );
   }
 
   @Get('token-introspection')
@@ -145,13 +153,17 @@ export class AuthController {
     );
 
     if (this.authService.getAuthCookieSettings().enabled) {
-      const { name, options } = this.authService.getAuthCookieSettings();
-      res.cookie(name, accessToken, {
-        ...options,
-        maxAge:
-          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
-          Date.now(),
-      });
+      const { options } = this.authService.getAuthCookieSettings();
+      res.cookie(
+        this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+        accessToken,
+        {
+          ...options,
+          maxAge:
+            (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
+            Date.now(),
+        },
+      );
     }
 
     return new LoginResponseDto({ accessToken, refreshToken });

@@ -20,13 +20,13 @@ describe('AuthController', () => {
         LOG_LEVELS: 'error,warn',
         JWT_ACCESS_TTL: 10,
         JWT_REFRESH_TTL: 20,
+        AUTH_COOKIE_NAME_ACCESS_TOKEN: 'token',
       }[key] as unknown as T;
     },
   };
 
   const authCookieSettingsBase = {
     enabled: true,
-    name: 'Auth',
     options: {
       secure: true,
       httpOnly: true,
@@ -189,7 +189,9 @@ describe('AuthController', () => {
         let cookieName: string;
 
         beforeAll(async function () {
-          cookieName = mockAuthService.getAuthCookieSettings().name;
+          cookieName = mockConfigService.get<string>(
+            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
+          );
         });
 
         it('should set cookie', async function () {
@@ -270,7 +272,9 @@ describe('AuthController', () => {
         });
 
         it('should skip setting the cookie', async function () {
-          const cookieName = mockAuthService.getAuthCookieSettings().name;
+          const cookieName = mockConfigService.get<string>(
+            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
+          );
           expect(responseCookies[cookieName]).toBeUndefined();
         });
       });
@@ -328,7 +332,9 @@ describe('AuthController', () => {
 
       it('should unset auth cookie', async function () {
         const cookie =
-          responseCookies[mockAuthService.getAuthCookieSettings().name];
+          responseCookies[
+            mockConfigService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN')
+          ];
 
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
@@ -375,7 +381,9 @@ describe('AuthController', () => {
 
       it('should send no auth cookie', async function () {
         const cookie =
-          responseCookies[mockAuthService.getAuthCookieSettings().name];
+          responseCookies[
+            mockConfigService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN')
+          ];
 
         expect(cookie).toBeUndefined();
       });
@@ -461,7 +469,9 @@ describe('AuthController', () => {
         let cookieName: string;
 
         beforeAll(async function () {
-          cookieName = mockAuthService.getAuthCookieSettings().name;
+          cookieName = mockConfigService.get<string>(
+            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
+          );
         });
 
         it('should set auth cookie', async function () {
@@ -511,7 +521,9 @@ describe('AuthController', () => {
               enabled: false,
             }));
 
-          cookieName = mockAuthService.getAuthCookieSettings().name;
+          cookieName = mockConfigService.get<string>(
+            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
+          );
         });
 
         afterAll(async function () {
@@ -540,7 +552,9 @@ describe('AuthController', () => {
             throw new JsonWebTokenError('invalid refresh token');
           });
 
-        authCookieName = mockAuthService.getAuthCookieSettings().name;
+        authCookieName = mockConfigService.get<string>(
+          'AUTH_COOKIE_NAME_ACCESS_TOKEN',
+        );
 
         const expResponse = createResponse();
 

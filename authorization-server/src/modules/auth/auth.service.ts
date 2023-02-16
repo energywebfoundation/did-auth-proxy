@@ -51,12 +51,10 @@ export class AuthService {
 
   public getAuthCookieSettings(): {
     enabled: boolean;
-    name: string;
     options: CookieOptions;
   } {
     return {
       enabled: this.configService.get<boolean>('AUTH_COOKIE_ENABLED'),
-      name: this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
       options: {
         httpOnly: true,
         secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
