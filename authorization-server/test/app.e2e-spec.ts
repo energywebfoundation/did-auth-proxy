@@ -97,9 +97,9 @@ describe('AppController (e2e)', () => {
           map: true,
         });
 
-        expect(cookies['Auth']).toBeDefined();
+        expect(cookies['token']).toBeDefined();
 
-        const authCookie = cookies['Auth'];
+        const authCookie = cookies['token'];
 
         expect(authCookie.httpOnly).toBe(true);
         expect(authCookie.secure).toBe(true);
@@ -320,9 +320,9 @@ describe('AppController (e2e)', () => {
           map: true,
         });
 
-        expect(cookies['Auth']).toBeDefined();
+        expect(cookies['token']).toBeDefined();
 
-        const authCookie = cookies['Auth'];
+        const authCookie = cookies['token'];
 
         expect(authCookie.value).toBe(response.body.access_token);
 
