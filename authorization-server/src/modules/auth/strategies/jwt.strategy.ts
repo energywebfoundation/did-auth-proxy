@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
           return (
             req &&
             req.cookies &&
-            req.cookies[config.get<string>('AUTH_COOKIE_NAME')]
+            req.cookies[config.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN')]
           );
         },
       ]),
