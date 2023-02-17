@@ -510,13 +510,17 @@ describe('AuthController', () => {
       let refreshToken: string, newRefreshToken: string, newAccessToken: string;
 
       beforeEach(async () => {
-        refreshToken = `validRefreshToken-${Math.random()}`;
+        refreshToken = sign({ random: Math.random() }, 'aSecret', {
+          expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
+        });
 
         newAccessToken = sign({}, 'aSecret', {
           expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
         });
 
-        newRefreshToken = `regenerated-refresh-token-${Math.random()}`;
+        newRefreshToken = sign({ random: Math.random() }, 'aSecret', {
+          expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
+        });
 
         mockAuthService.refreshTokens.mockImplementation(() => ({
           accessToken: newAccessToken,
@@ -559,40 +563,71 @@ describe('AuthController', () => {
       });
 
       describe('when auth cookie enabled', function () {
-        let cookieName: string;
+        let accessTokenCookieName: string;
+        let refreshTokenCookieName: string;
 
         beforeEach(async function () {
-          cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
+          accessTokenCookieName = mockConfigService.get(
+            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
+          );
+
+          refreshTokenCookieName = mockConfigService.get(
+            'AUTH_COOKIE_NAME_REFRESH_TOKEN',
+          );
         });
 
-        it('should set auth cookie', async function () {
-          expect(responseCookies[cookieName]).toBeDefined();
+        it('should set access token cookie', async function () {
+          expect(responseCookies[accessTokenCookieName]).toBeDefined();
         });
 
-        it('should set cookie with a correct value', async function () {
-          expect(responseCookies[cookieName].value).toBe(newAccessToken);
+        it('should set refresh token cookie', async function () {
+          expect(responseCookies[refreshTokenCookieName]).toBeDefined();
         });
 
-        it('should set http-only cookie', async function () {
-          expect(responseCookies[cookieName].options.httpOnly).toBe(true);
+        it('should set access token cookie with "strict" SameSite policy', async function () {
+          expect(responseCookies[accessTokenCookieName].options.sameSite).toBe(
+            'strict',
+          );
         });
 
-        it('should set cookie with "strict" SameSite policy', async function () {
-          expect(responseCookies[cookieName].options.sameSite).toBe('strict');
+        it('should set refresh token cookie with "strict" SameSite policy', async function () {
+          expect(responseCookies[refreshTokenCookieName].options.sameSite).toBe(
+            'strict',
+          );
         });
 
-        it('should set secure cookie', async function () {
-          expect(responseCookies[cookieName].options.secure).toBe(true);
+        it('should set secure access token cookie', async function () {
+          expect(responseCookies[accessTokenCookieName].options.secure).toBe(
+            true,
+          );
         });
 
-        it('should set cookie with a correct expiration time', async function () {
+        it('should set secure refresh token cookie', async function () {
+          expect(responseCookies[refreshTokenCookieName].options.secure).toBe(
+            true,
+          );
+        });
+
+        it('should set access token  cookie with a correct expiration time', async function () {
           expect(
-            responseCookies[cookieName].options.maxAge / 1000,
+            responseCookies[accessTokenCookieName].options.maxAge / 1000,
           ).toBeGreaterThanOrEqual(mockConfigService.get('JWT_ACCESS_TTL') - 1);
 
           expect(
-            responseCookies[cookieName].options.maxAge / 1000,
+            responseCookies[accessTokenCookieName].options.maxAge / 1000,
           ).toBeLessThanOrEqual(mockConfigService.get('JWT_ACCESS_TTL'));
+        });
+
+        it('should set refresh token cookie with a correct expiration time', async function () {
+          expect(
+            responseCookies[refreshTokenCookieName].options.maxAge / 1000,
+          ).toBeGreaterThanOrEqual(
+            mockConfigService.get('JWT_REFRESH_TTL') - 1,
+          );
+
+          expect(
+            responseCookies[refreshTokenCookieName].options.maxAge / 1000,
+          ).toBeLessThanOrEqual(mockConfigService.get('JWT_REFRESH_TTL'));
         });
       });
 

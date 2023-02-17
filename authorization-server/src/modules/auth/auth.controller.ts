@@ -173,6 +173,7 @@ export class AuthController {
 
     if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
       const { options } = this.authService.getAuthCookiesSettings();
+
       res.cookie(
         this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
         accessToken,
@@ -180,6 +181,17 @@ export class AuthController {
           ...options,
           maxAge:
             (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
+            Date.now(),
+        },
+      );
+
+      res.cookie(
+        this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+        refreshToken,
+        {
+          ...options,
+          maxAge:
+            (decodeJWT(refreshToken) as IAccessTokenPayload).exp * 1000 -
             Date.now(),
         },
       );
