@@ -188,7 +188,7 @@ describe('AuthController', () => {
       describe('when auth cookie enabled', function () {
         let cookieName: string;
 
-        beforeAll(async function () {
+        beforeEach(async function () {
           cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
         });
 
@@ -485,7 +485,7 @@ describe('AuthController', () => {
       describe('when auth cookie enabled', function () {
         let cookieName: string;
 
-        beforeAll(async function () {
+        beforeEach(async function () {
           cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
         });
 
