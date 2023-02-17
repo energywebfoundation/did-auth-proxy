@@ -89,8 +89,8 @@ export class AuthController {
         .map((role) => role.namespace),
     });
 
-    if (this.authService.getAuthCookieSettings().enabled) {
-      const { options } = this.authService.getAuthCookieSettings();
+    if (this.authService.getAuthCookiesSettings().enabled) {
+      const { options } = this.authService.getAuthCookiesSettings();
       res.cookie(
         this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
         accessToken,
@@ -152,8 +152,8 @@ export class AuthController {
       body.refreshToken,
     );
 
-    if (this.authService.getAuthCookieSettings().enabled) {
-      const { options } = this.authService.getAuthCookieSettings();
+    if (this.authService.getAuthCookiesSettings().enabled) {
+      const { options } = this.authService.getAuthCookiesSettings();
       res.cookie(
         this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
         accessToken,

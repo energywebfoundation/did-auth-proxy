@@ -49,7 +49,7 @@ export class AuthService {
     return token;
   }
 
-  public getAuthCookieSettings(): {
+  public getAuthCookiesSettings(): {
     enabled: boolean;
     options: CookieOptions;
   } {

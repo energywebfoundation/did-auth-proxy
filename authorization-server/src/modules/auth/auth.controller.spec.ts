@@ -41,7 +41,7 @@ describe('AuthController', () => {
     invalidateAllRefreshTokens: () => {},
     refreshTokens: () => {},
     logout: () => {},
-    getAuthCookieSettings: () => authCookieSettingsBase,
+    getAuthCookiesSettings: () => authCookieSettingsBase,
   };
 
   const mockRolesValidationService = {
@@ -235,7 +235,7 @@ describe('AuthController', () => {
 
           beforeAll(async function () {
             mockGetAuthCookieOptions = jest
-              .spyOn(mockAuthService, 'getAuthCookieSettings')
+              .spyOn(mockAuthService, 'getAuthCookiesSettings')
               .mockImplementation(() => ({
                 ...authCookieSettingsBase,
                 options: {
@@ -260,7 +260,7 @@ describe('AuthController', () => {
 
         beforeAll(async function () {
           mockGetAuthCookieOptions = jest
-            .spyOn(mockAuthService, 'getAuthCookieSettings')
+            .spyOn(mockAuthService, 'getAuthCookiesSettings')
             .mockImplementation(() => ({
               ...authCookieSettingsBase,
               enabled: false,
@@ -515,7 +515,7 @@ describe('AuthController', () => {
 
         beforeAll(async function () {
           mockGetAuthCookieOptions = jest
-            .spyOn(mockAuthService, 'getAuthCookieSettings')
+            .spyOn(mockAuthService, 'getAuthCookiesSettings')
             .mockImplementation(() => ({
               ...authCookieSettingsBase,
               enabled: false,
