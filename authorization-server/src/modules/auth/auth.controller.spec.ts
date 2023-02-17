@@ -18,6 +18,7 @@ describe('AuthController', () => {
     LOG_LEVELS: 'error,warn',
     JWT_ACCESS_TTL: 10,
     JWT_REFRESH_TTL: 20,
+    AUTH_COOKIE_ENABLED: true,
     AUTH_COOKIE_NAME_ACCESS_TOKEN: 'token',
   };
 
@@ -26,7 +27,6 @@ describe('AuthController', () => {
   };
 
   const authCookieSettingsBase = {
-    enabled: true,
     options: {
       secure: true,
       httpOnly: true,
@@ -267,10 +267,12 @@ describe('AuthController', () => {
 
       describe('when auth cookie disabled', function () {
         beforeEach(async function () {
-          mockAuthService.getAuthCookiesSettings.mockImplementation(() => ({
-            ...authCookieSettingsBase,
-            enabled: false,
-          }));
+          mockConfigService.get.mockImplementation(<T>(key: string): T => {
+            return {
+              ...configBase,
+              AUTH_COOKIE_ENABLED: false,
+            }[key] as unknown as T;
+          });
 
           const expRequest = createRequest({
             method: 'POST',
@@ -292,7 +294,7 @@ describe('AuthController', () => {
         });
 
         afterEach(async function () {
-          mockAuthService.getAuthCookiesSettings.mockClear().mockRestore();
+          mockConfigService.get.mockClear().mockRestore();
         });
 
         it('should skip setting the cookie', async function () {
@@ -524,10 +526,12 @@ describe('AuthController', () => {
         let cookieName: string;
 
         beforeEach(async function () {
-          mockAuthService.getAuthCookiesSettings.mockImplementation(() => ({
-            ...authCookieSettingsBase,
-            enabled: false,
-          }));
+          mockConfigService.get.mockImplementation(<T>(key: string): T => {
+            return {
+              ...configBase,
+              AUTH_COOKIE_ENABLED: false,
+            }[key] as unknown as T;
+          });
 
           cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
 
@@ -539,7 +543,7 @@ describe('AuthController', () => {
         });
 
         afterEach(async function () {
-          mockAuthService.getAuthCookiesSettings.mockClear().mockRestore();
+          mockConfigService.get.mockClear().mockRestore();
         });
 
         it('should not set auth cookie', async function () {
