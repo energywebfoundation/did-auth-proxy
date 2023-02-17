@@ -10,7 +10,7 @@ describe('ValidRefreshTokenGuard', () => {
   let validRefreshTokenGuard: ValidRefreshTokenGuard;
 
   const mockAuthService = {
-    validateRefreshToken() {},
+    validateRefreshToken: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -28,21 +28,21 @@ describe('ValidRefreshTokenGuard', () => {
     );
   });
 
+  afterEach(async function () {
+    Object.values(mockAuthService).forEach((mockedFunction) => {
+      mockedFunction.mockReset();
+    });
+  });
+
   it('should be defined', () => {
     expect(validRefreshTokenGuard).toBeDefined();
   });
 
   describe('canActivate()', function () {
     describe('when called without refreshToken field', function () {
-      let mockValidateRefreshToken: jest.SpyInstance;
       let result: boolean;
 
       beforeEach(async function () {
-        mockValidateRefreshToken = jest.spyOn(
-          mockAuthService,
-          'validateRefreshToken',
-        );
-
         const mockExecutionContext = createMock<ExecutionContext>({
           switchToHttp: jest.fn().mockReturnValue({
             getRequest: jest.fn().mockReturnValue({
@@ -54,21 +54,16 @@ describe('ValidRefreshTokenGuard', () => {
         result = await validRefreshTokenGuard.canActivate(mockExecutionContext);
       });
 
-      afterEach(async function () {
-        mockValidateRefreshToken.mockClear().mockRestore();
-      });
-
       it('should resolve to false', async function () {
         expect(result).toBe(false);
       });
 
       it('should not try to validate non-existent token', async function () {
-        expect(mockValidateRefreshToken).not.toHaveBeenCalled();
+        expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
       });
     });
 
     describe('when called with refreshToken field containing valid token', function () {
-      let mockValidateRefreshToken: jest.SpyInstance;
       let result: boolean;
 
       beforeEach(async function () {
@@ -80,19 +75,15 @@ describe('ValidRefreshTokenGuard', () => {
           }),
         });
 
-        mockValidateRefreshToken = jest
-          .spyOn(mockAuthService, 'validateRefreshToken')
-          .mockImplementation(async () => true);
+        mockAuthService.validateRefreshToken.mockImplementation(
+          async () => true,
+        );
 
         result = await validRefreshTokenGuard.canActivate(mockExecutionContext);
       });
 
-      afterEach(async function () {
-        mockValidateRefreshToken.mockClear().mockRestore();
-      });
-
       it('should validate refreshToken', async function () {
-        expect(mockValidateRefreshToken).toHaveBeenCalledWith(
+        expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
           'a refresh token',
         );
       });
@@ -103,7 +94,6 @@ describe('ValidRefreshTokenGuard', () => {
     });
 
     describe('when called with refreshToken field containing invalid token', function () {
-      let mockValidateRefreshToken: jest.SpyInstance;
       let result: boolean;
 
       beforeEach(async function () {
@@ -115,19 +105,15 @@ describe('ValidRefreshTokenGuard', () => {
           }),
         });
 
-        mockValidateRefreshToken = jest
-          .spyOn(mockAuthService, 'validateRefreshToken')
-          .mockImplementation(async () => false);
+        mockAuthService.validateRefreshToken.mockImplementation(
+          async () => false,
+        );
 
         result = await validRefreshTokenGuard.canActivate(mockExecutionContext);
       });
 
-      afterEach(async function () {
-        mockValidateRefreshToken.mockClear().mockRestore();
-      });
-
       it('should validate refreshToken', async function () {
-        expect(mockValidateRefreshToken).toHaveBeenCalledWith(
+        expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
           'a refresh token',
         );
       });
