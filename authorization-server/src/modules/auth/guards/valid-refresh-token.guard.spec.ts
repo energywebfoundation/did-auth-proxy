@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ValidRefreshTokenGuard } from './valid-refresh-token.guard';
 import { createMock } from '@golevelup/ts-jest';
 import { ExecutionContext } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 describe('ValidRefreshTokenGuard', () => {
   let validRefreshTokenGuard: ValidRefreshTokenGuard;
@@ -13,23 +14,41 @@ describe('ValidRefreshTokenGuard', () => {
     validateRefreshToken: jest.fn(),
   };
 
+  const mockConfigService = {
+    get: jest.fn(),
+  };
+
   beforeEach(async () => {
+    mockConfigService.get.mockImplementation((key: string) => {
+      return {
+        AUTH_COOKIE_NAME_REFRESH_TOKEN: 'refreshToken',
+      }[key];
+    });
+
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         JwtModule.register({
           secretOrPrivateKey: 'secretKeyValid',
         }),
       ],
-      providers: [{ provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: ConfigService, useValue: mockConfigService },
+      ],
     }).compile();
 
     validRefreshTokenGuard = new ValidRefreshTokenGuard(
       module.get<AuthService>(AuthService),
+      module.get<ConfigService>(ConfigService),
     );
   });
 
   afterEach(async function () {
     Object.values(mockAuthService).forEach((mockedFunction) => {
+      mockedFunction.mockReset();
+    });
+
+    Object.values(mockConfigService).forEach((mockedFunction) => {
       mockedFunction.mockReset();
     });
   });
