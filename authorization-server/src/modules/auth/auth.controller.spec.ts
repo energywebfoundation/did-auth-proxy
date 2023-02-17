@@ -45,7 +45,7 @@ describe('AuthController', () => {
   };
 
   const mockRolesValidationService = {
-    didAccessTokenRolesAreValid: jest.fn().mockImplementation(async () => true),
+    didAccessTokenRolesAreValid: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -56,6 +56,10 @@ describe('AuthController', () => {
     mockConfigService.get.mockImplementation(<T>(key: string): T => {
       return configBase[key] as unknown as T;
     });
+
+    mockRolesValidationService.didAccessTokenRolesAreValid.mockImplementation(
+      async () => true,
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
@@ -71,6 +75,23 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
+  });
+
+  afterEach(async function () {
+    Object.values(mockConfigService).forEach(
+      (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
+        mockedFunction.mockReset(),
+    );
+
+    Object.values(mockAuthService).forEach(
+      (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
+        mockedFunction.mockReset(),
+    );
+
+    Object.values(mockRolesValidationService).forEach(
+      (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
+        mockedFunction.mockReset(),
+    );
   });
 
   it('should be defined', () => {
@@ -136,13 +157,6 @@ describe('AuthController', () => {
         );
 
         responseCookies = expResponse.cookies;
-      });
-
-      afterEach(() => {
-        mockAuthService.logIn.mockClear().mockRestore();
-        mockRolesValidationService.didAccessTokenRolesAreValid
-          .mockClear()
-          .mockRestore();
       });
 
       it('should respond with access token', async function () {
@@ -255,10 +269,6 @@ describe('AuthController', () => {
             responseCookies = expResponse.cookies;
           });
 
-          afterEach(async function () {
-            mockAuthService.getAuthCookiesSettings.mockClear().mockRestore();
-          });
-
           it('should set secure cookie', async function () {
             expect(responseCookies[cookieName].options.secure).toBe(false);
           });
@@ -291,10 +301,6 @@ describe('AuthController', () => {
           );
 
           responseCookies = expResponse.cookies;
-        });
-
-        afterEach(async function () {
-          mockConfigService.get.mockClear().mockRestore();
         });
 
         it('should skip setting the cookie', async function () {
@@ -387,10 +393,6 @@ describe('AuthController', () => {
         responseCookies = expResponse.cookies;
       });
 
-      afterEach(async function () {
-        mockAuthService.validateRefreshToken.mockClear().mockRestore();
-      });
-
       it('should thrown an exception', async function () {
         expect(exceptionThrown).toBeInstanceOf(Error);
       });
@@ -450,10 +452,6 @@ describe('AuthController', () => {
         response = await controller.refresh({ refreshToken }, expResponse);
 
         responseCookies = expResponse.cookies;
-      });
-
-      afterEach(async function () {
-        mockAuthService.refreshTokens.mockReset();
       });
 
       it('should regenerate tokens pair using provided refresh token', async function () {
@@ -542,10 +540,6 @@ describe('AuthController', () => {
           responseCookies = expResponse.cookies;
         });
 
-        afterEach(async function () {
-          mockConfigService.get.mockClear().mockRestore();
-        });
-
         it('should not set auth cookie', async function () {
           expect(responseCookies[cookieName]).toBeUndefined();
         });
@@ -573,10 +567,6 @@ describe('AuthController', () => {
         }
 
         responseCookies = expResponse.cookies;
-      });
-
-      afterEach(() => {
-        mockAuthService.refreshTokens.mockClear().mockRestore();
       });
 
       it('should throw an exception', async function () {
