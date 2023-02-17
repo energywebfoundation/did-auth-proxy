@@ -140,6 +140,14 @@ export class AuthController {
         expires: new Date(0),
       },
     );
+
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+      '',
+      {
+        expires: new Date(0),
+      },
+    );
   }
 
   @Get('token-introspection')

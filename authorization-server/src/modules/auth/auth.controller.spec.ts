@@ -420,10 +420,21 @@ describe('AuthController', () => {
         });
       });
 
-      it('should unset auth cookie', async function () {
+      it('should unset access token cookie', async function () {
         const cookie =
           responseCookies[
             mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN')
+          ];
+
+        expect(cookie).toBeDefined();
+        expect(cookie.value).toBe('');
+        expect(cookie.options.expires).toEqual(new Date(0));
+      });
+
+      it('should unset refresh token cookie', async function () {
+        const cookie =
+          responseCookies[
+            mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
           ];
 
         expect(cookie).toBeDefined();
