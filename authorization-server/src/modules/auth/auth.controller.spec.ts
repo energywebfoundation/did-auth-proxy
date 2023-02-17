@@ -14,15 +14,15 @@ import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 describe('AuthController', () => {
   let controller: AuthController;
 
+  const configBase: Record<string, boolean | number | string> = {
+    LOG_LEVELS: 'error,warn',
+    JWT_ACCESS_TTL: 10,
+    JWT_REFRESH_TTL: 20,
+    AUTH_COOKIE_NAME_ACCESS_TOKEN: 'token',
+  };
+
   const mockConfigService = {
-    get: <T>(key: string): T => {
-      return {
-        LOG_LEVELS: 'error,warn',
-        JWT_ACCESS_TTL: 10,
-        JWT_REFRESH_TTL: 20,
-        AUTH_COOKIE_NAME_ACCESS_TOKEN: 'token',
-      }[key] as unknown as T;
-    },
+    get: jest.fn(),
   };
 
   const authCookieSettingsBase = {
@@ -51,6 +51,10 @@ describe('AuthController', () => {
   beforeEach(async () => {
     mockAuthService.getAuthCookiesSettings.mockImplementation(() => {
       return authCookieSettingsBase;
+    });
+
+    mockConfigService.get.mockImplementation(<T>(key: string): T => {
+      return configBase[key] as unknown as T;
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -104,7 +108,7 @@ describe('AuthController', () => {
 
       beforeEach(async () => {
         accessToken = sign({}, 'asecret', {
-          expiresIn: mockConfigService.get<number>('JWT_ACCESS_TTL'),
+          expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
         });
         refreshToken = `refresh-token-string-${Math.random()}`;
 
@@ -169,11 +173,11 @@ describe('AuthController', () => {
 
       it('should respond with correct expires_in field value', async function () {
         expect(response.expires_in).toBeGreaterThanOrEqual(
-          mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
+          mockConfigService.get('JWT_ACCESS_TTL') - 1,
         );
 
         expect(response.expires_in).toBeLessThanOrEqual(
-          mockConfigService.get<number>('JWT_ACCESS_TTL'),
+          mockConfigService.get('JWT_ACCESS_TTL'),
         );
       });
 
@@ -185,9 +189,7 @@ describe('AuthController', () => {
         let cookieName: string;
 
         beforeAll(async function () {
-          cookieName = mockConfigService.get<string>(
-            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
-          );
+          cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
         });
 
         it('should set cookie', async function () {
@@ -209,15 +211,11 @@ describe('AuthController', () => {
         it('should set cookie with a correct expiration time', async function () {
           expect(
             responseCookies[cookieName].options.maxAge / 1000,
-          ).toBeGreaterThanOrEqual(
-            mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
-          );
+          ).toBeGreaterThanOrEqual(mockConfigService.get('JWT_ACCESS_TTL') - 1);
 
           expect(
             responseCookies[cookieName].options.maxAge / 1000,
-          ).toBeLessThanOrEqual(
-            mockConfigService.get<number>('JWT_ACCESS_TTL'),
-          );
+          ).toBeLessThanOrEqual(mockConfigService.get('JWT_ACCESS_TTL'));
         });
 
         describe('when AUTH_COOKIE_SECURE=true', function () {
@@ -298,7 +296,7 @@ describe('AuthController', () => {
         });
 
         it('should skip setting the cookie', async function () {
-          const cookieName = mockConfigService.get<string>(
+          const cookieName = mockConfigService.get(
             'AUTH_COOKIE_NAME_ACCESS_TOKEN',
           );
           expect(responseCookies[cookieName]).toBeUndefined();
@@ -326,7 +324,7 @@ describe('AuthController', () => {
           },
           'asecret',
           {
-            expiresIn: mockConfigService.get<number>('JWT_REFRESH_TTL'),
+            expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
           },
         );
 
@@ -352,7 +350,7 @@ describe('AuthController', () => {
       it('should unset auth cookie', async function () {
         const cookie =
           responseCookies[
-            mockConfigService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN')
+            mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN')
           ];
 
         expect(cookie).toBeDefined();
@@ -398,7 +396,7 @@ describe('AuthController', () => {
       it('should send no auth cookie', async function () {
         const cookie =
           responseCookies[
-            mockConfigService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN')
+            mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN')
           ];
 
         expect(cookie).toBeUndefined();
@@ -435,7 +433,7 @@ describe('AuthController', () => {
         refreshToken = `validRefreshToken-${Math.random()}`;
 
         newAccessToken = sign({}, 'aSecret', {
-          expiresIn: mockConfigService.get<number>('JWT_ACCESS_TTL'),
+          expiresIn: mockConfigService.get('JWT_ACCESS_TTL'),
         });
 
         newRefreshToken = `regenerated-refresh-token-${Math.random()}`;
@@ -472,11 +470,11 @@ describe('AuthController', () => {
 
       it('should respond with correct expires_in field value', async function () {
         expect(response.expires_in).toBeGreaterThanOrEqual(
-          mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
+          mockConfigService.get('JWT_ACCESS_TTL') - 1,
         );
 
         expect(response.expires_in).toBeLessThanOrEqual(
-          mockConfigService.get<number>('JWT_ACCESS_TTL'),
+          mockConfigService.get('JWT_ACCESS_TTL'),
         );
       });
 
@@ -488,9 +486,7 @@ describe('AuthController', () => {
         let cookieName: string;
 
         beforeAll(async function () {
-          cookieName = mockConfigService.get<string>(
-            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
-          );
+          cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
         });
 
         it('should set auth cookie', async function () {
@@ -516,15 +512,11 @@ describe('AuthController', () => {
         it('should set cookie with a correct expiration time', async function () {
           expect(
             responseCookies[cookieName].options.maxAge / 1000,
-          ).toBeGreaterThanOrEqual(
-            mockConfigService.get<number>('JWT_ACCESS_TTL') - 1,
-          );
+          ).toBeGreaterThanOrEqual(mockConfigService.get('JWT_ACCESS_TTL') - 1);
 
           expect(
             responseCookies[cookieName].options.maxAge / 1000,
-          ).toBeLessThanOrEqual(
-            mockConfigService.get<number>('JWT_ACCESS_TTL'),
-          );
+          ).toBeLessThanOrEqual(mockConfigService.get('JWT_ACCESS_TTL'));
         });
       });
 
@@ -537,9 +529,7 @@ describe('AuthController', () => {
             enabled: false,
           }));
 
-          cookieName = mockConfigService.get<string>(
-            'AUTH_COOKIE_NAME_ACCESS_TOKEN',
-          );
+          cookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
 
           const expResponse = createResponse();
 
@@ -568,9 +558,7 @@ describe('AuthController', () => {
           throw new JsonWebTokenError('invalid refresh token');
         });
 
-        authCookieName = mockConfigService.get<string>(
-          'AUTH_COOKIE_NAME_ACCESS_TOKEN',
-        );
+        authCookieName = mockConfigService.get('AUTH_COOKIE_NAME_ACCESS_TOKEN');
 
         const expResponse = createResponse();
 
