@@ -19,6 +19,7 @@ describe('AuthController', () => {
     JWT_ACCESS_TTL: 10,
     JWT_REFRESH_TTL: 20,
     AUTH_COOKIE_ENABLED: true,
+    AUTH_COOKIE_ONLY: false,
     AUTH_COOKIE_NAME_ACCESS_TOKEN: 'token',
   };
 
@@ -101,7 +102,7 @@ describe('AuthController', () => {
   describe('login()', function () {
     describe('when executed', () => {
       let accessToken: string, refreshToken: string;
-      let response: LoginResponseDto;
+      let response: LoginResponseDto | undefined;
       let responseCookies: Record<string, ResponseCookie>;
       const identityToken = 'foobar';
 
@@ -338,6 +339,37 @@ describe('AuthController', () => {
             );
           });
         });
+
+        describe('when AUTH_COOKIE_ONLY=true', function () {
+          beforeEach(async function () {
+            mockConfigService.get.mockImplementation(<T>(key: string): T => {
+              return {
+                ...configBase,
+                AUTH_COOKIE_ONLY: true,
+              }[key] as unknown as T;
+            });
+
+            const expRequest = createRequest({
+              method: 'POST',
+              path: '/auth/login',
+              body: { identityToken },
+            });
+
+            const expResponse = createResponse();
+
+            expRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
+
+            response = await controller.login(
+              { identityToken },
+              expRequest,
+              expResponse,
+            );
+          });
+
+          it('should not send an empty response body', async function () {
+            expect(response).toBeUndefined();
+          });
+        });
       });
 
       describe('when auth cookie disabled', function () {
@@ -505,7 +537,7 @@ describe('AuthController', () => {
 
   describe('refresh()', function () {
     describe('when called with valid refresh token', function () {
-      let response: LoginResponseDto;
+      let response: LoginResponseDto | undefined;
       let responseCookies: Record<string, ResponseCookie>;
       let refreshToken: string, newRefreshToken: string, newAccessToken: string;
 
@@ -628,6 +660,25 @@ describe('AuthController', () => {
           expect(
             responseCookies[refreshTokenCookieName].options.maxAge / 1000,
           ).toBeLessThanOrEqual(mockConfigService.get('JWT_REFRESH_TTL'));
+        });
+
+        describe('when AUTH_COOKIE_ONLY=true', function () {
+          beforeEach(async function () {
+            mockConfigService.get.mockImplementation(<T>(key: string): T => {
+              return {
+                ...configBase,
+                AUTH_COOKIE_ONLY: true,
+              }[key] as unknown as T;
+            });
+
+            const expResponse = createResponse();
+
+            response = await controller.refresh({ refreshToken }, expResponse);
+          });
+
+          it('should not send an empty response body', async function () {
+            expect(response).toBeUndefined();
+          });
         });
       });
 

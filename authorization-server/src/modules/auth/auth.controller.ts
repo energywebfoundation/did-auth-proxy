@@ -62,7 +62,7 @@ export class AuthController {
     @Body() body: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ): Promise<LoginResponseDto | undefined> {
     this.logger.debug(`user has been logged in`);
     this.logger.debug(
       `identity token received: ${maskString(body.identityToken, 20, 20)}`,
@@ -112,6 +112,10 @@ export class AuthController {
             Date.now(),
         },
       );
+    }
+
+    if (this.configService.get<boolean>('AUTH_COOKIE_ONLY')) {
+      return;
     }
 
     return new LoginResponseDto({ accessToken, refreshToken });
@@ -166,7 +170,7 @@ export class AuthController {
   async refresh(
     @Body() body: RefreshDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ): Promise<LoginResponseDto | undefined> {
     const { accessToken, refreshToken } = await this.authService.refreshTokens(
       body.refreshToken,
     );
@@ -195,6 +199,10 @@ export class AuthController {
             Date.now(),
         },
       );
+    }
+
+    if (this.configService.get<boolean>('AUTH_COOKIE_ONLY')) {
+      return;
     }
 
     return new LoginResponseDto({ accessToken, refreshToken });
