@@ -11,9 +11,21 @@ export class ValidRefreshTokenGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const { body, cookies } = context.switchToHttp().getRequest();
 
-    const refreshToken =
-      body?.refreshToken ||
-      (cookies || {})[this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')];
+    let refreshToken: string;
+
+    if (this.config.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      if (this.config.get<boolean>('AUTH_COOKIE_ONLY')) {
+        refreshToken = (cookies || {})[
+          this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
+        ];
+      } else {
+        refreshToken =
+          body?.refreshToken ||
+          (cookies || {})[this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')];
+      }
+    } else {
+      refreshToken = body?.refreshToken;
+    }
 
     if (!refreshToken) {
       return false;
