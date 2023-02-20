@@ -40,7 +40,7 @@ describe('AuthController', () => {
     invalidateAllRefreshTokens: jest.fn(),
     refreshTokens: jest.fn(),
     logout: jest.fn(),
-    getAuthCookiesSettings: jest.fn(),
+    getAuthCookiesOptions: jest.fn(),
   };
 
   const mockRolesValidationService = {
@@ -48,7 +48,7 @@ describe('AuthController', () => {
   };
 
   beforeEach(async () => {
-    mockAuthService.getAuthCookiesSettings.mockImplementation(() => {
+    mockAuthService.getAuthCookiesOptions.mockImplementation(() => {
       return authCookieSettingsBase;
     });
 
@@ -296,7 +296,7 @@ describe('AuthController', () => {
 
         describe('when AUTH_COOKIE_SECURE=false', function () {
           beforeEach(async function () {
-            mockAuthService.getAuthCookiesSettings.mockImplementation(() => {
+            mockAuthService.getAuthCookiesOptions.mockImplementation(() => {
               return {
                 ...authCookieSettingsBase,
                 secure: false,

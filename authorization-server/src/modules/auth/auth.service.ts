@@ -49,7 +49,7 @@ export class AuthService {
     return token;
   }
 
-  public getAuthCookiesSettings(): CookieOptions {
+  public getAuthCookiesOptions(): CookieOptions {
     return {
       httpOnly: true,
       secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
