@@ -28,12 +28,10 @@ describe('AuthController', () => {
   };
 
   const authCookieSettingsBase = {
-    options: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'strict',
-    } as CookieOptions,
-  };
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict',
+  } as CookieOptions;
 
   const mockAuthService = {
     logIn: jest.fn(),
@@ -301,11 +299,8 @@ describe('AuthController', () => {
             mockAuthService.getAuthCookiesSettings.mockImplementation(() => {
               return {
                 ...authCookieSettingsBase,
-                options: {
-                  ...authCookieSettingsBase,
-                  secure: false,
-                } as CookieOptions,
-              };
+                secure: false,
+              } as CookieOptions;
             });
 
             const expRequest = createRequest({

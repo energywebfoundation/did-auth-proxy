@@ -168,7 +168,7 @@ export class AuthController {
     accessToken: string;
     refreshToken: string;
   }) {
-    const { options } = this.authService.getAuthCookiesSettings();
+    const options = this.authService.getAuthCookiesSettings();
 
     res.cookie(
       this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
