@@ -120,21 +120,7 @@ export class AuthController {
       allDevices: body.allDevices,
     });
 
-    res.cookie(
-      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
-      '',
-      {
-        expires: new Date(0),
-      },
-    );
-
-    res.cookie(
-      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
-      '',
-      {
-        expires: new Date(0),
-      },
-    );
+    this.unsetAuthCookies(res);
   }
 
   @Get('token-introspection')
@@ -203,6 +189,24 @@ export class AuthController {
         maxAge:
           (decodeJWT(refreshToken) as IAccessTokenPayload).exp * 1000 -
           Date.now(),
+      },
+    );
+  }
+
+  private unsetAuthCookies(res: Response) {
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+      '',
+      {
+        expires: new Date(0),
+      },
+    );
+
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+      '',
+      {
+        expires: new Date(0),
       },
     );
   }
