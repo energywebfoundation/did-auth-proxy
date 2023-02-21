@@ -65,6 +65,33 @@ describe('AppController (e2e)', () => {
     });
   });
 
+  describe('/healthcheck/operational', function () {
+    let response: Response;
+
+    beforeEach(async function () {
+      response = await request(appHttpServer).get('/healthcheck/operational');
+    });
+
+    it('should respond with 200', async function () {
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should report all checks OK', async function () {
+      const { body } = response;
+
+      expect(body.status).toBe('ok');
+      expect(Object.values(body.error)).toHaveLength(0);
+      expect(Object.keys(body.info).sort()).toEqual(
+        ['rpc', 'redis', 'ipfs'].sort(),
+      );
+      expect(Object.values(body.info)).toHaveLength(3);
+
+      Object.values(body.info).forEach((check: Record<string, string>) =>
+        expect(check.status).toBe('up'),
+      );
+    });
+  });
+
   describe('/auth/login (POST)', function () {
     let response: Response;
 
