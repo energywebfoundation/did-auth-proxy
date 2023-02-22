@@ -13,18 +13,19 @@ export class ValidRefreshTokenGuard implements CanActivate {
 
     let refreshToken: string;
 
-    if (this.config.get<boolean>('AUTH_COOKIE_ENABLED')) {
-      if (this.config.get<boolean>('AUTH_COOKIE_ONLY')) {
-        refreshToken = (cookies || {})[
-          this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
-        ];
-      } else {
-        refreshToken =
-          body?.refreshToken ||
-          (cookies || {})[this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')];
-      }
-    } else {
+    if (
+      this.config.get<boolean>('AUTH_COOKIE_ENABLED') &&
+      this.config.get<boolean>('AUTH_COOKIE_ONLY')
+    ) {
+      refreshToken = (cookies || {})[
+        this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
+      ];
+    } else if (!this.config.get<boolean>('AUTH_COOKIE_ENABLED')) {
       refreshToken = body?.refreshToken;
+    } else {
+      refreshToken =
+        body?.refreshToken ||
+        (cookies || {})[this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')];
     }
 
     if (!refreshToken) {
