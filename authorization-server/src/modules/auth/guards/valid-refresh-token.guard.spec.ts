@@ -16,7 +16,8 @@ describe('ValidRefreshTokenGuard', () => {
 
   const configBase: Record<string, number | string | boolean> = {
     AUTH_COOKIE_ENABLED: false,
-    AUTH_COOKIE_ONLY: false,
+    AUTH_HEADER_ENABLED: false,
+    AUTH_COOKIE_NAME_ACCESS_TOKEN: 'accessToken',
     AUTH_COOKIE_NAME_REFRESH_TOKEN: 'refreshToken',
   };
 
@@ -58,25 +59,51 @@ describe('ValidRefreshTokenGuard', () => {
   });
 
   describe('canActivate()', function () {
-    describe('when `AUTH_COOKIE_ENABLED=true` and `AUTH_COOKIE_ONLY=false`', function () {
+    let result: boolean;
+
+    describe('when AUTH_COOKIE_ENABLED==false && AUTH_HEADER_ENABLED=false', function () {
       beforeEach(async function () {
         mockConfigService.get.mockImplementation((key: string) => {
           return {
             ...configBase,
-            AUTH_COOKIE_ENABLED: true,
-            AUTH_COOKIE_ONLY: false,
+            AUTH_COOKIE_ENABLED: false,
+            AUTH_HEADER_ENABLED: false,
           }[key];
         });
       });
 
-      describe('when called without refreshToken field', function () {
-        let result: boolean;
-
+      describe('when called with no tokens', function () {
         beforeEach(async function () {
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({}),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
+        });
+
+        it('should resolve to false', async function () {
+          expect(result).toBe(false);
+        });
+
+        it('should validate no token', async function () {
+          expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when called with valid token in cookie only', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
               getRequest: jest.fn().mockReturnValue({
-                body: { foo: 'bar' },
+                cookies: { refreshToken: 'cookie refresh token' },
               }),
             }),
           });
@@ -90,157 +117,85 @@ describe('ValidRefreshTokenGuard', () => {
           expect(result).toBe(false);
         });
 
-        it('should not try to validate non-existent token', async function () {
+        it('should validate no token', async function () {
           expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
         });
       });
 
-      describe('when called with refreshToken in request body only', function () {
+      describe('when called with valid token in body only', function () {
         beforeEach(async function () {
-          const mockExecutionContext = createMock<ExecutionContext>({
-            switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                body: { refreshToken: 'body refresh token' },
-              }),
-            }),
-          });
-
-          await validRefreshTokenGuard.canActivate(mockExecutionContext);
-        });
-
-        it('should validate provided token', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
-            'body refresh token',
-          );
-        });
-      });
-
-      describe('when called with refreshToken in cookie only', function () {
-        beforeEach(async function () {
-          const mockExecutionContext = createMock<ExecutionContext>({
-            switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                cookies: { refreshToken: 'cookie refresh token' },
-              }),
-            }),
-          });
-
-          await validRefreshTokenGuard.canActivate(mockExecutionContext);
-        });
-
-        it('should validate provided token', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
-            'cookie refresh token',
-          );
-        });
-      });
-
-      describe('when called with refreshToken in both body and cookie', function () {
-        beforeEach(async function () {
-          const mockExecutionContext = createMock<ExecutionContext>({
-            switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                body: { refreshToken: 'body refresh token' },
-                cookies: { refreshToken: 'cookie refresh token' },
-              }),
-            }),
-          });
-
-          await validRefreshTokenGuard.canActivate(mockExecutionContext);
-        });
-
-        it('should validate the body token', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
-            'body refresh token',
-          );
-        });
-      });
-
-      describe('when called with refreshToken field containing valid token', function () {
-        let result: boolean;
-
-        beforeEach(async function () {
-          const mockExecutionContext = createMock<ExecutionContext>({
-            switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                body: { refreshToken: 'a refresh token' },
-              }),
-            }),
-          });
-
-          mockAuthService.validateRefreshToken.mockImplementation(
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
             async () => true,
           );
 
-          result = await validRefreshTokenGuard.canActivate(
-            mockExecutionContext,
-          );
-        });
-
-        it('should validate refreshToken', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
-            'a refresh token',
-          );
-        });
-
-        it('should resolve to true', async function () {
-          expect(result).toBe(true);
-        });
-      });
-
-      describe('when called with refreshToken field containing invalid token', function () {
-        let result: boolean;
-
-        beforeEach(async function () {
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
               getRequest: jest.fn().mockReturnValue({
-                body: { refreshToken: 'a refresh token' },
+                body: { refreshToken: 'body refresh token' },
               }),
             }),
           });
 
-          mockAuthService.validateRefreshToken.mockImplementation(
-            async () => false,
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
           );
+        });
+
+        it('should resolve to false', async function () {
+          expect(result).toBe(false);
+        });
+
+        it('should validate no token', async function () {
+          expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when called with valid token in body and cooki', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({
+                cookies: { refreshToken: 'cookie refresh token' },
+                body: { refreshToken: 'body refresh token' },
+              }),
+            }),
+          });
 
           result = await validRefreshTokenGuard.canActivate(
             mockExecutionContext,
           );
         });
 
-        it('should validate refreshToken', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
-            'a refresh token',
-          );
+        it('should resolve to false', async function () {
+          expect(result).toBe(false);
         });
 
-        it('should resolve to true', async function () {
-          expect(result).toBe(false);
+        it('should validate no token', async function () {
+          expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
         });
       });
     });
 
-    describe('when `AUTH_COOKIE_ENABLED=true` and `AUTH_COOKIE_ONLY=true`', function () {
+    describe('when AUTH_COOKIE_ENABLED==true && AUTH_HEADER_ENABLED=false', function () {
       beforeEach(async function () {
         mockConfigService.get.mockImplementation((key: string) => {
           return {
             ...configBase,
             AUTH_COOKIE_ENABLED: true,
-            AUTH_COOKIE_ONLY: true,
+            AUTH_HEADER_ENABLED: false,
           }[key];
         });
       });
 
-      describe('when called without a refresh token provided', function () {
-        let result: boolean;
-
+      describe('when called with no tokens', function () {
         beforeEach(async function () {
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                body: { foo: 'bar' },
-              }),
+              getRequest: jest.fn().mockReturnValue({}),
             }),
           });
 
@@ -249,43 +204,21 @@ describe('ValidRefreshTokenGuard', () => {
           );
         });
 
-        it('should return false', async function () {
+        it('should resolve to false', async function () {
           expect(result).toBe(false);
-        });
-      });
-
-      describe('when called with a valid refresh token provided in the body only', function () {
-        let result: boolean;
-
-        beforeEach(async function () {
-          const mockExecutionContext = createMock<ExecutionContext>({
-            switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                body: { refreshToken: 'body refresh token' },
-              }),
-            }),
-          });
-
-          mockAuthService.validateRefreshToken.mockReturnValueOnce(true);
-
-          result = await validRefreshTokenGuard.canActivate(
-            mockExecutionContext,
-          );
         });
 
         it('should validate no token', async function () {
           expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
         });
-
-        it('should resolve to true', async function () {
-          expect(result).toBe(false);
-        });
       });
 
-      describe('when called with a valid refresh token provided as a cookie only', function () {
-        let result: boolean;
-
+      describe('when called with valid token in cookie only', function () {
         beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
               getRequest: jest.fn().mockReturnValue({
@@ -294,40 +227,75 @@ describe('ValidRefreshTokenGuard', () => {
             }),
           });
 
-          mockAuthService.validateRefreshToken.mockReturnValueOnce(true);
-
           result = await validRefreshTokenGuard.canActivate(
             mockExecutionContext,
           );
         });
 
-        it('should return true', async function () {
+        it('should resolve to true', async function () {
           expect(result).toBe(true);
         });
 
-        it('should validate the token', async function () {
+        it('should validate cookie token', async function () {
           expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
             'cookie refresh token',
           );
         });
       });
 
-      describe('when called with a valid refreshToken in both body and cookie', function () {
+      describe('when called with valid token in body only', function () {
         beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
               getRequest: jest.fn().mockReturnValue({
                 body: { refreshToken: 'body refresh token' },
-                cookies: { refreshToken: 'cookie refresh token' },
               }),
             }),
           });
 
-          await validRefreshTokenGuard.canActivate(mockExecutionContext);
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
         });
 
-        it('should validate cookie token only', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledTimes(1);
+        it('should resolve to false', async function () {
+          expect(result).toBe(false);
+        });
+
+        it('should validate no token', async function () {
+          expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when called with valid token in body and cookie', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({
+                cookies: { refreshToken: 'cookie refresh token' },
+                body: { refreshToken: 'body refresh token' },
+              }),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
+        });
+
+        it('should resolve to true', async function () {
+          expect(result).toBe(true);
+        });
+
+        it('should validate cookie token', async function () {
           expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
             'cookie refresh token',
           );
@@ -335,26 +303,22 @@ describe('ValidRefreshTokenGuard', () => {
       });
     });
 
-    describe('when `AUTH_COOKIE_ENABLED=false` and `AUTH_COOKIE_ONLY=false`', function () {
+    describe('when AUTH_COOKIE_ENABLED==false && AUTH_HEADER_ENABLED=true', function () {
       beforeEach(async function () {
         mockConfigService.get.mockImplementation((key: string) => {
           return {
             ...configBase,
             AUTH_COOKIE_ENABLED: false,
-            AUTH_COOKIE_ONLY: false,
+            AUTH_HEADER_ENABLED: true,
           }[key];
         });
       });
 
-      describe('when called without a refresh token provided', function () {
-        let result: boolean;
-
+      describe('when called with no tokens', function () {
         beforeEach(async function () {
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                body: { foo: 'bar' },
-              }),
+              getRequest: jest.fn().mockReturnValue({}),
             }),
           });
 
@@ -363,29 +327,7 @@ describe('ValidRefreshTokenGuard', () => {
           );
         });
 
-        it('should return false', async function () {
-          expect(result).toBe(false);
-        });
-      });
-
-      describe('when called with refresh token provided as a cookie only', function () {
-        let result: boolean;
-
-        beforeEach(async function () {
-          const mockExecutionContext = createMock<ExecutionContext>({
-            switchToHttp: jest.fn().mockReturnValue({
-              getRequest: jest.fn().mockReturnValue({
-                cookies: { refreshToken: 'cookie refresh token' },
-              }),
-            }),
-          });
-
-          result = await validRefreshTokenGuard.canActivate(
-            mockExecutionContext,
-          );
-        });
-
-        it('should return false', async function () {
+        it('should resolve to false', async function () {
           expect(result).toBe(false);
         });
 
@@ -394,52 +336,214 @@ describe('ValidRefreshTokenGuard', () => {
         });
       });
 
-      describe('when called with a valid refresh token provided in the body only', function () {
-        let result: boolean;
-
+      describe('when called with valid token in cookie only', function () {
         beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
               getRequest: jest.fn().mockReturnValue({
-                body: { refreshToken: 'body refresh token' },
+                cookies: { refreshToken: 'cookie refresh token' },
               }),
             }),
           });
-
-          mockAuthService.validateRefreshToken.mockReturnValueOnce(true);
 
           result = await validRefreshTokenGuard.canActivate(
             mockExecutionContext,
           );
         });
 
-        it('should validate it', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
-            'body refresh token',
+        it('should resolve to false', async function () {
+          expect(result).toBe(false);
+        });
+
+        it('should validate no token', async function () {
+          expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when called with valid token in body only', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({
+                body: { refreshToken: 'body refresh token' },
+              }),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
           );
         });
 
         it('should resolve to true', async function () {
           expect(result).toBe(true);
         });
+
+        it('should validate body token', async function () {
+          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
+            'body refresh token',
+          );
+        });
       });
 
-      describe('when called with a valid refreshToken in both body and cookie', function () {
+      describe('when called with valid token in body and cookie', function () {
         beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
           const mockExecutionContext = createMock<ExecutionContext>({
             switchToHttp: jest.fn().mockReturnValue({
               getRequest: jest.fn().mockReturnValue({
+                cookies: { refreshToken: 'cookie refresh token' },
                 body: { refreshToken: 'body refresh token' },
+              }),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
+        });
+
+        it('should resolve to true', async function () {
+          expect(result).toBe(true);
+        });
+
+        it('should validate body token', async function () {
+          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
+            'body refresh token',
+          );
+        });
+      });
+    });
+
+    describe('when AUTH_COOKIE_ENABLED==true && AUTH_HEADER_ENABLED=true', function () {
+      beforeEach(async function () {
+        mockConfigService.get.mockImplementation((key: string) => {
+          return {
+            ...configBase,
+            AUTH_COOKIE_ENABLED: true,
+            AUTH_HEADER_ENABLED: true,
+          }[key];
+        });
+      });
+
+      describe('when called with no tokens', function () {
+        beforeEach(async function () {
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({}),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
+        });
+
+        it('should resolve to false', async function () {
+          expect(result).toBe(false);
+        });
+
+        it('should validate no token', async function () {
+          expect(mockAuthService.validateRefreshToken).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when called with valid token in cookie only', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({
                 cookies: { refreshToken: 'cookie refresh token' },
               }),
             }),
           });
 
-          await validRefreshTokenGuard.canActivate(mockExecutionContext);
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
         });
 
-        it('should validate body token only', async function () {
-          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledTimes(1);
+        it('should resolve to true', async function () {
+          expect(result).toBe(true);
+        });
+
+        it('should validate cookie token', async function () {
+          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
+            'cookie refresh token',
+          );
+        });
+      });
+
+      describe('when called with valid token in body only', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({
+                body: { refreshToken: 'body refresh token' },
+              }),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
+        });
+
+        it('should resolve to true', async function () {
+          expect(result).toBe(true);
+        });
+
+        it('should validate body token', async function () {
+          expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
+            'body refresh token',
+          );
+        });
+      });
+
+      describe('when called with valid token in body and cookie', function () {
+        beforeEach(async function () {
+          mockAuthService.validateRefreshToken.mockImplementationOnce(
+            async () => true,
+          );
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({
+                cookies: { refreshToken: 'cookie refresh token' },
+                body: { refreshToken: 'body refresh token' },
+              }),
+            }),
+          });
+
+          result = await validRefreshTokenGuard.canActivate(
+            mockExecutionContext,
+          );
+        });
+
+        it('should resolve to true', async function () {
+          expect(result).toBe(true);
+        });
+
+        it('should validate body token', async function () {
           expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith(
             'body refresh token',
           );
