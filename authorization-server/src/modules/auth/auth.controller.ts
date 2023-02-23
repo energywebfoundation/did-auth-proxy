@@ -97,11 +97,9 @@ export class AuthController {
       });
     }
 
-    if (this.configService.get<boolean>('AUTH_COOKIE_ONLY')) {
-      return;
+    if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
+      return new LoginResponseDto({ accessToken, refreshToken });
     }
-
-    return new LoginResponseDto({ accessToken, refreshToken });
   }
 
   @Post('logout')
@@ -152,11 +150,9 @@ export class AuthController {
       });
     }
 
-    if (this.configService.get<boolean>('AUTH_COOKIE_ONLY')) {
-      return;
+    if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
+      return new LoginResponseDto({ accessToken, refreshToken });
     }
-
-    return new LoginResponseDto({ accessToken, refreshToken });
   }
 
   private setAuthCookies({
