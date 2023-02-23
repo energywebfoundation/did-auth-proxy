@@ -46,7 +46,7 @@ export const envVarsValidationSchema = Joi.object({
   AUTH_COOKIE_NAME_ACCESS_TOKEN: Joi.string().default('token'),
   AUTH_COOKIE_NAME_REFRESH_TOKEN: Joi.string().default('refreshToken'),
   AUTH_COOKIE_ENABLED: Joi.boolean().default(false),
-  AUTH_COOKIE_ONLY: Joi.boolean().default(false),
+  AUTH_HEADER_ENABLED: Joi.boolean().default(true),
   AUTH_COOKIE_SECURE: Joi.boolean().default(true),
   AUTH_COOKIE_SAMESITE_POLICY: Joi.string()
     .regex(/(none|lax|strict)/)
