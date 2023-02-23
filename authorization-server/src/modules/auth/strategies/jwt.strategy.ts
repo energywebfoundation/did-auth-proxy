@@ -15,15 +15,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       req?.cookies &&
       req.cookies[config.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN')];
 
-    if (config.get<boolean>('AUTH_COOKIE_ENABLED')) {
-      if (config.get<boolean>('AUTH_COOKIE_ONLY')) {
-        extractorFunctions.push(fromCookie);
-      } else {
-        extractorFunctions.push(fromHeader);
-        extractorFunctions.push(fromCookie);
-      }
-    } else {
+    if (config.get<boolean>('AUTH_HEADER_ENABLED')) {
       extractorFunctions.push(fromHeader);
+    }
+
+    if (config.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      extractorFunctions.push(fromCookie);
     }
 
     super({
