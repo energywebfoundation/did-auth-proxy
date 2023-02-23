@@ -455,7 +455,7 @@ describe('AuthController', () => {
 
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
-        expect(cookie.options.expires).toEqual(new Date(0));
+        expect(cookie.options.expires).toEqual(new Date(1));
       });
 
       it('should unset refresh token cookie', async function () {
@@ -466,7 +466,7 @@ describe('AuthController', () => {
 
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
-        expect(cookie.options.expires).toEqual(new Date(0));
+        expect(cookie.options.expires).toEqual(new Date(1));
       });
     });
 
