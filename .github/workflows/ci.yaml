@@ -143,6 +143,7 @@ jobs:
       JWT_SECRET: 'asecret'
       JWT_ACCESS_TTL: 60
       JWT_REFRESH_TTL: 600
+      SIWE_NONCE_TTL: 120
       FAIL_ON_REDIS_UNAVAILABLE: true
       AUTH_COOKIE_ENABLED: true
       IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
@@ -192,6 +193,7 @@ jobs:
       JWT_SECRET: 'asecret'
       JWT_ACCESS_TTL: 60
       JWT_REFRESH_TTL: 600
+      SIWE_NONCE_TTL: 120
       FAIL_ON_REDIS_UNAVAILABLE: true
       AUTH_COOKIE_ENABLED: true
       IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}

@@ -43,6 +43,8 @@ export const envVarsValidationSchema = Joi.object({
   JWT_ACCESS_TTL: Joi.number().default(3600),
   JWT_REFRESH_TTL: Joi.number().default(86400),
 
+  SIWE_NONCE_TTL: Joi.number().positive().required(),
+
   AUTH_COOKIE_NAME_ACCESS_TOKEN: Joi.string().default('token'),
   AUTH_COOKIE_NAME_REFRESH_TOKEN: Joi.string().default('refreshToken'),
   AUTH_COOKIE_ENABLED: Joi.boolean().default(false),
