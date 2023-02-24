@@ -11,6 +11,7 @@ import { CookieOptions } from 'express';
 import { RolesValidationService } from './roles-validation.service';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 import { NonceService } from './nonce.service';
+import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
 
 function mockLoginRequestResponse(
   identityToken: string,
@@ -62,7 +63,9 @@ describe('AuthController', () => {
     getAuthCookiesOptions: jest.fn(),
   };
 
-  const mockNonceService = {};
+  const mockNonceService = {
+    generateNonce: jest.fn(),
+  };
 
   const mockRolesValidationService = {
     didAccessTokenRolesAreValid: jest.fn(),
@@ -451,6 +454,36 @@ describe('AuthController', () => {
             ],
           ).toBeUndefined();
         });
+      });
+    });
+  });
+
+  describe('siweLoginInit()', function () {
+    it('should be defined', async function () {
+      expect(controller.siweLoginInit).toBeDefined();
+    });
+
+    describe('when executed', function () {
+      let exception: Error;
+      let result: SiweInitResponseDto;
+
+      beforeEach(async function () {
+        mockNonceService.generateNonce.mockReturnValueOnce('a new nonce');
+
+        try {
+          result = await controller.siweLoginInit();
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should execute', async function () {
+        expect(exception).toBeUndefined();
+      });
+
+      it('should generate a new nonce', async function () {
+        expect(mockNonceService.generateNonce).toHaveBeenCalled();
+        expect(result).toEqual({ nonce: 'a new nonce' });
       });
     });
   });

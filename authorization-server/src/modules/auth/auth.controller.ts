@@ -31,6 +31,7 @@ import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 import { PinoLogger } from 'nestjs-pino';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 import { NonceService } from './nonce.service';
+import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
 
 @Controller('auth')
 @UsePipes(
@@ -102,6 +103,14 @@ export class AuthController {
     if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
       return new LoginResponseDto({ accessToken, refreshToken });
     }
+  }
+
+  @Get('login/siwe/initiate')
+  @ApiOkResponse({ type: SiweInitResponseDto })
+  async siweLoginInit(): Promise<SiweInitResponseDto> {
+    return new SiweInitResponseDto({
+      nonce: await this.nonceService.generateNonce(),
+    });
   }
 
   @Post('logout')

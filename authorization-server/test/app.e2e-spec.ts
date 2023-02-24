@@ -181,6 +181,24 @@ describe('AppController (e2e)', () => {
     //TODO: implement tests for malformed identity token once passport-did-auth is fixed (https://github.com/energywebfoundation/passport-did-auth/issues/294)
   });
 
+  describe('/auth/login/siwe/initiate (GET) when called', function () {
+    let response: Response;
+
+    beforeAll(async function () {
+      response = await request(appHttpServer).get('/auth/login/siwe/initiate');
+    });
+
+    it('should respond with 200 status code', async function () {
+      expect(response.statusCode).toBe(200);
+    });
+
+    it('should respond with a nonce', async function () {
+      expect(response.body).toEqual(
+        expect.objectContaining({ nonce: expect.any(String) }),
+      );
+    });
+  });
+
   describe('/auth/token-introspection (GET)', function () {
     let accessToken: string;
     let response: Response;
