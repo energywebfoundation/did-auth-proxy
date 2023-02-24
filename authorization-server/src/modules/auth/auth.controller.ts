@@ -62,7 +62,7 @@ export class AuthController {
     @Body() body: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ): Promise<LoginResponseDto | undefined> {
     this.logger.debug(`user has been logged in`);
     this.logger.debug(
       `identity token received: ${maskString(body.identityToken, 20, 20)}`,
@@ -89,17 +89,17 @@ export class AuthController {
         .map((role) => role.namespace),
     });
 
-    if (this.authService.getAuthCookieSettings().enabled) {
-      const { name, options } = this.authService.getAuthCookieSettings();
-      res.cookie(name, accessToken, {
-        ...options,
-        maxAge:
-          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
-          Date.now(),
+    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      this.setAuthCookies({
+        res,
+        accessToken,
+        refreshToken,
       });
     }
 
-    return new LoginResponseDto({ accessToken, refreshToken });
+    if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
+      return new LoginResponseDto({ accessToken, refreshToken });
+    }
   }
 
   @Post('logout')
@@ -118,9 +118,7 @@ export class AuthController {
       allDevices: body.allDevices,
     });
 
-    res.cookie(this.authService.getAuthCookieSettings().name, '', {
-      expires: new Date(0),
-    });
+    this.unsetAuthCookies(res);
   }
 
   @Get('token-introspection')
@@ -139,22 +137,63 @@ export class AuthController {
   async refresh(
     @Body() body: RefreshDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ): Promise<LoginResponseDto | undefined> {
     const { accessToken, refreshToken } = await this.authService.refreshTokens(
       body.refreshToken,
     );
 
-    if (this.authService.getAuthCookieSettings().enabled) {
-      const { name, options } = this.authService.getAuthCookieSettings();
-      res.cookie(name, accessToken, {
+    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      this.setAuthCookies({
+        res,
+        accessToken,
+        refreshToken,
+      });
+    }
+
+    if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
+      return new LoginResponseDto({ accessToken, refreshToken });
+    }
+  }
+
+  private setAuthCookies({
+    res,
+    accessToken,
+    refreshToken,
+  }: {
+    res: Response;
+    accessToken: string;
+    refreshToken: string;
+  }) {
+    const options = this.authService.getAuthCookiesOptions();
+
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+      accessToken,
+      {
         ...options,
         maxAge:
           (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
           Date.now(),
-      });
-    }
+      },
+    );
 
-    return new LoginResponseDto({ accessToken, refreshToken });
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+      refreshToken,
+      {
+        ...options,
+        maxAge:
+          (decodeJWT(refreshToken) as IAccessTokenPayload).exp * 1000 -
+          Date.now(),
+      },
+    );
+  }
+
+  private unsetAuthCookies(res: Response) {
+    [
+      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+    ].forEach((cookieName: string) => res.clearCookie(cookieName));
   }
 }
 

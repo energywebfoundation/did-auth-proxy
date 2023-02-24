@@ -49,22 +49,14 @@ export class AuthService {
     return token;
   }
 
-  public getAuthCookieSettings(): {
-    enabled: boolean;
-    name: string;
-    options: CookieOptions;
-  } {
+  public getAuthCookiesOptions(): CookieOptions {
     return {
-      enabled: this.configService.get<boolean>('AUTH_COOKIE_ENABLED'),
-      name: this.configService.get<string>('AUTH_COOKIE_NAME'),
-      options: {
-        httpOnly: true,
-        secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
-        sameSite:
-          this.configService.get<'none' | 'lax' | 'strict'>(
-            'AUTH_COOKIE_SAMESITE_POLICY',
-          ) || 'strict',
-      },
+      httpOnly: true,
+      secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
+      sameSite:
+        this.configService.get<'none' | 'lax' | 'strict'>(
+          'AUTH_COOKIE_SAMESITE_POLICY',
+        ) || 'strict',
     };
   }
 
