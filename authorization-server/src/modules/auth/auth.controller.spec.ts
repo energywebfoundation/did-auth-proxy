@@ -10,6 +10,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { CookieOptions } from 'express';
 import { RolesValidationService } from './roles-validation.service';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
+import { NonceService } from './nonce.service';
 
 function mockLoginRequestResponse(
   identityToken: string,
@@ -61,6 +62,8 @@ describe('AuthController', () => {
     getAuthCookiesOptions: jest.fn(),
   };
 
+  const mockNonceService = {};
+
   const mockRolesValidationService = {
     didAccessTokenRolesAreValid: jest.fn(),
   };
@@ -88,6 +91,7 @@ describe('AuthController', () => {
           provide: RolesValidationService,
           useValue: mockRolesValidationService,
         },
+        { provide: NonceService, useValue: mockNonceService },
       ],
     }).compile();
 
@@ -106,6 +110,11 @@ describe('AuthController', () => {
     );
 
     Object.values(mockRolesValidationService).forEach(
+      (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
+        mockedFunction.mockReset(),
+    );
+
+    Object.values(mockNonceService).forEach(
       (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
         mockedFunction.mockReset(),
     );

@@ -30,6 +30,7 @@ import { ConfigService } from '@nestjs/config';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 import { PinoLogger } from 'nestjs-pino';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
+import { NonceService } from './nonce.service';
 
 @Controller('auth')
 @UsePipes(
@@ -42,6 +43,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
+    private readonly nonceService: NonceService,
   ) {
     this.logger.setContext(AuthController.name);
   }
