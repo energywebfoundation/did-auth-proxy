@@ -77,6 +77,17 @@ export class AuthController {
       )}`,
     );
 
+    return this.loginCommon(req, res);
+  }
+
+  /**
+   * implements logic common for all login methods
+   */
+  async loginCommon(req: Request, res: Response): Promise<LoginResponseDto> {
+    if (typeof req.user !== 'string') {
+      throw new Error(`unexpected req.user value: ${req.user}`);
+    }
+
     const didAccessTokenPayload = decodeJWT(
       req.user as string,
     ) as unknown as AuthorisedUser;

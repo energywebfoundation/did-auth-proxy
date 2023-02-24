@@ -7,21 +7,15 @@ import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto';
 import { PinoLogger } from 'nestjs-pino';
-import { CookieOptions } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { RolesValidationService } from './roles-validation.service';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 import { NonceService } from './nonce.service';
 import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
+import { ParsedQs } from 'qs';
 
-function mockLoginRequestResponse(
-  identityToken: string,
-  didAccessTokenPayload: AuthorisedUser,
-) {
-  const mockRequest = createRequest({
-    method: 'POST',
-    path: '/auth/login',
-    body: { identityToken },
-  });
+function mockLoginRequestResponse(didAccessTokenPayload: AuthorisedUser) {
+  const mockRequest = createRequest();
 
   mockRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
 
@@ -127,12 +121,11 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('login()', function () {
+  describe('loginCommon()', function () {
     let accessToken: string;
     let refreshToken: string;
     let response: LoginResponseDto | undefined;
     let responseCookies: Record<string, ResponseCookie>;
-    const identityToken = 'foobar';
 
     const didAccessTokenPayload: AuthorisedUser = {
       did: '12344567',
@@ -173,15 +166,10 @@ describe('AuthController', () => {
       });
 
       const { mockRequest, mockResponse } = mockLoginRequestResponse(
-        identityToken,
         didAccessTokenPayload,
       );
 
-      response = await controller.login(
-        { identityToken },
-        mockRequest,
-        mockResponse,
-      );
+      response = await controller.loginCommon(mockRequest, mockResponse);
 
       responseCookies = mockResponse.cookies;
     });
@@ -212,7 +200,6 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
@@ -220,7 +207,7 @@ describe('AuthController', () => {
             foo: 'bar',
           });
 
-          await controller.login({ identityToken }, mockRequest, mockResponse);
+          await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -277,15 +264,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -319,15 +301,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -373,15 +350,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -426,15 +398,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -454,6 +421,87 @@ describe('AuthController', () => {
             ],
           ).toBeUndefined();
         });
+      });
+    });
+  });
+
+  describe('login()', function () {
+    it('should be defined', async function () {
+      expect(controller.login).toBeDefined();
+    });
+
+    describe('when called', function () {
+      let exception: Error;
+      let result: LoginResponseDto | undefined;
+      let spyOnLoginCommon: jest.SpyInstance;
+      let mockRequest: Request<
+        { [key: string]: string },
+        unknown,
+        unknown,
+        ParsedQs,
+        Record<string, unknown>
+      >;
+      let mockResponse: Response<unknown, Record<string, unknown>>;
+
+      const didAccessTokenPayload: AuthorisedUser = {
+        did: '987654321',
+        userRoles: [
+          {
+            name: 'valid',
+            namespace: 'valid.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.VALID,
+          },
+          {
+            name: 'revoked',
+            namespace: 'revoked.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.REVOKED,
+          },
+          {
+            name: 'expired',
+            namespace: 'expired.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.EXPIRED,
+          },
+        ],
+        authorisationStatus: true,
+      };
+
+      beforeEach(async function () {
+        spyOnLoginCommon = jest
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
+          .mockReturnValueOnce(Promise.resolve('a result'));
+
+        ({ mockRequest, mockResponse } = mockLoginRequestResponse(
+          didAccessTokenPayload,
+        ));
+
+        try {
+          result = await controller.login(
+            { identityToken: 'foobar' },
+            mockRequest,
+            mockResponse,
+          );
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should execute', async function () {
+        expect(exception).toBeUndefined();
+        expect(result).toBeDefined();
+      });
+
+      it('should perform login with the `loginCommon` method', async function () {
+        expect(spyOnLoginCommon).toHaveBeenCalledWith(
+          mockRequest,
+          mockResponse,
+        );
+      });
+
+      it('should return results of the `loginCommon` method execution', async function () {
+        expect(result).toBe('a result');
       });
     });
   });
