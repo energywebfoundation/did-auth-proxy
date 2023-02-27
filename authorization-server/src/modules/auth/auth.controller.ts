@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -32,6 +34,8 @@ import { PinoLogger } from 'nestjs-pino';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 import { NonceService } from './nonce.service';
 import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
+import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
+import { SiweMessage } from 'siwe';
 
 @Controller('auth')
 @UsePipes(
@@ -122,6 +126,34 @@ export class AuthController {
     return new SiweInitResponseDto({
       nonce: await this.nonceService.generateNonce(),
     });
+  }
+
+  @Post('login/siwe/verify')
+  @UseGuards(LoginGuard, ValidUserRolesGuard)
+  @ApiOkResponse({ type: LoginResponseDto })
+  async siweLoginVerify(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() body: SiweVerifyRequestDto,
+  ): Promise<LoginResponseDto> {
+    const { message } = body;
+    let nonce: string;
+
+    try {
+      const siweMessage = new SiweMessage(message);
+      nonce = siweMessage.nonce;
+    } catch (err) {
+      this.logger.warn(
+        `error parsing SIWE message field: ${err.message || err}`,
+      );
+      throw new BadRequestException('invalid SIWE message');
+    }
+
+    if (!(await this.nonceService.validateOnce(nonce))) {
+      throw new UnauthorizedException(`invalid nonce: ${nonce}`);
+    }
+
+    return await this.loginCommon(req, res);
   }
 
   @Post('logout')
