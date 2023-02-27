@@ -147,7 +147,7 @@ jobs:
       FAIL_ON_REDIS_UNAVAILABLE: true
       AUTH_COOKIE_ENABLED: true
       IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
-      ACCEPTED_ROLES: 'role1.roles.app1.apps.artur3.iam.ewc'
+      ACCEPTED_ROLES: ''
       INCLUDE_ALL_ROLES: false
 
     steps:
@@ -197,7 +197,7 @@ jobs:
       FAIL_ON_REDIS_UNAVAILABLE: true
       AUTH_COOKIE_ENABLED: true
       IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
-      ACCEPTED_ROLES: 'role1.roles.app1.apps.artur3.iam.ewc'
+      ACCEPTED_ROLES: ''
       INCLUDE_ALL_ROLES: false
 
     steps:

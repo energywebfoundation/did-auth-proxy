@@ -164,10 +164,12 @@ describe('AppController (e2e)', () => {
         });
 
         it('should have correct roles', async function () {
+          const expectedRoles = configService.get<string>('ACCEPTED_ROLES')
+            ? configService.get<string>('ACCEPTED_ROLES').split(',')
+            : [];
+
           expect(tokenDecoded.roles).toEqual(
-            expect.arrayContaining(
-              configService.get<string>('ACCEPTED_ROLES').split(','),
-            ),
+            expect.arrayContaining(expectedRoles),
           );
         });
 
