@@ -75,6 +75,7 @@ jobs:
       - name: Test project
         env:
           LOG_LEVEL: 'error'
+          SELF_BASE_URL: http://127.0.0.1:3000
           RPC_URL: 'https://volta-rpc-vkn5r5zx4ke71f9hcu0c.energyweb.org/'
           CACHE_SERVER_URL: 'https://identitycache-dev.energyweb.org/v1'
           CACHE_SERVER_LOGIN_PRVKEY: 'eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c'
@@ -91,6 +92,7 @@ jobs:
           JWT_SECRET: 'asecret'
           JWT_ACCESS_TTL: 60
           JWT_REFRESH_TTL: 600
+          SIWE_NONCE_TTL: 120
           FAIL_ON_REDIS_UNAVAILABLE: true
           AUTH_COOKIE_ENABLED: true
           IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
