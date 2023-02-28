@@ -7,6 +7,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RolesValidationService } from './roles-validation.service';
+import { NonceService } from './nonce.service';
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { RolesValidationService } from './roles-validation.service';
     AuthService,
     AuthStrategy,
     JwtStrategy,
+    NonceService,
     RefreshTokenRepository,
     RolesValidationService,
   ],

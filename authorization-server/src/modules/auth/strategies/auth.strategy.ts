@@ -2,6 +2,7 @@ import {
   DidStore,
   DomainReader,
   ethrReg,
+  InvalidSiweMessage,
   LoginStrategy,
   Methods,
   ResolverContractType,
@@ -9,12 +10,17 @@ import {
   RoleIssuerResolver,
   RoleRevokerResolver,
 } from 'passport-did-auth';
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { PinoLogger } from 'nestjs-pino';
 import { verifyCredential } from 'didkit-wasm-node';
 import { providers } from 'ethers';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
@@ -49,6 +55,10 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
         ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
         includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
+        siweMessageUri: new URL(
+          '/auth/login/siwe/verify',
+          new URL(configService.get<string>('SELF_BASE_URL')).origin,
+        ).href,
       },
       new RoleIssuerResolver(domainReader),
       new RoleRevokerResolver(domainReader),
@@ -76,6 +86,43 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       `accepted roles: ${parseAcceptedRoles(
         process.env.ACCEPTED_ROLES,
       ).join()}`,
+    );
+  }
+
+  authenticate(req: Request) {
+    try {
+      super.authenticate(req);
+    } catch (err) {
+      if (err instanceof InvalidSiweMessage) {
+        throw new BadRequestException(err.message);
+      }
+
+      throw err;
+    }
+  }
+
+  async validate(
+    token: string,
+    payload: unknown,
+    done: (err?: Error, user?: unknown, info?: unknown) => void,
+  ): Promise<void> {
+    return super.validate(
+      token,
+      payload,
+      (err?: Error, user?: unknown, info?: unknown) => {
+        if (
+          err?.message === 'Signature does not match address of the message.' ||
+          err?.message === 'uri in siwe message payload is incorrect'
+        ) {
+          done(new UnauthorizedException(err.message), user, info);
+        } else {
+          if (!user && info) {
+            done(new UnauthorizedException(info), user, info);
+          } else {
+            done(err, user, info);
+          }
+        }
+      },
     );
   }
 

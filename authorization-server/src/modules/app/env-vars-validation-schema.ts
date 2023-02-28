@@ -11,7 +11,7 @@ export const envVarsValidationSchema = Joi.object({
 
   PORT: Joi.number().default(3000),
   BIND: Joi.string().ip().default('127.0.0.1'),
-
+  SELF_BASE_URL: Joi.string().uri().required(),
   CHAIN_ID: Joi.number().positive().default(73799),
   RPC_URL: Joi.string().uri().default('https://volta-rpc.energyweb.org/'),
   CACHE_SERVER_URL: Joi.string()
@@ -42,6 +42,8 @@ export const envVarsValidationSchema = Joi.object({
   JWT_SECRET: Joi.string().required(),
   JWT_ACCESS_TTL: Joi.number().default(3600),
   JWT_REFRESH_TTL: Joi.number().default(86400),
+
+  SIWE_NONCE_TTL: Joi.number().positive().required(),
 
   AUTH_COOKIE_NAME_ACCESS_TOKEN: Joi.string().default('token'),
   AUTH_COOKIE_NAME_REFRESH_TOKEN: Joi.string().default('refreshToken'),

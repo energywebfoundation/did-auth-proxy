@@ -7,19 +7,17 @@ import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto';
 import { PinoLogger } from 'nestjs-pino';
-import { CookieOptions } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { RolesValidationService } from './roles-validation.service';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
+import { NonceService } from './nonce.service';
+import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
+import { ParsedQs } from 'qs';
+import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
-function mockLoginRequestResponse(
-  identityToken: string,
-  didAccessTokenPayload: AuthorisedUser,
-) {
-  const mockRequest = createRequest({
-    method: 'POST',
-    path: '/auth/login',
-    body: { identityToken },
-  });
+function mockLoginRequestResponse(didAccessTokenPayload: AuthorisedUser) {
+  const mockRequest = createRequest();
 
   mockRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
 
@@ -61,6 +59,11 @@ describe('AuthController', () => {
     getAuthCookiesOptions: jest.fn(),
   };
 
+  const mockNonceService = {
+    generateNonce: jest.fn(),
+    validateOnce: jest.fn(),
+  };
+
   const mockRolesValidationService = {
     didAccessTokenRolesAreValid: jest.fn(),
   };
@@ -88,6 +91,7 @@ describe('AuthController', () => {
           provide: RolesValidationService,
           useValue: mockRolesValidationService,
         },
+        { provide: NonceService, useValue: mockNonceService },
       ],
     }).compile();
 
@@ -109,18 +113,22 @@ describe('AuthController', () => {
       (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
         mockedFunction.mockReset(),
     );
+
+    Object.values(mockNonceService).forEach(
+      (mockedFunction: jest.MockedFunction<(...args: unknown[]) => unknown>) =>
+        mockedFunction.mockReset(),
+    );
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('login()', function () {
+  describe('loginCommon()', function () {
     let accessToken: string;
     let refreshToken: string;
     let response: LoginResponseDto | undefined;
     let responseCookies: Record<string, ResponseCookie>;
-    const identityToken = 'foobar';
 
     const didAccessTokenPayload: AuthorisedUser = {
       did: '12344567',
@@ -161,15 +169,10 @@ describe('AuthController', () => {
       });
 
       const { mockRequest, mockResponse } = mockLoginRequestResponse(
-        identityToken,
         didAccessTokenPayload,
       );
 
-      response = await controller.login(
-        { identityToken },
-        mockRequest,
-        mockResponse,
-      );
+      response = await controller.loginCommon(mockRequest, mockResponse);
 
       responseCookies = mockResponse.cookies;
     });
@@ -200,7 +203,6 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
@@ -208,7 +210,7 @@ describe('AuthController', () => {
             foo: 'bar',
           });
 
-          await controller.login({ identityToken }, mockRequest, mockResponse);
+          await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -265,15 +267,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -307,15 +304,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -361,15 +353,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -414,15 +401,10 @@ describe('AuthController', () => {
           });
 
           const { mockRequest, mockResponse } = mockLoginRequestResponse(
-            identityToken,
             didAccessTokenPayload,
           );
 
-          response = await controller.login(
-            { identityToken },
-            mockRequest,
-            mockResponse,
-          );
+          response = await controller.loginCommon(mockRequest, mockResponse);
 
           responseCookies = mockResponse.cookies;
         });
@@ -442,6 +424,282 @@ describe('AuthController', () => {
             ],
           ).toBeUndefined();
         });
+      });
+    });
+  });
+
+  describe('login()', function () {
+    it('should be defined', async function () {
+      expect(controller.login).toBeDefined();
+    });
+
+    describe('when called', function () {
+      let exception: Error;
+      let result: LoginResponseDto | undefined;
+      let spyOnLoginCommon: jest.SpyInstance;
+      let mockRequest: Request<
+        { [key: string]: string },
+        unknown,
+        unknown,
+        ParsedQs,
+        Record<string, unknown>
+      >;
+      let mockResponse: Response<unknown, Record<string, unknown>>;
+
+      const didAccessTokenPayload: AuthorisedUser = {
+        did: '987654321',
+        userRoles: [
+          {
+            name: 'valid',
+            namespace: 'valid.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.VALID,
+          },
+          {
+            name: 'revoked',
+            namespace: 'revoked.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.REVOKED,
+          },
+          {
+            name: 'expired',
+            namespace: 'expired.roles.test.apps.mhrsntrktest.iam.ewc',
+            status: RoleCredentialStatus.EXPIRED,
+          },
+        ],
+        authorisationStatus: true,
+      };
+
+      beforeEach(async function () {
+        spyOnLoginCommon = jest
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
+          .mockReturnValueOnce(Promise.resolve('a result'));
+
+        ({ mockRequest, mockResponse } = mockLoginRequestResponse(
+          didAccessTokenPayload,
+        ));
+
+        try {
+          result = await controller.login(
+            { identityToken: 'foobar' },
+            mockRequest,
+            mockResponse,
+          );
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should execute', async function () {
+        expect(exception).toBeUndefined();
+        expect(result).toBeDefined();
+      });
+
+      it('should perform login with the `loginCommon` method', async function () {
+        expect(spyOnLoginCommon).toHaveBeenCalledWith(
+          mockRequest,
+          mockResponse,
+        );
+      });
+
+      it('should return results of the `loginCommon` method execution', async function () {
+        expect(result).toBe('a result');
+      });
+    });
+  });
+
+  describe('siweLoginInit()', function () {
+    it('should be defined', async function () {
+      expect(controller.siweLoginInit).toBeDefined();
+    });
+
+    describe('when executed', function () {
+      let exception: Error;
+      let result: SiweInitResponseDto;
+
+      beforeEach(async function () {
+        mockNonceService.generateNonce.mockReturnValueOnce('a new nonce');
+
+        try {
+          result = await controller.siweLoginInit();
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should execute', async function () {
+        expect(exception).toBeUndefined();
+      });
+
+      it('should generate a new nonce', async function () {
+        expect(mockNonceService.generateNonce).toHaveBeenCalled();
+        expect(result).toEqual({ nonce: 'a new nonce' });
+      });
+    });
+  });
+
+  describe('siweLoginVerify()', function () {
+    let exception: Error;
+    let result: LoginResponseDto | undefined;
+    let spyOnLoginCommon: jest.SpyInstance;
+    let mockRequest: Request<
+      { [key: string]: string },
+      unknown,
+      unknown,
+      ParsedQs,
+      Record<string, unknown>
+    >;
+    let mockResponse: Response<unknown, Record<string, unknown>>;
+    const didAccessTokenPayload: AuthorisedUser = {
+      did: '98765432134534',
+      userRoles: [
+        {
+          name: 'valid',
+          namespace: 'valid.roles.test.apps.mhrsntrktest.iam.ewc',
+          status: RoleCredentialStatus.VALID,
+        },
+        {
+          name: 'revoked',
+          namespace: 'revoked.roles.test.apps.mhrsntrktest.iam.ewc',
+          status: RoleCredentialStatus.REVOKED,
+        },
+        {
+          name: 'expired',
+          namespace: 'expired.roles.test.apps.mhrsntrktest.iam.ewc',
+          status: RoleCredentialStatus.EXPIRED,
+        },
+      ],
+      authorisationStatus: true,
+    };
+
+    it('should be defined', async function () {
+      expect(controller.siweLoginVerify).toBeDefined();
+    });
+
+    describe('when called with valid message and signature', function () {
+      beforeEach(async function () {
+        spyOnLoginCommon = jest
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
+          .mockReturnValueOnce(Promise.resolve('a result'));
+
+        ({ mockRequest, mockResponse } = mockLoginRequestResponse(
+          didAccessTokenPayload,
+        ));
+
+        mockNonceService.validateOnce.mockResolvedValueOnce(true);
+
+        try {
+          result = await controller.siweLoginVerify(mockRequest, mockResponse, {
+            message:
+              'localhost:3000 wants you to sign in with your Ethereum account:\n0xe7b6644d6D327B60B33dF7CfE022fB270504C910\n\n\nURI: http://localhost:3000/\nVersion: 1\nChain ID: 73799\nNonce: r3Cx6CXrOtueNEA3X\nIssued At: 2023-02-27T17:07:45.399Z',
+            signature:
+              '0x2759f7e19e8408425990054fd51a10aad061dfdcaf90e24db03919c924b77be66ba8bf7f74cba9b025ced5a0792d1eaa35db80f3115666e67f1277b88b84da7a1b',
+          } as SiweVerifyRequestDto);
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should execute', async function () {
+        expect(exception).toBeUndefined();
+      });
+
+      it('should perform login with the `loginCommon` method', async function () {
+        expect(spyOnLoginCommon).toHaveBeenCalledWith(
+          mockRequest,
+          mockResponse,
+        );
+      });
+
+      it('should return results of the `loginCommon` method execution', async function () {
+        expect(result).toBe('a result');
+      });
+    });
+
+    describe('when called with invalid message', function () {
+      beforeEach(async function () {
+        result = undefined;
+
+        spyOnLoginCommon = jest
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
+          .mockReturnValueOnce(Promise.resolve('a result'));
+
+        ({ mockRequest, mockResponse } = mockLoginRequestResponse(
+          didAccessTokenPayload,
+        ));
+
+        mockNonceService.validateOnce.mockResolvedValueOnce(true);
+
+        try {
+          result = await controller.siweLoginVerify(mockRequest, mockResponse, {
+            message: 'invalid message',
+            signature:
+              '0x2759f7e19e8408425990054fd51a10aad061dfdcaf90e24db03919c924b77be66ba8bf7f74cba9b025ced5a0792d1eaa35db80f3115666e67f1277b88b84da7a1b',
+          } as SiweVerifyRequestDto);
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should throw BadRequestException', async function () {
+        expect(exception).toBeInstanceOf(BadRequestException);
+      });
+
+      it('should skip performing login with the `loginCommon` method', async function () {
+        expect(spyOnLoginCommon).not.toHaveBeenCalled();
+      });
+
+      it('should return undefined', async function () {
+        expect(result).toBeUndefined();
+      });
+    });
+
+    describe('when called with invalid nonce', function () {
+      beforeEach(async function () {
+        result = undefined;
+
+        spyOnLoginCommon = jest
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
+          .mockReturnValueOnce(Promise.resolve('a result'));
+
+        ({ mockRequest, mockResponse } = mockLoginRequestResponse(
+          didAccessTokenPayload,
+        ));
+
+        mockNonceService.validateOnce.mockResolvedValueOnce(false);
+
+        try {
+          result = await controller.siweLoginVerify(mockRequest, mockResponse, {
+            message:
+              'localhost:3000 wants you to sign in with your Ethereum account:\n0xe7b6644d6D327B60B33dF7CfE022fB270504C910\n\n\nURI: http://localhost:3000/\nVersion: 1\nChain ID: 73799\nNonce: r3Cx6CXrOtueNEA3X\nIssued At: 2023-02-27T17:07:45.399Z',
+            signature:
+              '0x2759f7e19e8408425990054fd51a10aad061dfdcaf90e24db03919c924b77be66ba8bf7f74cba9b025ced5a0792d1eaa35db80f3115666e67f1277b88b84da7a1b',
+          } as SiweVerifyRequestDto);
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should throw UnauthorizedException', async function () {
+        expect(exception).toBeInstanceOf(UnauthorizedException);
+      });
+
+      it('should skip performing login with the `loginCommon` method', async function () {
+        expect(spyOnLoginCommon).not.toHaveBeenCalled();
+      });
+
+      it('should return undefined', async function () {
+        expect(result).toBeUndefined();
       });
     });
   });
