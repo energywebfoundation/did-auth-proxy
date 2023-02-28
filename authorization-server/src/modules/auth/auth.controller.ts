@@ -88,6 +88,7 @@ export class AuthController {
    * implements logic common for all login methods
    */
   async loginCommon(req: Request, res: Response): Promise<LoginResponseDto> {
+    //decodeJWT does not throw an error if no token provided
     if (typeof req.user !== 'string') {
       throw new Error(`unexpected req.user value: ${req.user}`);
     }
