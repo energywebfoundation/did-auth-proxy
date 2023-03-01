@@ -200,7 +200,7 @@ export class AuthController {
   }
 
   @Get('refresh_token')
-  //compatibile with the SSI-HUB implementation
+  //compatible with the SSI-HUB implementation
   async refreshWithGet(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
