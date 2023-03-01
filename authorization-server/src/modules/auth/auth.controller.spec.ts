@@ -14,7 +14,11 @@ import { NonceService } from './nonce.service';
 import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
 import { ParsedQs } from 'qs';
 import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 function mockLoginRequestResponse(didAccessTokenPayload: AuthorisedUser) {
   const mockRequest = createRequest();
@@ -853,7 +857,7 @@ describe('AuthController', () => {
     });
   });
 
-  describe('refresh()', function () {
+  describe('refreshCommon()', function () {
     describe('when executed', function () {
       let response: LoginResponseDto | undefined;
       let responseCookies: Record<string, ResponseCookie>;
@@ -878,7 +882,7 @@ describe('AuthController', () => {
         }));
 
         const expResponse = createResponse();
-        response = await controller.refresh({ refreshToken }, expResponse);
+        response = await controller.refreshCommon(refreshToken, expResponse);
         responseCookies = expResponse.cookies;
       });
 
@@ -900,7 +904,7 @@ describe('AuthController', () => {
 
           const expResponse = createResponse();
 
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
 
           responseCookies = expResponse.cookies;
         });
@@ -957,7 +961,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -990,7 +994,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -1035,7 +1039,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -1079,7 +1083,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -1116,7 +1120,7 @@ describe('AuthController', () => {
         const expResponse = createResponse();
 
         try {
-          await controller.refresh({ refreshToken: 'invalid' }, expResponse);
+          await controller.refreshCommon('invalid', expResponse);
         } catch (err) {
           exceptionThrown = err;
         }
@@ -1130,6 +1134,420 @@ describe('AuthController', () => {
 
       it('should not set auth cookie', async function () {
         expect(responseCookies[authCookieName]).toBeUndefined();
+      });
+    });
+  });
+
+  describe('refreshWithPost()', function () {
+    let spy: jest.SpyInstance;
+    let refreshToken: string;
+    let mockResponse: Response;
+    let result: LoginResponseDto | undefined;
+    let exception: Error;
+
+    beforeEach(async function () {
+      spy = jest.spyOn(controller, 'refreshCommon').mockResolvedValueOnce({
+        access_token: 'access_token',
+        refresh_token: 'refresh_token',
+        type: 'Bearer',
+        expires_in: 120,
+      } as LoginResponseDto);
+
+      refreshToken = sign({ random: Math.random() }, 'aSecret', {
+        expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
+      });
+
+      mockResponse = createResponse();
+
+      try {
+        result = await controller.refreshWithPost(
+          { refreshToken },
+          mockResponse,
+        );
+      } catch (err) {
+        exception = err;
+      }
+    });
+
+    it('should execute', async function () {
+      expect(exception).toBeUndefined();
+    });
+
+    it('should call refreshCommon()', async function () {
+      expect(spy).toHaveBeenCalledWith(refreshToken, mockResponse);
+    });
+
+    it('should return refreshCommon() return value', async function () {
+      expect(result).toEqual({
+        access_token: 'access_token',
+        expires_in: 120,
+        refresh_token: 'refresh_token',
+        type: 'Bearer',
+      });
+    });
+  });
+
+  describe('refreshWithGet()', function () {
+    let request: Request;
+    let response: Response;
+    let exception: Error;
+    let spyRefreshCommon: jest.SpyInstance;
+    let result: LoginResponseDto | undefined;
+
+    beforeEach(async function () {
+      request = createRequest();
+      response = createResponse();
+
+      spyRefreshCommon = jest
+        .spyOn(controller, 'refreshCommon')
+        .mockResolvedValueOnce({
+          access_token: 'access_token',
+          refresh_token: 'refresh_token',
+          type: 'Bearer',
+          expires_in: 120,
+        } as LoginResponseDto);
+    });
+
+    afterEach(async function () {
+      response = undefined;
+      exception = undefined;
+    });
+
+    describe('when token is valid', function () {
+      beforeEach(async function () {
+        mockAuthService.validateRefreshToken.mockResolvedValueOnce(true);
+      });
+
+      describe('when executed with AUTH_COOKIE_ENABLED=true', function () {
+        beforeEach(async function () {
+          mockConfigService.get.mockImplementation((key: string) => {
+            return { ...configBase, AUTH_COOKIE_ENABLED: true }[key];
+          });
+        });
+
+        describe('when query string and cookie tokens provided', function () {
+          beforeEach(async function () {
+            request = createRequest({
+              query: { refresh_token: 'query refresh token' },
+              cookies: {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookies refresh token',
+              },
+            });
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                'query refresh token',
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should execute', async function () {
+            expect(exception).toBeUndefined();
+          });
+
+          it('should call refreshCommon() with query refresh token', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledWith(
+              'query refresh token',
+              response,
+            );
+
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(1);
+          });
+
+          it('should resolve to a value returned by the refreshCommon()', async function () {
+            expect(result).toEqual({
+              access_token: 'access_token',
+              refresh_token: 'refresh_token',
+              type: 'Bearer',
+              expires_in: 120,
+            });
+          });
+        });
+
+        describe('when query string token only provided', function () {
+          beforeEach(async function () {
+            request = createRequest({
+              query: { refresh_token: 'query refresh token' },
+            });
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                'query refresh token',
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should execute', async function () {
+            expect(exception).toBeUndefined();
+          });
+
+          it('should call refreshCommon() with query refresh token', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledWith(
+              'query refresh token',
+              response,
+            );
+
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(1);
+          });
+
+          it('should resolve to a value returned by the refreshCommon()', async function () {
+            expect(result).toEqual({
+              access_token: 'access_token',
+              refresh_token: 'refresh_token',
+              type: 'Bearer',
+              expires_in: 120,
+            });
+          });
+        });
+
+        describe('when cookie token only provided', function () {
+          beforeEach(async function () {
+            request = createRequest({
+              cookies: {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookies refresh token',
+              },
+            });
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                undefined,
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should execute', async function () {
+            expect(exception).toBeUndefined();
+          });
+
+          it('should call refreshCommon() with cookie refresh token', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledWith(
+              'cookies refresh token',
+              response,
+            );
+
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(1);
+          });
+
+          it('should resolve to a value returned by the refreshCommon()', async function () {
+            expect(result).toEqual({
+              access_token: 'access_token',
+              refresh_token: 'refresh_token',
+              type: 'Bearer',
+              expires_in: 120,
+            });
+          });
+        });
+
+        describe('when no tokens provided', function () {
+          beforeEach(async function () {
+            request = createRequest({});
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                undefined,
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should throw UnauthorizedException', async function () {
+            expect(exception).toBeInstanceOf(UnauthorizedException);
+          });
+
+          it('should skip calling refreshCommon()', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(0);
+          });
+        });
+      });
+
+      describe('when executed with AUTH_COOKIE_ENABLED=false', function () {
+        beforeEach(async function () {
+          mockConfigService.get.mockImplementation((key: string) => {
+            return { ...configBase, AUTH_COOKIE_ENABLED: false }[key];
+          });
+        });
+
+        describe('when query string and cookie tokens provided', function () {
+          beforeEach(async function () {
+            request = createRequest({
+              query: { refresh_token: 'query refresh token' },
+              cookies: {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookies refresh token',
+              },
+            });
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                'query refresh token',
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should execute', async function () {
+            expect(exception).toBeUndefined();
+          });
+
+          it('should call refreshCommon() with query refresh token', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledWith(
+              'query refresh token',
+              response,
+            );
+
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(1);
+          });
+
+          it('should resolve to a value returned by the refreshCommon()', async function () {
+            expect(result).toEqual({
+              access_token: 'access_token',
+              refresh_token: 'refresh_token',
+              type: 'Bearer',
+              expires_in: 120,
+            });
+          });
+        });
+
+        describe('when query string token only provided', function () {
+          beforeEach(async function () {
+            request = createRequest({
+              query: { refresh_token: 'query refresh token' },
+            });
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                'query refresh token',
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should execute', async function () {
+            expect(exception).toBeUndefined();
+          });
+
+          it('should call refreshCommon() with query refresh token', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledWith(
+              'query refresh token',
+              response,
+            );
+
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(1);
+          });
+
+          it('should resolve to a value returned by the refreshCommon()', async function () {
+            expect(result).toEqual({
+              access_token: 'access_token',
+              refresh_token: 'refresh_token',
+              type: 'Bearer',
+              expires_in: 120,
+            });
+          });
+        });
+
+        describe('when cookie token only provided', function () {
+          beforeEach(async function () {
+            request = createRequest({
+              cookies: {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookies refresh token',
+              },
+            });
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                undefined,
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should throw UnauthorizedException', async function () {
+            expect(exception).toBeInstanceOf(UnauthorizedException);
+          });
+
+          it('should skip calling refreshCommon()', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(0);
+          });
+        });
+
+        describe('when no tokens provided', function () {
+          beforeEach(async function () {
+            request = createRequest({});
+
+            try {
+              result = await controller.refreshWithGet(
+                request,
+                response,
+                undefined,
+              );
+            } catch (err) {
+              exception = err;
+            }
+          });
+
+          it('should throw UnauthorizedException', async function () {
+            expect(exception).toBeInstanceOf(UnauthorizedException);
+          });
+
+          it('should skip calling refreshCommon()', async function () {
+            expect(spyRefreshCommon).toHaveBeenCalledTimes(0);
+          });
+        });
+      });
+    });
+
+    describe('when token is invalid', function () {
+      beforeEach(async function () {
+        mockAuthService.validateRefreshToken.mockResolvedValueOnce(false);
+
+        request = createRequest({
+          query: { refresh_token: 'query refresh token' },
+          cookies: {
+            [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+              'cookies refresh token',
+          },
+        });
+
+        try {
+          result = await controller.refreshWithGet(
+            request,
+            response,
+            'query refresh token',
+          );
+        } catch (err) {
+          exception = err;
+        }
+      });
+
+      it('should throw ForbiddenException exception', async function () {
+        expect(exception).toBeInstanceOf(ForbiddenException);
       });
     });
   });

@@ -2,8 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -189,24 +191,70 @@ export class AuthController {
   @UseGuards(ValidRefreshTokenGuard)
   @ApiBody({ type: RefreshDto })
   @ApiOkResponse({ type: LoginResponseDto })
-  async refresh(
+  // backwards compatibility
+  async refreshWithPost(
     @Body() body: RefreshDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto | undefined> {
-    const { accessToken, refreshToken } = await this.authService.refreshTokens(
-      body.refreshToken,
+    return this.refreshCommon(body.refreshToken, res);
+  }
+
+  @Get('refresh_token')
+  //compatibile with the SSI-HUB implementation
+  async refreshWithGet(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Query('refresh_token') refreshTokenFromQueryString: string,
+  ): Promise<LoginResponseDto | undefined> {
+    let refreshToken: string;
+
+    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      refreshToken =
+        refreshTokenFromQueryString ||
+        (req.cookies || {})[
+          this.configService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
+        ];
+    } else {
+      refreshToken = refreshTokenFromQueryString;
+    }
+
+    if (!refreshToken) {
+      this.logger.warn(`no refresh token provided`);
+      throw new UnauthorizedException();
+    }
+
+    const refreshTokenIsValid = await this.authService.validateRefreshToken(
+      refreshToken,
     );
+
+    if (!refreshTokenIsValid) {
+      this.logger.warn(`invalid refresh token provided`);
+      throw new ForbiddenException();
+    }
+
+    return await this.refreshCommon(refreshToken, res);
+  }
+
+  async refreshCommon(
+    refreshToken: string,
+    res: Response,
+  ): Promise<LoginResponseDto | undefined> {
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.authService.refreshTokens(refreshToken);
 
     if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
       this.setAuthCookies({
         res,
         accessToken,
-        refreshToken,
+        refreshToken: newRefreshToken,
       });
     }
 
     if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
-      return new LoginResponseDto({ accessToken, refreshToken });
+      return new LoginResponseDto({
+        accessToken,
+        refreshToken: newRefreshToken,
+      });
     }
   }
 
