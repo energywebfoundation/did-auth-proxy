@@ -193,10 +193,10 @@ export class AuthController {
   @ApiOkResponse({ type: LoginResponseDto })
   // backwards compatibility
   async refreshWithPost(
-    @Body() body: RefreshDto,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto | undefined> {
-    return this.refreshCommon(body.refreshToken, res);
+    return this.refreshCommon(req.user as string, res);
   }
 
   @Get('refresh_token')

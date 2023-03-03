@@ -1141,6 +1141,7 @@ describe('AuthController', () => {
   describe('refreshWithPost()', function () {
     let spy: jest.SpyInstance;
     let refreshToken: string;
+    let mockReqest: Request;
     let mockResponse: Response;
     let result: LoginResponseDto | undefined;
     let exception: Error;
@@ -1157,13 +1158,13 @@ describe('AuthController', () => {
         expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
       });
 
+      mockReqest = createRequest({
+        user: refreshToken,
+      });
       mockResponse = createResponse();
 
       try {
-        result = await controller.refreshWithPost(
-          { refreshToken },
-          mockResponse,
-        );
+        result = await controller.refreshWithPost(mockReqest, mockResponse);
       } catch (err) {
         exception = err;
       }
