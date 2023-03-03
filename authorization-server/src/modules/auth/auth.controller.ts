@@ -200,6 +200,7 @@ export class AuthController {
   }
 
   @Get('refresh_token')
+  @ApiOkResponse({ type: LoginResponseDto })
   //compatible with the SSI-HUB implementation
   async refreshWithGet(
     @Req() req: Request,
