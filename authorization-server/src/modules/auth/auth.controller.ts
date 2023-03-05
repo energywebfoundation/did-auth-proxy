@@ -2,10 +2,8 @@ import {
   BadRequestException,
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Post,
-  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -200,40 +198,14 @@ export class AuthController {
   }
 
   @Get('refresh_token')
+  @UseGuards(ValidRefreshTokenGuard)
   @ApiOkResponse({ type: LoginResponseDto })
   //compatible with the SSI-HUB implementation
   async refreshWithGet(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Query('refresh_token') refreshTokenFromQueryString: string,
   ): Promise<LoginResponseDto | undefined> {
-    let refreshToken: string;
-
-    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
-      refreshToken =
-        refreshTokenFromQueryString ||
-        (req.cookies || {})[
-          this.configService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
-        ];
-    } else {
-      refreshToken = refreshTokenFromQueryString;
-    }
-
-    if (!refreshToken) {
-      this.logger.warn(`no refresh token provided`);
-      throw new UnauthorizedException();
-    }
-
-    const refreshTokenIsValid = await this.authService.validateRefreshToken(
-      refreshToken,
-    );
-
-    if (!refreshTokenIsValid) {
-      this.logger.warn(`invalid refresh token provided`);
-      throw new ForbiddenException();
-    }
-
-    return await this.refreshCommon(refreshToken, res);
+    return await this.refreshCommon(req.user as string, res);
   }
 
   async refreshCommon(

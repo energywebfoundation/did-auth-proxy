@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  NotImplementedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -24,7 +19,10 @@ export class ValidRefreshTokenGuard implements CanActivate {
     if (method === 'POST') {
       refreshToken = this.extractFromPostBodyOrCookies(body, cookies);
     } else if (method === 'GET') {
-      throw new NotImplementedException();
+      refreshToken = this.extractFromQueryStringOrCookies(
+        request.cookies,
+        request.query as { refresh_token?: string },
+      );
     } else {
       throw new Error(
         `${ValidRefreshTokenGuard.name} executed with unexpected method: ${method}`,
@@ -58,6 +56,31 @@ export class ValidRefreshTokenGuard implements CanActivate {
       ];
     } else if (AUTH_HEADER_ENABLED) {
       refreshToken = body?.refreshToken;
+    }
+
+    return refreshToken;
+  }
+
+  extractFromQueryStringOrCookies(
+    cookies?: Record<string, string>,
+    query?: { refresh_token?: string },
+  ): string | undefined {
+    let refreshToken: string;
+    const AUTH_HEADER_ENABLED = this.config.get<boolean>('AUTH_HEADER_ENABLED');
+    const AUTH_COOKIE_ENABLED = this.config.get<boolean>('AUTH_COOKIE_ENABLED');
+
+    const refreshTokenFromQueryString: string = query && query['refresh_token'];
+
+    if (AUTH_COOKIE_ENABLED && AUTH_HEADER_ENABLED) {
+      refreshToken =
+        refreshTokenFromQueryString ||
+        (cookies || {})[this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')];
+    } else if (AUTH_COOKIE_ENABLED) {
+      refreshToken = (cookies || {})[
+        this.config.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')
+      ];
+    } else if (AUTH_HEADER_ENABLED) {
+      refreshToken = refreshTokenFromQueryString;
     }
 
     return refreshToken;

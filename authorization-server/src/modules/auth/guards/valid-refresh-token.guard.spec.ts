@@ -63,12 +63,14 @@ describe('ValidRefreshTokenGuard', () => {
     let method: 'GET' | 'POST';
     let exception: Error;
     let mockExtractFromPostBodyOrCookies: jest.SpyInstance;
+    let mockExtractFromQueryOrCookies: jest.SpyInstance;
 
     beforeEach(async function () {
       result = undefined;
       exception = undefined;
       method = undefined;
       mockExtractFromPostBodyOrCookies = undefined;
+      mockExtractFromQueryOrCookies = undefined;
     });
 
     describe('when method is POST', function () {
@@ -144,13 +146,16 @@ describe('ValidRefreshTokenGuard', () => {
               cookies: {
                 some: 'cookie',
               },
+              query: {
+                some: 'query string value',
+              },
             }),
           }),
         });
 
-        mockExtractFromPostBodyOrCookies = jest
-          .spyOn(validRefreshTokenGuard, 'extractFromPostBodyOrCookies')
-          .mockReturnValueOnce('extracted token');
+        mockExtractFromQueryOrCookies = jest
+          .spyOn(validRefreshTokenGuard, 'extractFromQueryStringOrCookies')
+          .mockReturnValueOnce('token extracted from qs or cookie');
 
         mockAuthService.validateRefreshToken.mockReturnValueOnce(
           'result of token validation',
@@ -165,8 +170,20 @@ describe('ValidRefreshTokenGuard', () => {
         }
       });
 
-      it.skip('should execute', async function () {
+      it('should execute', async function () {
         expect(exception).toBeUndefined();
+      });
+
+      it('should extract token from query string or cookie', async function () {
+        expect(mockExtractFromQueryOrCookies).toHaveBeenCalledWith(
+          { some: 'cookie' },
+          { some: 'query string value' },
+        );
+        expect(mockExtractFromQueryOrCookies).toHaveBeenCalledTimes(1);
+      });
+
+      it('should return result of validation', async function () {
+        expect(result).toBe('result of token validation');
       });
     });
 
@@ -621,6 +638,411 @@ describe('ValidRefreshTokenGuard', () => {
           it('should return body refresh token', async function () {
             expect(result).toBe('body refresh token');
           });
+        });
+      });
+    });
+  });
+
+  describe('extractFromQueryStringOrCookies()', function () {
+    let result: string | undefined;
+    let exception: Error | undefined;
+
+    describe('when AUTH_COOKIE_ENABLED==false && AUTH_HEADER_ENABLED=false', function () {
+      beforeEach(async function () {
+        mockConfigService.get.mockImplementation((key: string) => {
+          return {
+            ...configBase,
+            AUTH_COOKIE_ENABLED: false,
+            AUTH_HEADER_ENABLED: false,
+          }[key];
+        });
+      });
+
+      describe('when called with no tokens', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies();
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in cookie only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies({
+              [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                'cookie refresh token',
+            });
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in query string only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              undefined,
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in query string and cookies', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookie refresh token',
+              },
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+    });
+
+    describe('when AUTH_COOKIE_ENABLED==true && AUTH_HEADER_ENABLED=false', function () {
+      beforeEach(async function () {
+        mockConfigService.get.mockImplementation((key: string) => {
+          return {
+            ...configBase,
+            AUTH_COOKIE_ENABLED: true,
+            AUTH_HEADER_ENABLED: false,
+          }[key];
+        });
+      });
+
+      describe('when called with no tokens', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies();
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in cookie only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies({
+              [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                'cookie refresh token',
+            });
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return cookie refresh token', async function () {
+          expect(result).toBe('cookie refresh token');
+        });
+      });
+
+      describe('when called with token in query string only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              undefined,
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in query string and cookies', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookie refresh token',
+              },
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBe('cookie refresh token');
+        });
+      });
+    });
+
+    describe('when AUTH_COOKIE_ENABLED==false && AUTH_HEADER_ENABLED=true', function () {
+      beforeEach(async function () {
+        mockConfigService.get.mockImplementation((key: string) => {
+          return {
+            ...configBase,
+            AUTH_COOKIE_ENABLED: false,
+            AUTH_HEADER_ENABLED: true,
+          }[key];
+        });
+      });
+
+      describe('when called with no tokens', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies();
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in cookie only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies({
+              [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                'cookie refresh token',
+            });
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in query string only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              undefined,
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBe('query string refresh token');
+        });
+      });
+
+      describe('when called with token in query string and cookies', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookie refresh token',
+              },
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBe('query string refresh token');
+        });
+      });
+    });
+
+    describe('when AUTH_COOKIE_ENABLED==true && AUTH_HEADER_ENABLED=true', function () {
+      beforeEach(async function () {
+        mockConfigService.get.mockImplementation((key: string) => {
+          return {
+            ...configBase,
+            AUTH_COOKIE_ENABLED: true,
+            AUTH_HEADER_ENABLED: true,
+          }[key];
+        });
+      });
+
+      describe('when called with no tokens', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies();
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBeUndefined();
+        });
+      });
+
+      describe('when called with token in cookie only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies({
+              [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                'cookie refresh token',
+            });
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBe('cookie refresh token');
+        });
+      });
+
+      describe('when called with token in query string only', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              undefined,
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBe('query string refresh token');
+        });
+      });
+
+      describe('when called with token in query string and cookies', function () {
+        beforeEach(async function () {
+          try {
+            result = validRefreshTokenGuard.extractFromQueryStringOrCookies(
+              {
+                [mockConfigService.get('AUTH_COOKIE_NAME_REFRESH_TOKEN')]:
+                  'cookie refresh token',
+              },
+              {
+                refresh_token: 'query string refresh token',
+              },
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should execute', async function () {
+          expect(exception).toBeUndefined();
+        });
+
+        it('should return no token', async function () {
+          expect(result).toBe('query string refresh token');
         });
       });
     });
