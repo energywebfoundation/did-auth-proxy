@@ -4,7 +4,7 @@ import { AuthService } from '../auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ValidRefreshTokenGuard } from './valid-refresh-token.guard';
 import { createMock } from '@golevelup/ts-jest';
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 describe('ValidRefreshTokenGuard', () => {
@@ -130,6 +130,32 @@ describe('ValidRefreshTokenGuard', () => {
       it('should return result of validation', async function () {
         expect(result).toBe('result of token validation');
       });
+
+      describe('when no token provided', function () {
+        beforeEach(async function () {
+          jest
+            .spyOn(validRefreshTokenGuard, 'extractFromPostBodyOrCookies')
+            .mockReturnValueOnce(null);
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({ method }),
+            }),
+          });
+
+          try {
+            result = await validRefreshTokenGuard.canActivate(
+              mockExecutionContext,
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should throw `UnauthorizedException`', async function () {
+          expect(exception).toBeInstanceOf(UnauthorizedException);
+        });
+      });
     });
 
     describe('when method is GET', function () {
@@ -184,6 +210,32 @@ describe('ValidRefreshTokenGuard', () => {
 
       it('should return result of validation', async function () {
         expect(result).toBe('result of token validation');
+      });
+
+      describe('when no token provided', function () {
+        beforeEach(async function () {
+          jest
+            .spyOn(validRefreshTokenGuard, 'extractFromQueryStringOrCookies')
+            .mockReturnValueOnce(null);
+
+          const mockExecutionContext = createMock<ExecutionContext>({
+            switchToHttp: jest.fn().mockReturnValue({
+              getRequest: jest.fn().mockReturnValue({ method }),
+            }),
+          });
+
+          try {
+            result = await validRefreshTokenGuard.canActivate(
+              mockExecutionContext,
+            );
+          } catch (err) {
+            exception = err;
+          }
+        });
+
+        it('should throw `UnauthorizedException`', async function () {
+          expect(exception).toBeInstanceOf(UnauthorizedException);
+        });
       });
     });
 

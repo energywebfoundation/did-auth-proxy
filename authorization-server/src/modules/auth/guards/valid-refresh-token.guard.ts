@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -30,7 +35,7 @@ export class ValidRefreshTokenGuard implements CanActivate {
     }
 
     if (!refreshToken) {
-      return false;
+      throw new UnauthorizedException();
     }
 
     request.user = refreshToken;
