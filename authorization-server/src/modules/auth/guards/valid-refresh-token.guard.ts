@@ -16,8 +16,8 @@ export class ValidRefreshTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
-    const { body, cookies, method } = request;
+    const request = context.switchToHttp().getRequest<Request>();
+    const { body, cookies, method, query } = request;
 
     let refreshToken: string | undefined;
 
@@ -25,8 +25,8 @@ export class ValidRefreshTokenGuard implements CanActivate {
       refreshToken = this.extractFromPostBodyOrCookies(body, cookies);
     } else if (method === 'GET') {
       refreshToken = this.extractFromQueryStringOrCookies(
-        request.cookies,
-        request.query as { refresh_token?: string },
+        cookies,
+        query as { refresh_token?: string },
       );
     } else {
       throw new Error(
@@ -70,11 +70,12 @@ export class ValidRefreshTokenGuard implements CanActivate {
     cookies?: Record<string, string>,
     query?: { refresh_token?: string },
   ): string | undefined {
-    let refreshToken: string;
+    let refreshToken: string | undefined;
     const AUTH_HEADER_ENABLED = this.config.get<boolean>('AUTH_HEADER_ENABLED');
     const AUTH_COOKIE_ENABLED = this.config.get<boolean>('AUTH_COOKIE_ENABLED');
 
-    const refreshTokenFromQueryString: string = query && query['refresh_token'];
+    const refreshTokenFromQueryString: string | undefined =
+      query && query['refresh_token'];
 
     if (AUTH_COOKIE_ENABLED && AUTH_HEADER_ENABLED) {
       refreshToken =
