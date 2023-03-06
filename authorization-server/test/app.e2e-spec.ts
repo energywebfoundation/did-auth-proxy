@@ -629,8 +629,8 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).post('/auth/refresh-token');
       });
 
-      it('should respond with 403 status code', async function () {
-        expect(response.statusCode).toBe(403);
+      it('should respond with 401 status code', async function () {
+        expect(response.statusCode).toBe(401);
       });
     });
 
@@ -682,6 +682,114 @@ describe('AppController (e2e)', () => {
     });
   });
 
+  describe('/auth/refresh_token (GET)', function () {
+    let response: Response;
+
+    describe('when called with a valid refresh token', function () {
+      let refreshToken: string;
+
+      beforeEach(async function () {
+        const start = Date.now();
+        ({ refreshToken } = await logIn(appHttpServer, identityToken));
+
+        console.log(`logged in in ${Date.now() - start}ms`);
+
+        response = await request(appHttpServer).get(
+          `/auth/refresh_token?refresh_token=${refreshToken}`,
+        );
+      });
+
+      it('should respond with 200 status code', async function () {
+        expect(response.statusCode).toBe(200);
+      });
+
+      it('should respond with a body containing access and refresh tokens', async function () {
+        expect(response.body).toEqual(
+          expect.objectContaining({
+            access_token: expect.any(String),
+            refresh_token: expect.any(String),
+          }),
+        );
+      });
+    });
+
+    describe('when called with an invalid refresh token', function () {
+      beforeEach(async function () {
+        response = await request(appHttpServer).get(
+          `/auth/refresh_token?refresh_token=invalid-token`,
+        );
+      });
+
+      it('should respond with 403 status code', async function () {
+        expect(response.statusCode).toBe(403);
+      });
+
+      it('should respond with a body containing no access nor refresh tokens', async function () {
+        expect(response.body).toEqual(
+          expect.not.objectContaining({
+            access_token: expect.any(String),
+          }),
+        );
+
+        expect(response.body).toEqual(
+          expect.not.objectContaining({
+            refresh_token: expect.any(String),
+          }),
+        );
+      });
+    });
+
+    describe('when called with no refresh token', function () {
+      beforeEach(async function () {
+        response = await request(appHttpServer).get(`/auth/refresh_token`);
+      });
+
+      it('should respond with 401 status code', async function () {
+        expect(response.statusCode).toBe(401);
+      });
+
+      it('should respond with a body containing no access nor refresh tokens', async function () {
+        expect(response.body).toEqual(
+          expect.not.objectContaining({
+            access_token: expect.any(String),
+          }),
+        );
+
+        expect(response.body).toEqual(
+          expect.not.objectContaining({
+            refresh_token: expect.any(String),
+          }),
+        );
+      });
+    });
+
+    describe('when called with empty refresh token', function () {
+      beforeEach(async function () {
+        response = await request(appHttpServer).get(
+          `/auth/refresh_token?refresh_token=`,
+        );
+      });
+
+      it('should respond with 401 status code', async function () {
+        expect(response.statusCode).toBe(401);
+      });
+
+      it('should respond with a body containing no access nor refresh tokens', async function () {
+        expect(response.body).toEqual(
+          expect.not.objectContaining({
+            access_token: expect.any(String),
+          }),
+        );
+
+        expect(response.body).toEqual(
+          expect.not.objectContaining({
+            refresh_token: expect.any(String),
+          }),
+        );
+      });
+    });
+  });
+
   describe('/auth/logout', function () {
     describe('whan called with a valid refresh token', function () {
       let refreshToken: string;
@@ -711,8 +819,8 @@ describe('AppController (e2e)', () => {
           .send({});
       });
 
-      it('should respond with 403 status code', async function () {
-        expect(response.statusCode).toBe(403);
+      it('should respond with 401 status code', async function () {
+        expect(response.statusCode).toBe(401);
       });
     });
 

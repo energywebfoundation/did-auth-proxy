@@ -189,24 +189,45 @@ export class AuthController {
   @UseGuards(ValidRefreshTokenGuard)
   @ApiBody({ type: RefreshDto })
   @ApiOkResponse({ type: LoginResponseDto })
-  async refresh(
-    @Body() body: RefreshDto,
+  // backwards compatibility
+  async refreshWithPost(
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginResponseDto | undefined> {
-    const { accessToken, refreshToken } = await this.authService.refreshTokens(
-      body.refreshToken,
-    );
+    return this.refreshCommon(req.user as string, res);
+  }
+
+  @Get('refresh_token')
+  @UseGuards(ValidRefreshTokenGuard)
+  @ApiOkResponse({ type: LoginResponseDto })
+  //compatible with the SSI-HUB implementation
+  async refreshWithGet(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto | undefined> {
+    return await this.refreshCommon(req.user as string, res);
+  }
+
+  async refreshCommon(
+    refreshToken: string,
+    res: Response,
+  ): Promise<LoginResponseDto | undefined> {
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.authService.refreshTokens(refreshToken);
 
     if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
       this.setAuthCookies({
         res,
         accessToken,
-        refreshToken,
+        refreshToken: newRefreshToken,
       });
     }
 
     if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
-      return new LoginResponseDto({ accessToken, refreshToken });
+      return new LoginResponseDto({
+        accessToken,
+        refreshToken: newRefreshToken,
+      });
     }
   }
 

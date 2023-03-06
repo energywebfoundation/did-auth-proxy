@@ -470,11 +470,13 @@ describe('AuthController', () => {
 
       beforeEach(async function () {
         spyOnLoginCommon = jest
-          .spyOn<AuthController, keyof AuthController>(
-            controller,
-            'loginCommon',
-          )
-          .mockReturnValueOnce(Promise.resolve('a result'));
+          .spyOn(controller, 'loginCommon')
+          .mockResolvedValueOnce({
+            access_token: 'access_token',
+            refresh_token: 'refresh_token',
+            type: 'Bearer',
+            expires_in: 120,
+          } as LoginResponseDto);
 
         ({ mockRequest, mockResponse } = mockLoginRequestResponse(
           didAccessTokenPayload,
@@ -504,7 +506,12 @@ describe('AuthController', () => {
       });
 
       it('should return results of the `loginCommon` method execution', async function () {
-        expect(result).toBe('a result');
+        expect(result).toEqual({
+          access_token: 'access_token',
+          expires_in: 120,
+          refresh_token: 'refresh_token',
+          type: 'Bearer',
+        });
       });
     });
   });
@@ -580,11 +587,13 @@ describe('AuthController', () => {
     describe('when called with valid message and signature', function () {
       beforeEach(async function () {
         spyOnLoginCommon = jest
-          .spyOn<AuthController, keyof AuthController>(
-            controller,
-            'loginCommon',
-          )
-          .mockReturnValueOnce(Promise.resolve('a result'));
+          .spyOn(controller, 'loginCommon')
+          .mockResolvedValueOnce({
+            access_token: 'access_token',
+            refresh_token: 'refresh_token',
+            type: 'Bearer',
+            expires_in: 120,
+          } as LoginResponseDto);
 
         ({ mockRequest, mockResponse } = mockLoginRequestResponse(
           didAccessTokenPayload,
@@ -616,7 +625,12 @@ describe('AuthController', () => {
       });
 
       it('should return results of the `loginCommon` method execution', async function () {
-        expect(result).toBe('a result');
+        expect(result).toEqual({
+          access_token: 'access_token',
+          expires_in: 120,
+          refresh_token: 'refresh_token',
+          type: 'Bearer',
+        });
       });
     });
 
@@ -629,7 +643,12 @@ describe('AuthController', () => {
             controller,
             'loginCommon',
           )
-          .mockReturnValueOnce(Promise.resolve('a result'));
+          .mockResolvedValueOnce({
+            access_token: 'access_token',
+            refresh_token: 'refresh_token',
+            type: 'Bearer',
+            expires_in: 120,
+          } as LoginResponseDto);
 
         ({ mockRequest, mockResponse } = mockLoginRequestResponse(
           didAccessTokenPayload,
@@ -670,7 +689,12 @@ describe('AuthController', () => {
             controller,
             'loginCommon',
           )
-          .mockReturnValueOnce(Promise.resolve('a result'));
+          .mockResolvedValueOnce({
+            access_token: 'access_token',
+            refresh_token: 'refresh_token',
+            type: 'Bearer',
+            expires_in: 120,
+          } as LoginResponseDto);
 
         ({ mockRequest, mockResponse } = mockLoginRequestResponse(
           didAccessTokenPayload,
@@ -829,7 +853,7 @@ describe('AuthController', () => {
     });
   });
 
-  describe('refresh()', function () {
+  describe('refreshCommon()', function () {
     describe('when executed', function () {
       let response: LoginResponseDto | undefined;
       let responseCookies: Record<string, ResponseCookie>;
@@ -854,7 +878,7 @@ describe('AuthController', () => {
         }));
 
         const expResponse = createResponse();
-        response = await controller.refresh({ refreshToken }, expResponse);
+        response = await controller.refreshCommon(refreshToken, expResponse);
         responseCookies = expResponse.cookies;
       });
 
@@ -876,7 +900,7 @@ describe('AuthController', () => {
 
           const expResponse = createResponse();
 
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
 
           responseCookies = expResponse.cookies;
         });
@@ -933,7 +957,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -966,7 +990,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -1011,7 +1035,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -1055,7 +1079,7 @@ describe('AuthController', () => {
           });
 
           const expResponse = createResponse();
-          response = await controller.refresh({ refreshToken }, expResponse);
+          response = await controller.refreshCommon(refreshToken, expResponse);
           responseCookies = expResponse.cookies;
         });
 
@@ -1092,7 +1116,7 @@ describe('AuthController', () => {
         const expResponse = createResponse();
 
         try {
-          await controller.refresh({ refreshToken: 'invalid' }, expResponse);
+          await controller.refreshCommon('invalid', expResponse);
         } catch (err) {
           exceptionThrown = err;
         }
@@ -1106,6 +1130,108 @@ describe('AuthController', () => {
 
       it('should not set auth cookie', async function () {
         expect(responseCookies[authCookieName]).toBeUndefined();
+      });
+    });
+  });
+
+  describe('refreshWithPost()', function () {
+    let spy: jest.SpyInstance;
+    let refreshToken: string;
+    let mockReqest: Request;
+    let mockResponse: Response;
+    let result: LoginResponseDto | undefined;
+    let exception: Error;
+
+    beforeEach(async function () {
+      spy = jest.spyOn(controller, 'refreshCommon').mockResolvedValueOnce({
+        access_token: 'access_token',
+        refresh_token: 'refresh_token',
+        type: 'Bearer',
+        expires_in: 120,
+      } as LoginResponseDto);
+
+      refreshToken = sign({ random: Math.random() }, 'aSecret', {
+        expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
+      });
+
+      mockReqest = createRequest({
+        user: refreshToken,
+      });
+      mockResponse = createResponse();
+
+      try {
+        result = await controller.refreshWithPost(mockReqest, mockResponse);
+      } catch (err) {
+        exception = err;
+      }
+    });
+
+    it('should execute', async function () {
+      expect(exception).toBeUndefined();
+    });
+
+    it('should call refreshCommon()', async function () {
+      expect(spy).toHaveBeenCalledWith(refreshToken, mockResponse);
+    });
+
+    it('should return refreshCommon() return value', async function () {
+      expect(result).toEqual({
+        access_token: 'access_token',
+        expires_in: 120,
+        refresh_token: 'refresh_token',
+        type: 'Bearer',
+      });
+    });
+  });
+
+  describe('refreshWithGet()', function () {
+    let spyRefreshCommon: jest.SpyInstance;
+    let refreshToken: string;
+    let mockReqest: Request;
+    let mockResponse: Response;
+    let result: LoginResponseDto | undefined;
+    let exception: Error;
+
+    beforeEach(async function () {
+      spyRefreshCommon = jest
+        .spyOn(controller, 'refreshCommon')
+        .mockResolvedValueOnce({
+          access_token: 'access_token',
+          refresh_token: 'refresh_token',
+          type: 'Bearer',
+          expires_in: 120,
+        } as LoginResponseDto);
+
+      refreshToken = sign({ random: Math.random() }, 'aSecret', {
+        expiresIn: mockConfigService.get('JWT_REFRESH_TTL'),
+      });
+
+      mockReqest = createRequest({
+        user: refreshToken,
+      });
+      mockResponse = createResponse();
+
+      try {
+        result = await controller.refreshWithGet(mockReqest, mockResponse);
+      } catch (err) {
+        exception = err;
+      }
+    });
+
+    it('should execute', async function () {
+      expect(exception).toBeUndefined();
+    });
+
+    it('should call refreshCommon()', async function () {
+      expect(spyRefreshCommon).toHaveBeenCalledWith(refreshToken, mockResponse);
+    });
+
+    it('should return refreshCommon() return value', async function () {
+      expect(result).toEqual({
+        access_token: 'access_token',
+        expires_in: 120,
+        refresh_token: 'refresh_token',
+        type: 'Bearer',
       });
     });
   });
