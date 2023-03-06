@@ -26,7 +26,6 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiOperation,
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
@@ -51,14 +50,6 @@ export class AuthController {
     private readonly nonceService: NonceService,
   ) {
     this.logger.setContext(AuthController.name);
-  }
-
-  @Get()
-  @ApiOperation({
-    description: 'Returns 200 response code with "OK"',
-  })
-  public async getStatus(): Promise<string> {
-    return 'OK';
   }
 
   @Post('login')

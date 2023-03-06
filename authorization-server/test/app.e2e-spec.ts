@@ -56,18 +56,6 @@ describe('AppController (e2e)', () => {
     await redisServer.stop();
   });
 
-  describe('/auth (GET)', function () {
-    let response: Response;
-
-    beforeEach(async function () {
-      response = await request(appHttpServer).get('/auth');
-    });
-
-    it('should respond with 200 status code', async function () {
-      expect(response.statusCode).toBe(200);
-    });
-  });
-
   describe('/healthcheck/operational', function () {
     let response: Response;
 
