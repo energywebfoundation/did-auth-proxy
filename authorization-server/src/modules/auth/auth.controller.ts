@@ -36,7 +36,7 @@ import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
 import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
 import { SiweMessage } from 'siwe';
 
-@Controller('auth')
+@Controller()
 @UsePipes(
   new ValidationPipe({
     whitelist: true,

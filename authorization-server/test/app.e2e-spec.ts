@@ -83,12 +83,12 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('/auth/login (POST)', function () {
+  describe('/login (POST)', function () {
     let response: Response;
 
     describe('when called with valid identity token', function () {
       beforeAll(async function () {
-        response = await request(appHttpServer).post('/auth/login').send({
+        response = await request(appHttpServer).post('/login').send({
           identityToken,
         });
       }, 30000);
@@ -174,11 +174,11 @@ describe('AppController (e2e)', () => {
     //TODO: implement tests for malformed identity token once passport-did-auth is fixed (https://github.com/energywebfoundation/passport-did-auth/issues/294)
   });
 
-  describe('/auth/login/siwe/initiate (GET) when called', function () {
+  describe('/login/siwe/initiate (GET) when called', function () {
     let response: Response;
 
     beforeAll(async function () {
-      response = await request(appHttpServer).post('/auth/login/siwe/initiate');
+      response = await request(appHttpServer).post('/login/siwe/initiate');
     });
 
     it('should respond with 200 status code', async function () {
@@ -192,14 +192,14 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('/auth/login/siwe/verify (POST)', function () {
+  describe('/login/siwe/verify (POST)', function () {
     let response: Response;
     let provider: providers.Provider;
     let wallet: Wallet;
 
     describe('when called with no request body', function () {
       beforeEach(async function () {
-        response = await request(appHttpServer).post('/auth/login/siwe/verify');
+        response = await request(appHttpServer).post('/login/siwe/verify');
       });
 
       it('should respond with 401 status code', async function () {
@@ -226,7 +226,7 @@ describe('AppController (e2e)', () => {
     describe('when called with an invalid message', function () {
       beforeEach(async function () {
         response = await request(appHttpServer)
-          .post('/auth/login/siwe/verify')
+          .post('/login/siwe/verify')
           .send({
             message: 'invalid message',
             signature: 'invalid signature',
@@ -273,7 +273,7 @@ describe('AppController (e2e)', () => {
         provider = new providers.JsonRpcProvider(process.env.RPC_URL);
         wallet = Wallet.createRandom().connect(provider);
         uri = new URL(
-          '/auth/login/siwe/verify',
+          '/login/siwe/verify',
           new URL(configService.get<string>('SELF_BASE_URL')).origin,
         ).href;
       });
@@ -281,7 +281,7 @@ describe('AppController (e2e)', () => {
       describe('with valid nonce and uri', function () {
         beforeEach(async function () {
           const nonce = (
-            await request(appHttpServer).post('/auth/login/siwe/initiate')
+            await request(appHttpServer).post('/login/siwe/initiate')
           ).body?.nonce;
 
           const message = new SiweMessage({
@@ -301,7 +301,7 @@ describe('AppController (e2e)', () => {
           };
 
           response = await request(appHttpServer)
-            .post('/auth/login/siwe/verify')
+            .post('/login/siwe/verify')
             .send(payload);
         });
 
@@ -322,13 +322,13 @@ describe('AppController (e2e)', () => {
       describe('with valid nonce and invalid uri', function () {
         beforeEach(async function () {
           const nonce = (
-            await request(appHttpServer).get('/auth/login/siwe/initiate')
+            await request(appHttpServer).get('/login/siwe/initiate')
           ).body?.nonce;
 
           const message = new SiweMessage({
             domain: 'localhost:3000',
             address: wallet.address,
-            uri: 'https://some.other.site/auth/login/siwe/verify',
+            uri: 'https://some.other.site/login/siwe/verify',
             version: '1',
             chainId: (await wallet.provider.getNetwork()).chainId,
             nonce,
@@ -342,7 +342,7 @@ describe('AppController (e2e)', () => {
           };
 
           response = await request(appHttpServer)
-            .post('/auth/login/siwe/verify')
+            .post('/login/siwe/verify')
             .send(payload);
         });
 
@@ -396,7 +396,7 @@ describe('AppController (e2e)', () => {
           };
 
           response = await request(appHttpServer)
-            .post('/auth/login/siwe/verify')
+            .post('/login/siwe/verify')
             .send(payload);
         });
 
@@ -433,7 +433,7 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('/auth/token-introspection (GET)', function () {
+  describe('/token-introspection (GET)', function () {
     let accessToken: string;
     let response: Response;
 
@@ -444,7 +444,7 @@ describe('AppController (e2e)', () => {
 
       beforeEach(async function () {
         response = await request(appHttpServer)
-          .get('/auth/token-introspection')
+          .get('/token-introspection')
           .set({
             Authorization: `Bearer ${accessToken}`,
           });
@@ -457,9 +457,7 @@ describe('AppController (e2e)', () => {
 
     describe('when called without an access token', function () {
       beforeEach(async function () {
-        response = await request(appHttpServer).get(
-          '/auth/token-introspection',
-        );
+        response = await request(appHttpServer).get('/token-introspection');
       });
 
       it('should respond with 401 status code', async function () {
@@ -470,7 +468,7 @@ describe('AppController (e2e)', () => {
     describe('when called with malformad access token', function () {
       beforeEach(async function () {
         response = await request(appHttpServer)
-          .get('/auth/token-introspection')
+          .get('/token-introspection')
           .set({
             Authorization: `Bearer malformedaccesstoken`,
           });
@@ -484,7 +482,7 @@ describe('AppController (e2e)', () => {
     describe('when called with malformed Authorization header', function () {
       beforeEach(async function () {
         response = await request(appHttpServer)
-          .get('/auth/token-introspection')
+          .get('/token-introspection')
           .set({
             Authorization: `malformedheadervalue`,
           });
@@ -506,7 +504,7 @@ describe('AppController (e2e)', () => {
 
       beforeEach(async function () {
         response = await request(appHttpServer)
-          .get('/auth/token-introspection')
+          .get('/token-introspection')
           .set({
             Authorization: `Bearer ${invalidAccessToken}`,
           });
@@ -518,7 +516,7 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('/auth/refresh-token (POST)', function () {
+  describe('/refresh-token (POST)', function () {
     describe('when called with a valid refresh token', function () {
       let accessToken: string;
       let accessTokenDecoded: IAccessTokenPayload;
@@ -534,11 +532,9 @@ describe('AppController (e2e)', () => {
 
         await setTimeout(1000);
 
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({
-            refreshToken,
-          });
+        response = await request(appHttpServer).post('/refresh-token').send({
+          refreshToken,
+        });
       }, 15000);
 
       it('should respond with 201 status code', async function () {
@@ -614,7 +610,7 @@ describe('AppController (e2e)', () => {
     describe('when called without access token', function () {
       let response: Response;
       beforeAll(async function () {
-        response = await request(appHttpServer).post('/auth/refresh-token');
+        response = await request(appHttpServer).post('/refresh-token');
       });
 
       it('should respond with 401 status code', async function () {
@@ -636,7 +632,7 @@ describe('AppController (e2e)', () => {
         ) as IAccessTokenPayload;
 
         response = await request(appHttpServer)
-          .post('/auth/refresh-token')
+          .post('/refresh-token')
           .send({
             refreshToken: sign({ id, did, roles }, 'invalid secret'),
           });
@@ -651,11 +647,9 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({
-            refreshToken: 'malformed token',
-          });
+        response = await request(appHttpServer).post('/refresh-token').send({
+          refreshToken: 'malformed token',
+        });
       });
 
       it('should respond with 403 status code', async function () {
@@ -670,7 +664,7 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('/auth/refresh_token (GET)', function () {
+  describe('/refresh_token (GET)', function () {
     let response: Response;
 
     describe('when called with a valid refresh token', function () {
@@ -683,7 +677,7 @@ describe('AppController (e2e)', () => {
         console.log(`logged in in ${Date.now() - start}ms`);
 
         response = await request(appHttpServer).get(
-          `/auth/refresh_token?refresh_token=${refreshToken}`,
+          `/refresh_token?refresh_token=${refreshToken}`,
         );
       });
 
@@ -704,7 +698,7 @@ describe('AppController (e2e)', () => {
     describe('when called with an invalid refresh token', function () {
       beforeEach(async function () {
         response = await request(appHttpServer).get(
-          `/auth/refresh_token?refresh_token=invalid-token`,
+          `/refresh_token?refresh_token=invalid-token`,
         );
       });
 
@@ -729,7 +723,7 @@ describe('AppController (e2e)', () => {
 
     describe('when called with no refresh token', function () {
       beforeEach(async function () {
-        response = await request(appHttpServer).get(`/auth/refresh_token`);
+        response = await request(appHttpServer).get(`/refresh_token`);
       });
 
       it('should respond with 401 status code', async function () {
@@ -754,7 +748,7 @@ describe('AppController (e2e)', () => {
     describe('when called with empty refresh token', function () {
       beforeEach(async function () {
         response = await request(appHttpServer).get(
-          `/auth/refresh_token?refresh_token=`,
+          `/refresh_token?refresh_token=`,
         );
       });
 
@@ -778,7 +772,7 @@ describe('AppController (e2e)', () => {
     });
   });
 
-  describe('/auth/logout', function () {
+  describe('/logout', function () {
     describe('whan called with a valid refresh token', function () {
       let refreshToken: string;
       let response: Response;
@@ -786,11 +780,9 @@ describe('AppController (e2e)', () => {
       beforeAll(async function () {
         ({ refreshToken } = await logIn(appHttpServer, identityToken));
 
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({
-            refreshToken,
-          });
+        response = await request(appHttpServer).post('/refresh-token').send({
+          refreshToken,
+        });
       }, 15000);
 
       it('should respond with 201 status code', async function () {
@@ -802,9 +794,7 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({});
+        response = await request(appHttpServer).post('/refresh-token').send({});
       });
 
       it('should respond with 401 status code', async function () {
@@ -816,11 +806,9 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({
-            refreshToken: 'invalid',
-          });
+        response = await request(appHttpServer).post('/refresh-token').send({
+          refreshToken: 'invalid',
+        });
       });
 
       it('should respond with 403 status code', async function () {
@@ -835,7 +823,7 @@ async function logIn(
   identityToken: string,
 ): Promise<{ accessToken: string; refreshToken: string }> {
   const body = (
-    await request(httpServer).post('/auth/login').send({ identityToken })
+    await request(httpServer).post('/login').send({ identityToken })
   ).body as LoginResponseDto;
 
   const { access_token: accessToken, refresh_token: refreshToken } = body;

@@ -56,7 +56,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
         includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
         siweMessageUri: new URL(
-          '/auth/login/siwe/verify',
+          '/login/siwe/verify',
           new URL(configService.get<string>('SELF_BASE_URL')).origin,
         ).href,
       },
