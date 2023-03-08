@@ -4,7 +4,7 @@ services:
   webserver:
     restart: unless-stopped
     depends_on:
-      - ssi-hub
+#      - ssi-hub
       - miner-data-backend
       - auth-server
     image: bitnami/nginx:1.23
@@ -12,20 +12,22 @@ services:
       - ./nginx/nginx.ssi-hub.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
       - ./nginx/404-unknown-domain.html:/app/404-unknown-domain.html
     ports:
-      - "127.0.0.1:8080:80"
+      - "127.0.0.1:80:80"
+    extra_hosts:
+      - host.docker.internal:host-gateway
     networks:
       backend:
 
-  ssi-hub:
-    restart: unless-stopped
-    image: did-auth-proxy-backend
-    pull_policy: never
-    build:
-      context: backend-server
-    environment:
-      BACKEND_INSTANCE_ID: ssi-hub
-    networks:
-      backend:
+#  ssi-hub:
+#    restart: unless-stopped
+#    image: did-auth-proxy-backend
+#    pull_policy: never
+#    build:
+#      context: backend-server
+#    environment:
+#      BACKEND_INSTANCE_ID: ssi-hub
+#    networks:
+#      backend:
 
   miner-data-backend:
     restart: unless-stopped
