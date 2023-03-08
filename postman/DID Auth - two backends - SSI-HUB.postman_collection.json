@@ -1,0 +1,313 @@
+{
+	"info": {
+		"_postman_id": "9fe4504b-02b7-4902-a763-83291d031084",
+		"name": "DID Auth - two backends - SSI-HUB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "{{ssi-hub-host-header}}/v1/login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    var data = pm.response.json();",
+							"",
+							"    pm.environment.set('accessToken', data.access_token);",
+							"    pm.environment.set('refreshToken', data.refresh_token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "host",
+						"value": "{{ssi-hub-host-header}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"identityToken\": \"{{identityToken}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{ssi-hub-host}}/v1/login",
+					"protocol": "http",
+					"host": [
+						"{{ssi-hub-host}}"
+					],
+					"path": [
+						"v1",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{ssi-hub-host-header}}/v1/refresh_token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var data = pm.response.json();",
+							"",
+							"    pm.environment.set('accessToken', data.access_token);",
+							"    pm.environment.set('refreshToken', data.refresh_token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "host",
+						"value": "{{ssi-hub-host-header}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{ssi-hub-host}}/v1/refresh_token?refresh_token={{refreshToken}}",
+					"protocol": "http",
+					"host": [
+						"{{ssi-hub-host}}"
+					],
+					"path": [
+						"v1",
+						"refresh_token"
+					],
+					"query": [
+						{
+							"key": "refresh_token",
+							"value": "{{refreshToken}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{ssi-hub-host-header}}/any-path",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201) {",
+							"    var data = pm.response.json();",
+							"",
+							"    pm.environment.set('accessToken', data.access_token);",
+							"    pm.environment.set('refreshToken', data.refresh_token);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "host",
+						"value": "{{ssi-hub-host-header}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{ssi-hub-host}}/any/path",
+					"protocol": "http",
+					"host": [
+						"{{ssi-hub-host}}"
+					],
+					"path": [
+						"any",
+						"path"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{ssi-hub-host-header}}/v1/logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 201 || pm.response.code === 403) {",
+							"    pm.environment.unset('accessToken');",
+							"    pm.environment.unset('refreshToken');",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "host",
+						"value": "{{ssi-hub-host-header}}",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"refreshToken\": \"{{refreshToken}}\",\n    \"allDevices\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{ssi-hub-host}}/v1/logout",
+					"protocol": "http",
+					"host": [
+						"{{ssi-hub-host}}"
+					],
+					"path": [
+						"v1",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{miner-backend-host-header}}/any-path",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "host",
+						"value": "{{miner-backend-host-header}}",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://{{miner-backend-host}}/any-path",
+					"protocol": "http",
+					"host": [
+						"{{miner-backend-host}}"
+					],
+					"path": [
+						"any-path"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ssi-hub-host",
+			"value": "localhost:8080",
+			"type": "default"
+		},
+		{
+			"key": "ssi-hub-host-header",
+			"value": "ssi-hub.org",
+			"type": "default"
+		},
+		{
+			"key": "miner-backend-host",
+			"value": "localhost:8080",
+			"type": "default"
+		},
+		{
+			"key": "miner-backend-host-header",
+			"value": "miner-data.org",
+			"type": "default"
+		}
+	]
+}
