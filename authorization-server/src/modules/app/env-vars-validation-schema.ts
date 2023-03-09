@@ -30,6 +30,7 @@ export const envVarsValidationSchema = Joi.object({
   IPFS_PROJECTID: Joi.string().optional().allow(''),
   IPFS_PROJECTSECRET: Joi.string().optional().allow(''),
 
+  BLOCKNUM_AUTH_ENABLED: Joi.boolean().required(),
   ACCEPTED_ROLES: Joi.string().optional().allow(''),
   INCLUDE_ALL_ROLES: Joi.boolean().required(),
 
