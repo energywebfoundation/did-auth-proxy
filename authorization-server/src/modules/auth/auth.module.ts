@@ -48,13 +48,13 @@ export class AuthModule implements NestModule {
 
   configure(consumer: MiddlewareConsumer) {
     if (!this.config.get<boolean>('BLOCKNUM_AUTH_ENABLED')) {
-      this.logger.info('POST /auth/logger disabled');
+      this.logger.info('POST /auth/login disabled');
 
       consumer
         .apply(DisableBlockAuthRoutesMiddleware)
         .forRoutes({ path: '/auth/login', method: RequestMethod.POST });
     } else {
-      this.logger.info('POST /auth/logger enabled');
+      this.logger.info('POST /auth/login enabled');
     }
   }
 }

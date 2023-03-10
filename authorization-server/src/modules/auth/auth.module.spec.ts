@@ -62,9 +62,7 @@ describe('AuthModule.configure()', function () {
     });
 
     it('should write info log message', async function () {
-      expect(loggerMock.info).toHaveBeenCalledWith(
-        'POST /auth/logger disabled',
-      );
+      expect(loggerMock.info).toHaveBeenCalledWith('POST /auth/login disabled');
     });
   });
 
@@ -115,7 +113,7 @@ describe('AuthModule.configure()', function () {
     });
 
     it('should write info log message', async function () {
-      expect(loggerMock.info).toHaveBeenCalledWith('POST /auth/logger enabled');
+      expect(loggerMock.info).toHaveBeenCalledWith('POST /auth/login enabled');
     });
   });
 });
