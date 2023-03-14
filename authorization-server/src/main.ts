@@ -58,7 +58,7 @@ async function bootstrap() {
   });
 
   SwaggerModule.setup(
-    'swagger',
+    config.get<string>('SWAGGER_PATH'),
     app,
     SwaggerModule.createDocument(
       app,
@@ -90,6 +90,11 @@ async function bootstrap() {
   await app.listen(PORT, BIND, () => {
     webserverLogger.info(
       `Listening at http://localhost:${PORT}, bound to ${BIND}`,
+    );
+
+    webserverLogger.info(
+      `Swagger doc server at ` +
+        `http://localhost:${PORT}/${config.get('SWAGGER_PATH')}`,
     );
   });
 
