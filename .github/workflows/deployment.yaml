@@ -96,6 +96,7 @@ jobs:
           FAIL_ON_REDIS_UNAVAILABLE: true
           AUTH_COOKIE_ENABLED: true
           IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
+          BLOCKNUM_AUTH_ENABLED: true
           ACCEPTED_ROLES: ''
           INCLUDE_ALL_ROLES: false
         run: yarn test
