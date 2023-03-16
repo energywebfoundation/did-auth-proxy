@@ -161,7 +161,8 @@ did-auth-proxy-helm:
             proxy_set_header  Content-Length "";
             proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
         }
-
+      }
+      
     ingress:
       enabled: true
       annotations: 
