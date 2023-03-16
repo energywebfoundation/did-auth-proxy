@@ -162,7 +162,7 @@ did-auth-proxy-helm:
             proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
         }
       }
-      
+
     ingress:
       enabled: true
       annotations: 
@@ -183,10 +183,10 @@ did-auth-proxy-helm:
 
     customLivenessProbe:
       httpGet:
-        path: /v1/health
+        path: /auth/healthcheck
         port: http
 
     customReadinessProbe:
       httpGet:
-        path: /v1/health
+        path: /auth/healthcheck
         port: http
