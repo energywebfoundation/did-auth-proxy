@@ -183,10 +183,10 @@ did-auth-proxy-helm:
 
     customLivenessProbe:
       httpGet:
-        path: /auth/healthcheck
+        path: /auth
         port: http
 
     customReadinessProbe:
       httpGet:
-        path: /auth/healthcheck
+        path: /auth
         port: http
