@@ -151,7 +151,7 @@ did-auth-proxy-helm:
         }
 
         location /gp4btc/healthcheck {
-            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local/healthcheck;
         }
 
         location = /token_introspection {
