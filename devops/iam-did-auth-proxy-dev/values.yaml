@@ -1,7 +1,8 @@
-  # Default values for did-auth-proxy-helm.
-  # This is a YAML-formatted file.
-  # Declare variables to be passed into your templates.
+# Default values for did-auth-proxy-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
 did-auth-proxy-helm:
+  enabled: true
   replicaCount: 1
 
   image:
@@ -10,8 +11,8 @@ did-auth-proxy-helm:
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
 
-  imagePullSecrets:
-    - name: regcred
+  imagePullSecrets: []
+
   nameOverride: "did-auth-proxy-helm"
   fullnameOverride: "did-auth-proxy-helm"
 
@@ -41,46 +42,14 @@ did-auth-proxy-helm:
     type: ClusterIP
     port: 80
 
-  #example with influx as a backend service
-
   ingress:
-    enabled: true
-    className: ""
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
-      nginx.ingress.kubernetes.io/server-snippet: |
-        location ~ / {
-            auth_request /token_introspection;
-            proxy_pass http://backend-nginx-influxdb.did-auth-proxy.svc.cluster.local:8086;
-        }
-        location = /token_introspection {
-              internal;
-              proxy_method      GET;
-              proxy_set_header  Authorization "$http_authorization";
-              proxy_set_header  Content-Length "";
-              proxy_pass        http://did-auth-proxy-helm.did-auth-proxy.svc.cluster.local/auth/token-introspection;
-        }
-    hosts:
-      - host: iam-did-auth-proxy-dev.energyweb.org
-        paths:
-        - path: /auth
-          pathType: Prefix
-        - path: /auth/login
-          pathType: Prefix
-        - path: /auth/refresh-token
-          pathType: Prefix
-        - path: /auth/token-introspection
-          pathType: Prefix
-        - path: /
-          pathType: Prefix
+    enabled: false
 
   config:
     enabled: false
     secretRefName: {}
     configRefName: {}
 
-  #for now dummy configs
   appValues:
     PORT: 80
     CACHE_SERVER_LOGIN_PRVKEY: eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
@@ -91,10 +60,13 @@ did-auth-proxy-helm:
     ENS_REGISTRY_ADDRESS: 0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
     ENS_RESOLVER_ADDRESS: 0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
     INCLUDE_ALL_ROLES: false
+    SWAGGER_PATH: api-auth
+    BLOCKNUM_AUTH_ENABLED: true
+    SELF_BASE_URL: http://iam-did-auth-proxy.svc.cluster.local
+    SIWE_NONCE_TTL: 300
 
   opsValues:
-    BLOCKNUM_AUTH_ENABLED: true
-    ACCEPTED_ROLES:
+    ACCEPTED_ROLES: 
     RPC_URL: https://volta-rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
     REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
@@ -102,6 +74,7 @@ did-auth-proxy-helm:
     REDIS_PASSWORD: redis
     IPFS_HOST: ipfs.infura.io
     IPFS_PORT: 5001
+    IPFS_PROTOCOL: https
     IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
 
   resources: {}
@@ -134,10 +107,86 @@ did-auth-proxy-helm:
     annotations: {}
     encryptedData:
       IPFS_PROJECTSECRET: AgAIpovKHlyFYxOT6Nk4d+T6m9zKF95ZdUgQPx/fsWZw1aAQJDXzDL9CZBI++zZ4pXnra4L4EftL8hyJwKPqSSVp9IjB+IcOb2wC3EaE4IEiMl2HGbzpqKtrmMoik4NkPbC1N7pwowuO43tttE2eUZblz85+3g+ccCTz/GouzGY/ryBKpVADGEafrrbtv6X41NsGYpe+Pzu6fApjIP9gJzkdwW8nIo8l5sUqfSZHkIKlGvJuuIp29l5IKeQyQemvHk0pD4/MAOmzYoe8my6ZO/6c9l4SBnbtG7BqrIqhKlRN4hw3RINVC6bt6dkSuznlZRos24pAKOufPoRcZvdIUti2a5KheXLCVxO0l99sBOlW674mT2Qim+jdORNxAJbt3pUhy/xHwWxxBWn++J7WAgvOYpihSd/bKsKm2JcMlvHKvjFY2hGzjPlrAP38BiJKgC4SMIA3DAouylt/6y8U9Fwd2d4GnPCsKPewBvqSCdxMgT331tfV/BeTaHV70WcE02k8qX1xOrFHkmiaSQo1kimh9KCe/p9gB1EuGeN8Z3bbUbcAd8n4P4Ry0pIUaaF/VNqi4eM3+Kpgx8aS5fa8o9iKyYVKMPNTzIKEPYp63u+TQmOUX1Kj8M/67ZqItB0XiHyocVFcTdDfITrGPjilxwyxZJrrNWWIiqUFCfSJhZelBnQ+qrGrHOUNdmq29uHYKf2w5MoXwGXmeSLNbiur9QghKtl3QJPDQFTTn2Ulv/aThQ==
+      
   ########
   # Redis
-
   redis:
     architecture: standalone
     auth:
       password: redis
+      
+  ########
+  # nginx
+  nginx:
+    fullnameOverride: "did-auth-proxy-helm-server-block"
+
+    serverBlock: |-
+      server {
+        listen 0.0.0.0:8080;
+        server_name gp4btc-backend-proxy-dev.energyweb.org;
+
+        location /auth {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
+        }
+
+        location /api-auth {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
+        }
+
+        location /auth/healthcheck {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/healthcheck;
+        }
+
+        location /api {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location / {
+            auth_request /token_introspection;
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location /explorer {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location /gp4btc/healthcheck {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location = /token_introspection {
+            internal;
+            proxy_method      GET;
+            proxy_set_header  Authorization "$http_authorization";
+            proxy_set_header  Content-Length "";
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
+        }
+      }
+
+    ingress:
+      enabled: true
+      annotations: 
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/proxy-body-size: 50m
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+      hostname: gp4btc-backend-proxy-dev.energyweb.org
+      pathType: Prefix
+      path: /
+      tls: false # This is managed by Cloudflare
+
+    livenessProbe:
+      enabled: false
+
+    readinessProbe:
+      enabled: false
+
+    customLivenessProbe:
+      httpGet:
+        path: /auth
+        port: http
+
+    customReadinessProbe:
+      httpGet:
+        path: /auth
+        port: http
