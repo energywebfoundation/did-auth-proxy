@@ -63,5 +63,5 @@ export const envVarsValidationSchema = Joi.object({
   DISABLE_HEALTHCHECK_IPFS: Joi.boolean().default(false),
   DISABLE_HEALTHCHECK_REDIS: Joi.boolean().default(false),
 
-  SWAGGER_PATH: Joi.string().default('swagger'),
+  SWAGGER_PATH: Joi.string().default('api'),
 });
