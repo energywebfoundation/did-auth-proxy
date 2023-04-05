@@ -115,7 +115,7 @@ jobs:
           BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
 
         run: |
-          docker build -t public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
+          docker build --build-arg GIT_SHA=${{ github.sha }} -t public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
           docker push public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
           docker tag public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
           docker push public.ecr.aws/p2b6f2f9/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
