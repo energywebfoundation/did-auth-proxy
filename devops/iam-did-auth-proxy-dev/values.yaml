@@ -68,7 +68,7 @@ did-auth-proxy-helm:
     SIWE_NONCE_TTL: 300
 
   opsValues:
-    ACCEPTED_ROLES: 
+    ACCEPTED_ROLES: ""
     RPC_URL: https://volta-rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache-dev.energyweb.org/v1
     REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
