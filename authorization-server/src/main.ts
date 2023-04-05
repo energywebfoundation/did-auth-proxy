@@ -6,6 +6,7 @@ import { Socket } from 'net';
 import * as cookieParser from 'cookie-parser';
 import { AxiosExceptionFilter } from './exception-filters/axios-exception-filter';
 import { Logger, LoggerErrorInterceptor, PinoLogger } from 'nestjs-pino';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 console.log(`${new Date().toISOString()} process starting`);
 
@@ -22,6 +23,27 @@ async function bootstrap() {
 
   app.useLogger(app.get(Logger));
   app.flushLogs();
+
+  const corsOptions: CorsOptions = {
+    maxAge: config.get<number>('CORS_MAX_AGE'),
+    credentials: true,
+    origin:
+      config.get<string>('CORS_ORIGIN') === '*'
+        ? '*'
+        : config.get<string>('CORS_ORIGIN')?.match(',')
+        ? config
+            .get<string>('CORS_ORIGIN')
+            ?.split(',')
+            .map((o) => o.trim())
+        : config.get<string>('CORS_ORIGIN'),
+  };
+
+  app
+    .get(Logger)
+    .debug(
+      `setting CORS headers with settings: ${JSON.stringify(corsOptions)}`,
+    );
+  app.enableCors(corsOptions);
 
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
   app.useGlobalFilters(

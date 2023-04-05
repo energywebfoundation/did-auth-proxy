@@ -10,6 +10,10 @@ export const envVarsValidationSchema = Joi.object({
     .default('debug'),
 
   PORT: Joi.number().default(3000),
+
+  CORS_MAX_AGE: Joi.number().integer().positive().default(60),
+  CORS_ORIGIN: Joi.string().default('*'),
+
   BIND: Joi.string().ip().default('127.0.0.1'),
   SELF_BASE_URL: Joi.string().uri().required(),
   CHAIN_ID: Joi.number().positive().default(73799),
