@@ -37,6 +37,7 @@ COPY --from=dependencies-prod /app/node_modules ./node_modules
 COPY --from=build /app/dist ./
 
 RUN echo "{\"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"gitSha\": \"$GIT_SHA\"}" > build.json
+COPY package.json .
 EXPOSE 3000
 
 CMD ["node", "main.js"]
