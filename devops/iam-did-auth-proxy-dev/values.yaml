@@ -64,7 +64,7 @@ did-auth-proxy-helm:
     INCLUDE_ALL_ROLES: false
     SWAGGER_PATH: api-auth
     BLOCKNUM_AUTH_ENABLED: true
-    SELF_BASE_URL: http://iam-did-auth-proxy.svc.cluster.local
+    SELF_BASE_URL: https://gp4btc-backend-proxy-dev.energyweb.org
     SIWE_NONCE_TTL: 300
 
   opsValues:
