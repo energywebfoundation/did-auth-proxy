@@ -121,7 +121,7 @@ export class AuthController {
     }
   }
 
-  @Get('login/siwe/initiate')
+  @Post('login/siwe/initiate')
   @ApiOkResponse({ type: SiweInitResponseDto })
   async siweLoginInit(): Promise<SiweInitResponseDto> {
     return new SiweInitResponseDto({
