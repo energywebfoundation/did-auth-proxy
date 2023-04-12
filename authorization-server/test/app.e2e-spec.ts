@@ -190,11 +190,11 @@ describe('AppController (e2e)', () => {
     let response: Response;
 
     beforeAll(async function () {
-      response = await request(appHttpServer).get('/auth/login/siwe/initiate');
+      response = await request(appHttpServer).post('/auth/login/siwe/initiate');
     });
 
     it('should respond with 200 status code', async function () {
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
     });
 
     it('should respond with a nonce', async function () {
@@ -293,7 +293,7 @@ describe('AppController (e2e)', () => {
       describe('with valid nonce and uri', function () {
         beforeEach(async function () {
           const nonce = (
-            await request(appHttpServer).get('/auth/login/siwe/initiate')
+            await request(appHttpServer).post('/auth/login/siwe/initiate')
           ).body?.nonce;
 
           const message = new SiweMessage({
