@@ -66,6 +66,7 @@ did-auth-proxy-helm:
     BLOCKNUM_AUTH_ENABLED: true
     SELF_BASE_URL: https://gp4btc-backend-proxy-dev.energyweb.org
     SIWE_NONCE_TTL: 300
+    AUTH_COOKIE_ENABLED: true
 
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
