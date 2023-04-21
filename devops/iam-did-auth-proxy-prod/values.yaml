@@ -68,7 +68,7 @@ did-auth-proxy-helm:
     AUTH_COOKIE_SAMESITE_POLICY: none
 
   opsValues:
-    RPC_URL: https://volta-rpc.energyweb.org/
+    RPC_URL: https://rpc.energyweb.org/
     CACHE_SERVER_URL: https://identitycache.energyweb.org/v1
     REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
     REDIS_PORT: 6379
