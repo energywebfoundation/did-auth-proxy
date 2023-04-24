@@ -2,7 +2,7 @@ name: Build and deploy
 
 on:
   push:
-    branches: [develop, gp4btc-stg, gp4btc-release]
+    branches: [develop, gp4btc-stg, gp4btc-release, higher-env-ci]
     paths-ignore:
       - 'devops/**'
   workflow_dispatch:
