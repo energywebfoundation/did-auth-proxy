@@ -2,7 +2,7 @@ name: Build and deploy
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, gp4btc-stg, gp4btc-release]
     paths-ignore:
       - 'devops/**'
   workflow_dispatch:
@@ -42,6 +42,24 @@ jobs:
             echo "::set-output name=argocd_password::${{ secrets.DEV_ARGOCD_PASS }}"
             echo "::set-output name=argocd_app_name::"did-auth-proxy"
             echo "::set-output name=argocd_tag::"did-auth-proxy-helm.image.tag"
+          elif [ "${{ github.ref }}" = "refs/heads/gp4btc-stg" ]; then
+            echo "::set-output name=aws_access_key_id::${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}"
+            echo "::set-output name=aws_secret_key::${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}"
+            echo "::set-output name=aws_region::${{ secrets.STAGING_AWS_REGION }}"
+            echo "::set-output name=aws_ecr_repository::${{ secrets.STAGING_ECR_REPOSITORY }}"
+            echo "::set-output name=argocd_url::${{ secrets.STAGING_ARGOCD_URL }}"
+            echo "::set-output name=argocd_username::${{ secrets.STAGING_ARGOCD_USERNAME }}"
+            echo "::set-output name=argocd_password::${{ secrets.STAGING_ARGOCD_PASS }}"
+            echo "::set-output name=argocd_tag::"image.tag"
+          elif [ "${{ github.ref }}" = "refs/heads/gp4btc-release" ]; then
+            echo "::set-output name=aws_access_key_id::${{ secrets.PROD_AWS_ACCESS_KEY_ID }}"
+            echo "::set-output name=aws_secret_key::${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}"
+            echo "::set-output name=aws_region::${{ secrets.PROD_AWS_REGION }}"
+            echo "::set-output name=aws_ecr_repository::${{ secrets.PROD_ECR_REPOSITORY }}"
+            echo "::set-output name=argocd_url::${{ secrets.PROD_ARGOCD_URL }}"
+            echo "::set-output name=argocd_username::${{ secrets.PROD_ARGOCD_USERNAME }}"
+            echo "::set-output name=argocd_password::${{ secrets.PROD_ARGOCD_PASS }}"
+            echo "::set-output name=argocd_tag::"image.tag"            
           else
             echo "Branch ${{ github.ref }} is not configured for deployment"
             exit 1
@@ -141,6 +159,7 @@ jobs:
       - name: ArgoCD overvrite HELM values.yaml
         uses: clowdhaus/argo-cd-action/@v1.12.1
         id: argocd_image_helm_tag_overwrite
+        if: ${{ github.ref == 'refs/heads/develop' }}
         with:
           command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
