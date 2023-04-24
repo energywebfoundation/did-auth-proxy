@@ -69,7 +69,7 @@ did-auth-proxy-helm:
 
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
-    CACHE_SERVER_URL: https://identitycache-stg.energyweb.org/v1
+    CACHE_SERVER_URL: http://ics.gp4btc.svc.cluster.local:3000/v1
     REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
     REDIS_PORT: 6379
     REDIS_PASSWORD: redis
