@@ -258,14 +258,17 @@ did-auth-proxy-helm:
     ingress:
       enabled: true
       annotations: 
-        kubernetes.io/ingress.class: nginx
-        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-        nginx.ingress.kubernetes.io/proxy-body-size: 50m
-        external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/target-type: ip
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+        alb.ingress.kubernetes.io/certificate-arn: 'arn:aws:acm:us-west-2:887755037386:certificate/3c3957ae-4feb-40c8-a454-292bb292ff3b'
+        alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
       hostname: gp4btc-backend-proxy-stg.energyweb.org
       pathType: Prefix
       path: /
-      tls: false # This is managed by Cloudflare
+      tls: false # This is managed by ACM
 
     livenessProbe:
       enabled: false
