@@ -1,4 +1,4 @@
-name: Build and deploy
+name: Build images and deploy
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
             echo "::set-output name=argocd_password::${{ secrets.DEV_ARGOCD_PASS }}"
             echo "::set-output name=argocd_app_name::"did-auth-proxy"
             echo "::set-output name=argocd_tag::"did-auth-proxy-helm.image.tag"
-          elif [ "${{ github.ref }}" = "refs/heads/gp4btc-stg" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/gp4btc-stg" ]; then
             echo "::set-output name=aws_access_key_id::${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}"
             echo "::set-output name=aws_secret_key::${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}"
             echo "::set-output name=aws_region::${{ secrets.STAGING_AWS_REGION }}"
@@ -51,7 +51,7 @@ jobs:
             echo "::set-output name=argocd_username::${{ secrets.STAGING_ARGOCD_USERNAME }}"
             echo "::set-output name=argocd_password::${{ secrets.STAGING_ARGOCD_PASS }}"
             echo "::set-output name=argocd_tag::"image.tag"
-          elif [ "${{ github.ref }}" = "refs/heads/gp4btc-release" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/gp4btc-release" ]; then
             echo "::set-output name=aws_access_key_id::${{ secrets.PROD_AWS_ACCESS_KEY_ID }}"
             echo "::set-output name=aws_secret_key::${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}"
             echo "::set-output name=aws_region::${{ secrets.PROD_AWS_REGION }}"
