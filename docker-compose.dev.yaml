@@ -13,6 +13,8 @@ services:
       dev-backend:
     volumes:
       - ./nginx/nginx.dev.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   backend:
     restart: unless-stopped

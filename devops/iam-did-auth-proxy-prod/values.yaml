@@ -66,6 +66,7 @@ did-auth-proxy-helm:
     SIWE_NONCE_TTL: 300
     AUTH_COOKIE_ENABLED: true
     AUTH_COOKIE_SAMESITE_POLICY: none
+    AUTH_HEADER_ENABLED: false
 
   opsValues:
     RPC_URL: https://rpc.energyweb.org/
