@@ -1,11 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class LogoutDto {
-  @ApiProperty({})
+  @ApiPropertyOptional({})
   @IsString()
   @IsNotEmpty()
-  refreshToken: string;
+  @IsOptional()
+  refreshToken?: string;
 
   @ApiProperty({ example: false })
   @IsBoolean()
