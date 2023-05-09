@@ -751,12 +751,17 @@ describe('AuthController', () => {
           },
         );
 
+        const request = createRequest({
+          user: refreshToken,
+        });
+
         await controller.logout(
           {
             refreshToken,
             allDevices: false,
           },
           expResponse,
+          request,
         );
 
         responseCookies = expResponse.cookies;
@@ -800,6 +805,7 @@ describe('AuthController', () => {
 
       beforeEach(async function () {
         const expResponse = createResponse();
+        const request = createRequest();
         mockAuthService.validateRefreshToken.mockImplementation(() => false);
 
         refreshToken = 'invalid';
@@ -811,6 +817,7 @@ describe('AuthController', () => {
               allDevices: false,
             },
             expResponse,
+            request,
           );
         } catch (err) {
           exceptionThrown = err;

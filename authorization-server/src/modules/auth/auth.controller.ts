@@ -164,8 +164,9 @@ export class AuthController {
   async logout(
     @Body() body: LogoutDto,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ): Promise<void> {
-    const tokenDecoded = decodeJWT(body.refreshToken) as IRefreshTokenPayload;
+    const tokenDecoded = decodeJWT(req.user as string) as IRefreshTokenPayload;
 
     await this.authService.logout({
       did: tokenDecoded.did,
