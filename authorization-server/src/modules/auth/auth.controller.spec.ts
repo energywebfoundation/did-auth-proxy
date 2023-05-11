@@ -46,7 +46,7 @@ describe('AuthController', () => {
   const authCookieSettingsBase = {
     secure: true,
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'lax',
   } as CookieOptions;
 
   const mockAuthService = {
@@ -784,6 +784,7 @@ describe('AuthController', () => {
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
         expect(cookie.options.expires).toEqual(new Date(1));
+        expect(cookie.options.sameSite).toBe(authCookieSettingsBase.sameSite);
       });
 
       it('should unset refresh token cookie', async function () {
@@ -795,6 +796,7 @@ describe('AuthController', () => {
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
         expect(cookie.options.expires).toEqual(new Date(1));
+        expect(cookie.options.sameSite).toBe(authCookieSettingsBase.sameSite);
       });
     });
 

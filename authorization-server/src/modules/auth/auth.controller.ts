@@ -267,10 +267,14 @@ export class AuthController {
   }
 
   private unsetAuthCookies(res: Response) {
+    const { sameSite } = this.authService.getAuthCookiesOptions();
+
     [
       this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
       this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
-    ].forEach((cookieName: string) => res.clearCookie(cookieName));
+    ].forEach((cookieName: string) =>
+      res.clearCookie(cookieName, { sameSite }),
+    );
   }
 }
 
