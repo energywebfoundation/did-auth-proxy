@@ -46,7 +46,7 @@ describe('AuthController', () => {
   const authCookieSettingsBase = {
     secure: true,
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'lax',
   } as CookieOptions;
 
   const mockAuthService = {
@@ -751,12 +751,17 @@ describe('AuthController', () => {
           },
         );
 
+        const request = createRequest({
+          user: refreshToken,
+        });
+
         await controller.logout(
           {
             refreshToken,
             allDevices: false,
           },
           expResponse,
+          request,
         );
 
         responseCookies = expResponse.cookies;
@@ -779,6 +784,8 @@ describe('AuthController', () => {
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
         expect(cookie.options.expires).toEqual(new Date(1));
+        expect(cookie.options.sameSite).toBe(authCookieSettingsBase.sameSite);
+        expect(cookie.options.secure).toBe(authCookieSettingsBase.secure);
       });
 
       it('should unset refresh token cookie', async function () {
@@ -790,6 +797,8 @@ describe('AuthController', () => {
         expect(cookie).toBeDefined();
         expect(cookie.value).toBe('');
         expect(cookie.options.expires).toEqual(new Date(1));
+        expect(cookie.options.sameSite).toBe(authCookieSettingsBase.sameSite);
+        expect(cookie.options.secure).toBe(authCookieSettingsBase.secure);
       });
     });
 
@@ -800,6 +809,7 @@ describe('AuthController', () => {
 
       beforeEach(async function () {
         const expResponse = createResponse();
+        const request = createRequest();
         mockAuthService.validateRefreshToken.mockImplementation(() => false);
 
         refreshToken = 'invalid';
@@ -811,6 +821,7 @@ describe('AuthController', () => {
               allDevices: false,
             },
             expResponse,
+            request,
           );
         } catch (err) {
           exceptionThrown = err;
