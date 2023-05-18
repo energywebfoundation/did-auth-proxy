@@ -264,6 +264,7 @@ did-auth-proxy-helm:
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
         external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
+        alb.ingress.kubernetes.io/ssl-policy: 'ELBSecurityPolicy-TLS-1-2-2017-01'
         alb.ingress.kubernetes.io/certificate-arn: 'arn:aws:acm:us-west-2:984870885661:certificate/3d6211f2-ec40-4a44-9948-49b77b22f50c'
         alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
       hostname: gp4btc-backend-proxy.energyweb.org
