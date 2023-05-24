@@ -127,7 +127,7 @@ did-auth-proxy-helm:
     serverBlock: |-
       map $http_origin $allow_origin {
         default "";
-        "~^(http://localhost:4200|http://localhost:4201|https://gp4btc-miner-dev.energyweb.org|https://gp4btc-explorer-dev.energyweb.org)$" "$http_origin";
+        "~^(http://localhost:4200|http://localhost:4201|https://gp4btc-miner-dev\.energyweb\.org|https://gp4btc-explorer-dev\.energyweb\.org)$" "$http_origin";
       }
         
       map $request_method $cors_method {
