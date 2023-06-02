@@ -164,6 +164,8 @@ did-auth-proxy-helm:
         listen 0.0.0.0:8080;
         server_name gp4btc-backend-proxy.energyweb.org;
 
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
         location /auth {
             proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
         }
@@ -206,6 +208,8 @@ did-auth-proxy-helm:
             set $initial_content_type $sent_http_content_type;
             add_header Content-Type ""  always;
             add_header Content-Type $cors_content_type  always;
+
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     
             if ($request_method = 'OPTIONS') {
               return 204;
@@ -236,6 +240,8 @@ did-auth-proxy-helm:
             set $initial_content_type $sent_http_content_type;
             add_header Content-Type ""  always;
             add_header Content-Type $cors_content_type  always;
+
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     
             if ($request_method = 'OPTIONS') {
             # this is necessary because preflight requests do not contain auth headers
