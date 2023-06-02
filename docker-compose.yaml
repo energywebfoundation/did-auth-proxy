@@ -36,6 +36,7 @@ services:
       - PORT=80
       - RPC_URL=https://volta-rpc.energyweb.org/
       - CACHE_SERVER_URL=https://identitycache-dev.energyweb.org/v1
+      - SELF_BASE_URL=http://127.0.0.1:3000
       - CACHE_SERVER_LOGIN_PRVKEY=eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c
       - DID_REGISTRY_ADDRESS=0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
       - ENS_REGISTRY_ADDRESS=0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
@@ -53,10 +54,12 @@ services:
       - INCLUDE_ALL_ROLES=true
       - JWT_ACCESS_TTL=3600
       - JWT_REFRESH_TTL=86400
+      - BLOCKNUM_AUTH_ENABLED=true
       - AUTH_COOKIE_NAME_ACCESS_TOKEN=token
       - AUTH_COOKIE_NAME_REFRESH_TOKEN=refreshToken
       - AUTH_COOKIE_ENABLED=false
       - AUTH_COOKIE_SECURE=true
+      - SIWE_NONCE_TTL=120
     networks:
       backend:
 
