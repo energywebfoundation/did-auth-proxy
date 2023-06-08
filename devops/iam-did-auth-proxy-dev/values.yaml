@@ -27,10 +27,12 @@ did-auth-proxy-helm:
 
   podAnnotations: {}
 
-  podSecurityContext: {}
+  podSecurityContext:
+    {}
     # fsGroup: 2000
 
-  securityContext: {}
+  securityContext:
+    {}
     # capabilities:
     #   drop:
     #   - ALL
@@ -81,7 +83,8 @@ did-auth-proxy-helm:
     IPFS_PROTOCOL: https
     IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
 
-  resources: {}
+  resources:
+    {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -111,14 +114,14 @@ did-auth-proxy-helm:
     annotations: {}
     encryptedData:
       IPFS_PROJECTSECRET: AgAIpovKHlyFYxOT6Nk4d+T6m9zKF95ZdUgQPx/fsWZw1aAQJDXzDL9CZBI++zZ4pXnra4L4EftL8hyJwKPqSSVp9IjB+IcOb2wC3EaE4IEiMl2HGbzpqKtrmMoik4NkPbC1N7pwowuO43tttE2eUZblz85+3g+ccCTz/GouzGY/ryBKpVADGEafrrbtv6X41NsGYpe+Pzu6fApjIP9gJzkdwW8nIo8l5sUqfSZHkIKlGvJuuIp29l5IKeQyQemvHk0pD4/MAOmzYoe8my6ZO/6c9l4SBnbtG7BqrIqhKlRN4hw3RINVC6bt6dkSuznlZRos24pAKOufPoRcZvdIUti2a5KheXLCVxO0l99sBOlW674mT2Qim+jdORNxAJbt3pUhy/xHwWxxBWn++J7WAgvOYpihSd/bKsKm2JcMlvHKvjFY2hGzjPlrAP38BiJKgC4SMIA3DAouylt/6y8U9Fwd2d4GnPCsKPewBvqSCdxMgT331tfV/BeTaHV70WcE02k8qX1xOrFHkmiaSQo1kimh9KCe/p9gB1EuGeN8Z3bbUbcAd8n4P4Ry0pIUaaF/VNqi4eM3+Kpgx8aS5fa8o9iKyYVKMPNTzIKEPYp63u+TQmOUX1Kj8M/67ZqItB0XiHyocVFcTdDfITrGPjilxwyxZJrrNWWIiqUFCfSJhZelBnQ+qrGrHOUNdmq29uHYKf2w5MoXwGXmeSLNbiur9QghKtl3QJPDQFTTn2Ulv/aThQ==
-      
+
   ########
   # Redis
   redis:
     architecture: standalone
     auth:
       password: redis
-      
+
   ########
   # nginx
   nginx:
@@ -159,12 +162,12 @@ did-auth-proxy-helm:
         default $initial_content_type;
         "preflight" "text/plain charset=UTF-8";
       }
-      
+
       server {
         listen 0.0.0.0:8080;
         server_name gp4btc-backend-proxy-dev.energyweb.org;
 
-        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Strict-Transport-Security "max-age=31536000;" always;
 
         location /auth {
             proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
@@ -185,32 +188,32 @@ did-auth-proxy-helm:
         location / {
             auth_request /token_introspection;
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
-      
+
             proxy_hide_header Access-Control-Allow-Origin;
             add_header Access-Control-Allow-Origin $allow_origin  always;
-    
+
             proxy_hide_header Access-Control-Allow-Credentials;
             add_header Access-Control-Allow-Credentials 'true'  always;
-    
+
             proxy_hide_header Access-Control-Max-Age;
             add_header Access-Control-Max-Age $cors_max_age  always;
-    
+
             proxy_hide_header Access-Control-Allow-Methods;
             add_header Access-Control-Allow-Methods $cors_allow_methods  always;
-    
+
             proxy_hide_header Access-Control-Allow-Headers;
             add_header Access-Control-Allow-Headers $cors_allow_headers  always;
-    
+
             set $initial_content_length $sent_http_content_length;
             add_header 'Content-Length' ""  always;
             add_header 'Content-Length' $cors_content_length  always;
-    
+
             set $initial_content_type $sent_http_content_type;
             add_header Content-Type ""  always;
             add_header Content-Type $cors_content_type  always;
 
-            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
+            add_header Strict-Transport-Security "max-age=31536000;" always;
+
             if ($request_method = 'OPTIONS') {
               return 204;
             }
@@ -220,29 +223,29 @@ did-auth-proxy-helm:
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
             proxy_hide_header Access-Control-Allow-Origin;
             add_header Access-Control-Allow-Origin $allow_origin  always;
-    
+
             proxy_hide_header Access-Control-Allow-Credentials;
             add_header Access-Control-Allow-Credentials 'true'  always;
-    
+
             proxy_hide_header Access-Control-Max-Age;
             add_header Access-Control-Max-Age $cors_max_age  always;
-    
+
             proxy_hide_header Access-Control-Allow-Methods;
             add_header Access-Control-Allow-Methods $cors_allow_methods  always;
-    
+
             proxy_hide_header Access-Control-Allow-Headers;
             add_header Access-Control-Allow-Headers $cors_allow_headers  always;
-    
+
             set $initial_content_length $sent_http_content_length;
             add_header 'Content-Length' ""  always;
             add_header 'Content-Length' $cors_content_length  always;
-    
+
             set $initial_content_type $sent_http_content_type;
             add_header Content-Type ""  always;
             add_header Content-Type $cors_content_type  always;
 
-            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    
+            add_header Strict-Transport-Security "max-age=31536000;" always;
+
             if ($request_method = 'OPTIONS') {
             # this is necessary because preflight requests do not contain auth headers
               return 204;
@@ -264,7 +267,7 @@ did-auth-proxy-helm:
 
     ingress:
       enabled: true
-      annotations: 
+      annotations:
         kubernetes.io/ingress.class: nginx
         nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
         nginx.ingress.kubernetes.io/proxy-body-size: 50m
