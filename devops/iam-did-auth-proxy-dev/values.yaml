@@ -81,7 +81,7 @@ did-auth-proxy-helm:
     IPFS_HOST: ipfs.infura.io
     IPFS_PORT: 5001
     IPFS_PROTOCOL: https
-    IPFS_PROJECTID: 2MdfPOCDrxelBHhNLArgfuG7pmB
+    IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
 
   resources:
     {}
