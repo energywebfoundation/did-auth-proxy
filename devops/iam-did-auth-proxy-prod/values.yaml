@@ -56,7 +56,7 @@ did-auth-proxy-helm:
     PORT: 80
     CORS_MAX_AGE: 60
     CORS_ORIGIN: https://gp4btc-miner.energyweb.org,https://explorer.gp4btc.org,https://miner.gp4btc.org
-    JWT_ACCESS_TTL: 3600
+    JWT_ACCESS_TTL: 900
     JWT_REFRESH_TTL: 86400
     DID_REGISTRY_ADDRESS: 0xE29672f34e92b56C9169f9D485fFc8b9A136BCE4
     ENS_REGISTRY_ADDRESS: 0x0A6d64413c07E10E890220BBE1c49170080C6Ca0
