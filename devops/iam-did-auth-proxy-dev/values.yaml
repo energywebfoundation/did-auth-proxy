@@ -65,7 +65,7 @@ did-auth-proxy-helm:
     ENS_RESOLVER_ADDRESS: 0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
     INCLUDE_ALL_ROLES: false
     SWAGGER_PATH: api-auth
-    BLOCKNUM_AUTH_ENABLED: true
+    BLOCKNUM_AUTH_ENABLED: false
     SELF_BASE_URL: https://gp4btc-backend-proxy-dev.energyweb.org
     SIWE_NONCE_TTL: 300
     AUTH_COOKIE_ENABLED: true
