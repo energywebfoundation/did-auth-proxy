@@ -27,10 +27,12 @@ did-auth-proxy-helm:
 
   podAnnotations: {}
 
-  podSecurityContext: {}
+  podSecurityContext:
+    {}
     # fsGroup: 2000
 
-  securityContext: {}
+  securityContext:
+    {}
     # capabilities:
     #   drop:
     #   - ALL
@@ -54,7 +56,7 @@ did-auth-proxy-helm:
     PORT: 80
     CORS_MAX_AGE: 60
     CORS_ORIGIN: https://gp4btc-miner.energyweb.org,https://explorer.gp4btc.org,https://miner.gp4btc.org
-    JWT_ACCESS_TTL: 3600
+    JWT_ACCESS_TTL: 900
     JWT_REFRESH_TTL: 86400
     DID_REGISTRY_ADDRESS: 0xE29672f34e92b56C9169f9D485fFc8b9A136BCE4
     ENS_REGISTRY_ADDRESS: 0x0A6d64413c07E10E890220BBE1c49170080C6Ca0
@@ -79,7 +81,8 @@ did-auth-proxy-helm:
     IPFS_PROTOCOL: https
     IPFS_PROJECTID: 2MdfPOCDrxelBHhNLArgfuG7pmB
 
-  resources: {}
+  resources:
+    {}
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -111,14 +114,14 @@ did-auth-proxy-helm:
       IPFS_PROJECTSECRET: AgCjYhRFNMPlVlMB09bEhWERAYbB+og2YBpw5WnQgZjnjJzDc7qx3OsvRB6HVYKOh8O55x0k/0LZs9OWmx5msUU64cO9YLpxqn4pBsKYppKTPErl+pidQYSob71cOCCP+rizkMNufk3ypLic0C9UITPlZ+H+RkzufIZZzmHlZMYqO6q4lL+FMyCQVpg5lWOBF2tXLaDipTyJNj1yANXVM6dH33ashry76eWTRfNJopbBB6aSYsmTmRdSlIbdQP1itQlaO65SgWaNvCk5Nup9lhegy9QTe77lLIggZ7zOYiphXpbGs3HLcLLOAwrVOtNQfeUg8y1utmKT1RTdbCZe53TyQwfdXBIRIK5SuKyMGEnSLf+jKdUzuddxJR1IKMy1qbvHNH5TwTYWNDR37MJrDqF4hUsTTmtbkA5umlZPrlFxRe6fspDnyIIj8Y5s8riLsb0zzFyyHftKtr9fQbQmjRR6BHuwQfp6Frx47xosU8dPJQm4pqlHrEYO/qUkeJQnZh1aY5D/oQIWYKKvJQJvjkb5hoogfpU/x3N3IECIKwKhOASs7dKG/FhdjsEMxhRkVuZuHvyfPxAkpmOrqIDK3paKMTmbK/6Zr0MWczakZdnLCTV0vQTudMDX9DfZCviuC+cvuCfRYOz11eSwN+BXh2zW5R/WwuHxuYhNkbnMD+5ovSYWf9cVIlq5IQDPMhdZGiRcNYn1Pc6+bWYreIl20G3UVKA2JLLemTpGwM+UyoSDDw==
       CACHE_SERVER_LOGIN_PRVKEY: AgCh6W9WvJimDFEWgl9ii4Fn6FXcGKIze/HnO4XvmQ0Ovxv/CUYusju08yYFINHsv5DJxj1nBnpdvJu3uPwHAwYn3ve3oAJxD34/IG6ks39gdhO2mHaLzpgLfuCZPHq5nDCpov2/DtFukacMs/fqMEXYJRsblJs0U7QCDry/YVYQCi+RieFTj8D73xYBJ9XqZwCJjnylPyoQAH5DchvwqPrBzZxWa6AwIK/d5W62QAzZ5iesZNcVpaP5VM/XXwimiD8eFKo75uILJyA+im4xLp/LPOlxTag7zLkVbsaQ31JDJqpdDePiZWUvskSYsr0DZ3OsMXhajxJPOUpU8dz+dewooz3Z0uz561doUIBvi5BrGS9l32P+fZwnFC3/auNQZqpY+qyBEqk72uh9iIisLycCuKUf58pUoaBkyKsx+8g24k5XMUETGZy23TmiQW7AcxtrFb3S07gkPCnQlOkTfixbIhQvyAn/Eaxcg1V1ZQupZ3ek1e84kN3mMHTJQYVz+ZowxRT2KMyocHnpZyl7Ri+7whaG1N9xZtPvSYIVqFkZB9GL4Pv30qoAfgfm0W7e3KJtNioZ3HPgrIghk7Q8CzRlYROCrlBguCXEVqMl4pXnfoZ1qjdVjgLHBn4gsogAEBX9WADJRvlNQF+26Bh1TfkYvZ3+bPsjQ0BdzJW5Xg3gQAvW4Pa0w5aVtkutlqlJDcrmd1iC5GZJJnmzvJG/Ewc5tYWwYoXo+RI5mD50PIAi84Fs9F2CqiQA+uDmcAn92tbPon6tCxzF0Bd5NL6YBpNd
       JWT_SECRET: AgA6fDgDth1+lwTneErerCyOYXQJe5vlCGqYQ6p7/6HGnWfRgVZI5pR130Wq2FqY0xVpF+cbtVFXiC9qnemlpSqtG4J2VyBkpJJtdbW1a3BgW++faVuMoskx6D5b8QifoVlH7JfzzKZdduCVnY9fZcK9mVu0w1WtXBez93YxxnQMDihRv5Bt4Woad9mfSkASovqxh/o0lYXivZARENpxR1hkhh9Q10Nz5UgpAVQsehTiBP5sI3SKk+HA+gS+L4T9FzZJUQD9UiyKlKWOwr700GyXipq5kD0gvGqqt3qvWmzSpvgZiD+LZ2Ro3EvoDuRTx3zMm+tLWgXmPnL+YjhEOzU8+k06dtnNMX0h9HPPst2IDayLrT+TCzqqBtXo6nJbQJWG2+3/nqXsNnvHiudzcLWLBFQvajjslXsAEQ+L2MZKa3WMvYxzacG0LoFLWTpcEl+0k5r6OZNamCzi6omRr9veX139X1tULBBiNG0OTDgHJYuAh4fzZqAxNT6b0w1oGvE+CdeYFC62eX3dvUhxiR+bLNJrY6lh6bv7/VvqW45jJRPGwEHsNWrj8CNgtTohfgMsjEeNw47xjuuZJ8RSeyGJziaGVkQ9MrTG8/0PKMtLXZ95G4y6nCfv2z6oRPwE34E2oVQ37Q2QmawiFx0apjQTcriWtMgpTl3b75hLpaIaicsjYpW19ozmHIE2tVQ2gPbGhr/qU84tQU60xQxRzmSqk6IAUkyIPDM22p9s/Ut1npPIsCE=
-      
+
   ########
   # Redis
   redis:
     architecture: standalone
     auth:
       password: redis
-      
+
   ########
   # nginx
   nginx:
@@ -159,10 +162,12 @@ did-auth-proxy-helm:
         default $initial_content_type;
         "preflight" "text/plain charset=UTF-8";
       }
-      
+
       server {
         listen 0.0.0.0:8080;
         server_name gp4btc-backend-proxy.energyweb.org;
+
+        add_header Strict-Transport-Security "max-age=31536000;" always;
 
         location /auth {
             proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
@@ -183,30 +188,32 @@ did-auth-proxy-helm:
         location / {
             auth_request /token_introspection;
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
-      
+
             proxy_hide_header Access-Control-Allow-Origin;
             add_header Access-Control-Allow-Origin $allow_origin  always;
-    
+
             proxy_hide_header Access-Control-Allow-Credentials;
             add_header Access-Control-Allow-Credentials 'true'  always;
-    
+
             proxy_hide_header Access-Control-Max-Age;
             add_header Access-Control-Max-Age $cors_max_age  always;
-    
+
             proxy_hide_header Access-Control-Allow-Methods;
             add_header Access-Control-Allow-Methods $cors_allow_methods  always;
-    
+
             proxy_hide_header Access-Control-Allow-Headers;
             add_header Access-Control-Allow-Headers $cors_allow_headers  always;
-    
+
             set $initial_content_length $sent_http_content_length;
             add_header 'Content-Length' ""  always;
             add_header 'Content-Length' $cors_content_length  always;
-    
+
             set $initial_content_type $sent_http_content_type;
             add_header Content-Type ""  always;
             add_header Content-Type $cors_content_type  always;
-    
+
+            add_header Strict-Transport-Security "max-age=31536000;" always;
+
             if ($request_method = 'OPTIONS') {
               return 204;
             }
@@ -216,27 +223,29 @@ did-auth-proxy-helm:
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
             proxy_hide_header Access-Control-Allow-Origin;
             add_header Access-Control-Allow-Origin $allow_origin  always;
-    
+
             proxy_hide_header Access-Control-Allow-Credentials;
             add_header Access-Control-Allow-Credentials 'true'  always;
-    
+
             proxy_hide_header Access-Control-Max-Age;
             add_header Access-Control-Max-Age $cors_max_age  always;
-    
+
             proxy_hide_header Access-Control-Allow-Methods;
             add_header Access-Control-Allow-Methods $cors_allow_methods  always;
-    
+
             proxy_hide_header Access-Control-Allow-Headers;
             add_header Access-Control-Allow-Headers $cors_allow_headers  always;
-    
+
             set $initial_content_length $sent_http_content_length;
             add_header 'Content-Length' ""  always;
             add_header 'Content-Length' $cors_content_length  always;
-    
+
             set $initial_content_type $sent_http_content_type;
             add_header Content-Type ""  always;
             add_header Content-Type $cors_content_type  always;
-    
+
+            add_header Strict-Transport-Security "max-age=31536000;" always;
+
             if ($request_method = 'OPTIONS') {
             # this is necessary because preflight requests do not contain auth headers
               return 204;
@@ -258,14 +267,14 @@ did-auth-proxy-helm:
 
     ingress:
       enabled: true
-      annotations: 
+      annotations:
         kubernetes.io/ingress.class: alb
         alb.ingress.kubernetes.io/target-type: ip
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-        external-dns.alpha.kubernetes.io/cloudflare-proxied: 'true'
-        alb.ingress.kubernetes.io/ssl-policy: 'ELBSecurityPolicy-TLS-1-2-2017-01'
-        alb.ingress.kubernetes.io/certificate-arn: 'arn:aws:acm:us-west-2:984870885661:certificate/3d6211f2-ec40-4a44-9948-49b77b22f50c'
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+        alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+        alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-west-2:984870885661:certificate/3d6211f2-ec40-4a44-9948-49b77b22f50c"
         alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
       hostname: gp4btc-backend-proxy.energyweb.org
       pathType: Prefix
