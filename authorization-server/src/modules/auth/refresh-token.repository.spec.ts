@@ -5,7 +5,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
 import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
-import { v4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
 describe('RefreshTokenRepository', () => {
@@ -66,7 +66,7 @@ describe('RefreshTokenRepository', () => {
       let token: string;
 
       beforeEach(async function () {
-        token = jwtService.sign({ id: v4(), ...payload });
+        token = jwtService.sign({ id: randomUUID(), ...payload });
 
         spy = jest.spyOn(mockRedisService, 'set');
 
@@ -93,7 +93,10 @@ describe('RefreshTokenRepository', () => {
       let exceptionThrown: Error;
 
       beforeEach(async function () {
-        token = jwtService.sign({ id: v4(), ...payload }, { expiresIn: 0 });
+        token = jwtService.sign(
+          { id: randomUUID(), ...payload },
+          { expiresIn: 0 },
+        );
 
         spy = jest.spyOn(mockRedisService, 'set');
 
@@ -125,7 +128,7 @@ describe('RefreshTokenRepository', () => {
       let exceptionThrown: Error;
 
       beforeEach(async function () {
-        token = sign({ id: v4(), ...payload }, 'invalid');
+        token = sign({ id: randomUUID(), ...payload }, 'invalid');
 
         spy = jest.spyOn(mockRedisService, 'set');
 

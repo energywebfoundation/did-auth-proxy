@@ -1,0 +1,298 @@
+# Default values for did-auth-proxy-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+did-auth-proxy-helm:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: 887755037386.dkr.ecr.us-west-2.amazonaws.com/did-auth-proxy
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  imagePullSecrets: []
+
+  nameOverride: "did-auth-proxy-helm"
+  fullnameOverride: "did-auth-proxy-helm"
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext:
+    {}
+    # fsGroup: 2000
+
+  securityContext:
+    {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 80
+
+  ingress:
+    enabled: false
+
+  config:
+    enabled: false
+    secretRefName: {}
+    configRefName: {}
+
+  appValues:
+    PORT: 80
+    CORS_MAX_AGE: 60
+    CORS_ORIGIN: https://gp4btc-miner-stg.energyweb.org,https://gp4btc-explorer-stg.energyweb.org,http://localhost:4200
+    JWT_ACCESS_TTL: 900
+    JWT_REFRESH_TTL: 86400
+    DID_REGISTRY_ADDRESS: 0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
+    ENS_REGISTRY_ADDRESS: 0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
+    ENS_RESOLVER_ADDRESS: 0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
+    INCLUDE_ALL_ROLES: false
+    SWAGGER_PATH: api-auth
+    BLOCKNUM_AUTH_ENABLED: false
+    SELF_BASE_URL: https://gp4btc-backend-proxy-stg.energyweb.org
+    SIWE_NONCE_TTL: 300
+    AUTH_COOKIE_ENABLED: true
+    AUTH_COOKIE_SAMESITE_POLICY: none
+    AUTH_HEADER_ENABLED: false
+
+  opsValues:
+    RPC_URL: https://volta-rpc.energyweb.org/
+    CACHE_SERVER_URL: https://identitycache-gp4btc-staging.energyweb.org/v1
+    REDIS_HOST: iam-did-auth-proxy-redis-master.iam-did-auth-proxy.svc.cluster.local
+    REDIS_PORT: 6379
+    REDIS_PASSWORD: redis
+    IPFS_HOST: ipfs.infura.io
+    IPFS_PORT: 5001
+    IPFS_PROTOCOL: https
+    IPFS_PROJECTID: 2MdfHcPJmw6mxgU51to2daMbGpZ
+
+  resources:
+    {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  sealedSecret:
+    enabled: true
+    annotations: {}
+    encryptedData:
+      IPFS_PROJECTSECRET: AgCFIyPjZum8v9hSfy3XgLstewzBJR2kakaVO98E98piEPizW52Px2VtOw71IJEk6ESFLu0Cei4l1X4vEMsDwD6l3yQp7AkKyi11W30AV3i7xkKX5iIeCu8CcF58ZKu5/y3qoueceEA/9iLydJ08EumqN2EhHTcumnixPF1qFREwFzGOV4jHOdeNmN2dP692RSivipdPO/cg/bH6y8V6vMFyjvxAKgEjyJjfYQjG2IWcFHXXsh+PZ+h2k4TRCbN6aU1DsM7DBuskOgX+woTV9UyvC+f61ITmIZ4zghDmJxtPaTWxk/AtI85LkN/ddGIVmzlxnf6P27J0cTZvWH3GDm/BNhokn6TulwVsG1V7QBiG68oBtZveEoU0RDjQEG/iTPjmYw1AAASM73fq1kf9FfQc196yHCDNKAzfKlAzi8FjVJECX22EsRyhf+dBNUdOUNd3YND/LKZNwpeuUmIIqeVgTqpI6kusmNPC8KIU8LVJc78mMLlcuLGfVyfl5g3OZp0HFOhPH3eOp851yOva0h8hFWxglFsM+PUFeQj4XwY6H54Jz8gcm1XOrWik9iTRaR6AH6m76bteQDYxffbsvBAwV3b/V2EK8YAKOvScRG4Mfpiie2dmk1CA2YNiDYFdrJNO7sMeSb/dBWNEzjxCK1hFpN1qHxeKFcAcu9e6xe0pQBCkH6SGlxVadU+GhFsQorsSS5Jv0aNX2wxqpX445CidrKijD6ilkE7IrzLzIU1qVA==
+      JWT_SECRET: AgBI/N7EzQniZeahYVDOLEFxviuL4zxgXlIZB/jZ/DU9DemNHFAQYAd4VG7dqHVTr9Rw0aPzKfJMqgYGwwWT1gq/z+GKygRYbpqxd7FzSmQo0MpvoKiIjvZFA5OauHpUSpIlsghDw52SI1JoqOx+onAz6IEzwM0WVSHQXGUwLMw/Vi+lVZN9iiRfhG+4CBO0fuhQldz1GxgdbDGhAa3JcHRcmzvHAEQCST7NhcYUUzeaH5LwSzDSrw8f0vUuKJzjF6as24l7ui+l17mzyleoT6TKgD2/C5gLJg1nM09tf9koftSyjbkPsNKdaSQmjQYYZOSTw4RlnOkLKXxLfAodBtrn3S/CK7dFWMTyqZgVlVqmp/zGd/5djR5+Faq1NRcOR+2nqY9YXexl/YFCxDVqfC/5PkD6VhDm7RR4mTHCjKagqEJMBuUI53Wz3XQMrX0/NnyWVPnqM4ELwpkB0kZ6miPWVIStHwLETz59kSrXOU9rwG47dTpWs9FtLKq9hCHG5gHhyOZRsmkpAyvtHgBNYkNKOrCE2CLCtpDw5Y4dWFJYz6PODJd+GjzZX0a0CqhyCHu6XXumxbCWhr85wFBA7TbRf0vQ7nb28AmTIqZwil19OFxtLH7JWPFYIFvVtg1vNLCftk27225hAFzRsmb3TNlKziw0xCD4aw5H/R6wer5B0ZLkOQ7GsbzaPsiy5tRbZMfeVS167cud/wCpRAZoqXWHNYEQ+9JAWGuL22rIU5jIpclfznc=
+      CACHE_SERVER_LOGIN_PRVKEY: AgB4Aq2S7ZOJEOFwXHROeqbVEKODovVLXKAoHU4Mf1pgcGwANHzeX+1mD/rwB37fQ3/sHVSmjbGD9BfbCgpoWLl2Ad/QYdeqHpKoJL6rV+N+0gu6axmkVXkQ1SXgwTzg3JVzovUchSOJVLcWO8RO0P2wtZcnKJ+7KJwXmODO17yxdwCd93iscY+8Ez67zZ576mHDy9chdLDlq8we5bjUWFxKU21pg6SA91vClW7wFSMCRNKcYUmkFa9WksoxLMFJ5E56eZzhlYNLPW8zozy4mHvGN3x10qNGdS62+NA31JheW57NQcVvSu8m19MMIokAeF3WUmWmUlgEhxwfCwT7KbdtYiVsRgjmVnisDgQxxcUBkdAICkfM+0p+6YoNmhu+BQYt3VO4CHvCwKybMaEf5axXjdipNQkRQTSwp4nRw9DskX4XUe2Wfjuf+aTYYxT3n5i5gMbdZeqfbqYPH+oyTXMjiRQFVP7oGiNybkgYUItE7fRzi0+tHMjkoUwg98D1pr6maLiZ7xDenHh4rrvADHGnYPcki8jhqdyXQRyYnW+K7yKMwOBrvMjV/aeqKu2xyXl2NQHPsh82YyCsMbcIBVaPlAkZ5J4dp4jCmDLpfXvz07uNA+ziJpsJiSXoJLiw+NAvh7YJdC6YcZXnA7HOes8T+vI6h8npKXYs+xzmQpHIkkRvRBDTypHtnRZCsUPooqP5ahYda3qXIUgYzl4oVLYLOb+esRfIIeMhQ25qu1SJfwFOcDpN5eZBPl/KWMOVuQ20mR7vgaIbjkgYKrPHBHiK
+
+  ########
+  # Redis
+  redis:
+    architecture: standalone
+    auth:
+      password: redis
+
+  ########
+  # nginx
+  nginx:
+    fullnameOverride: "did-auth-proxy-helm-server-block"
+
+    serverBlock: |-
+      map $http_origin $allow_origin {
+        default "";
+        "~^(http://localhost:4200|http://localhost:4201|https://gp4btc-miner-stg\.energyweb\.org|https://gp4btc-explorer-stg\.energyweb\.org)$" "$http_origin";
+      }
+        
+      map $request_method $cors_method {
+        default "allowed";
+        "OPTIONS" "preflight";
+      }
+        
+      map $cors_method $cors_max_age {
+        default "";
+        "preflight" 1;
+      }
+        
+      map $cors_method $cors_allow_methods {
+        default "";
+        "preflight" "GET, POST, OPTIONS";
+      }
+        
+      map $cors_method $cors_allow_headers {
+        default "";
+        "preflight" "Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,Keep-Alive,X-Requested-With,If-Modified-Since";
+      }
+        
+      map $cors_method $cors_content_length {
+        default $initial_content_length;
+        "preflight" 0;
+      }
+        
+      map $cors_method $cors_content_type {
+        default $initial_content_type;
+        "preflight" "text/plain charset=UTF-8";
+      }
+
+      server {
+        listen 0.0.0.0:8080;
+        server_name gp4btc-backend-proxy-stg.energyweb.org;
+
+        add_header Strict-Transport-Security "max-age=31536000;" always;
+
+        location /auth {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
+        }
+
+        location /api-auth {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local;
+        }
+
+        location /auth/healthcheck {
+            proxy_pass http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/healthcheck;
+        }
+
+        location /api {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+        }
+
+        location / {
+            auth_request /token_introspection;
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+
+            proxy_hide_header Access-Control-Allow-Origin;
+            add_header Access-Control-Allow-Origin $allow_origin  always;
+
+            proxy_hide_header Access-Control-Allow-Credentials;
+            add_header Access-Control-Allow-Credentials 'true'  always;
+
+            proxy_hide_header Access-Control-Max-Age;
+            add_header Access-Control-Max-Age $cors_max_age  always;
+
+            proxy_hide_header Access-Control-Allow-Methods;
+            add_header Access-Control-Allow-Methods $cors_allow_methods  always;
+
+            proxy_hide_header Access-Control-Allow-Headers;
+            add_header Access-Control-Allow-Headers $cors_allow_headers  always;
+
+            set $initial_content_length $sent_http_content_length;
+            add_header 'Content-Length' ""  always;
+            add_header 'Content-Length' $cors_content_length  always;
+
+            set $initial_content_type $sent_http_content_type;
+            add_header Content-Type ""  always;
+            add_header Content-Type $cors_content_type  always;
+
+            add_header Strict-Transport-Security "max-age=31536000;" always;
+
+            if ($request_method = 'OPTIONS') {
+              return 204;
+            }
+        }
+
+        location /explorer {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
+            proxy_hide_header Access-Control-Allow-Origin;
+            add_header Access-Control-Allow-Origin $allow_origin  always;
+
+            proxy_hide_header Access-Control-Allow-Credentials;
+            add_header Access-Control-Allow-Credentials 'true'  always;
+
+            proxy_hide_header Access-Control-Max-Age;
+            add_header Access-Control-Max-Age $cors_max_age  always;
+
+            proxy_hide_header Access-Control-Allow-Methods;
+            add_header Access-Control-Allow-Methods $cors_allow_methods  always;
+
+            proxy_hide_header Access-Control-Allow-Headers;
+            add_header Access-Control-Allow-Headers $cors_allow_headers  always;
+
+            set $initial_content_length $sent_http_content_length;
+            add_header 'Content-Length' ""  always;
+            add_header 'Content-Length' $cors_content_length  always;
+
+            set $initial_content_type $sent_http_content_type;
+            add_header Content-Type ""  always;
+            add_header Content-Type $cors_content_type  always;
+
+            add_header Strict-Transport-Security "max-age=31536000;" always;
+
+            if ($request_method = 'OPTIONS') {
+            # this is necessary because preflight requests do not contain auth headers
+              return 204;
+            }
+        }
+
+        location /gp4btc/healthcheck {
+            proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local/healthcheck;
+        }
+
+        location = /token_introspection {
+            internal;
+            proxy_method      GET;
+            proxy_set_header  Authorization "$http_authorization";
+            proxy_set_header  Content-Length "";
+            proxy_pass        http://did-auth-proxy-helm.iam-did-auth-proxy.svc.cluster.local/auth/token-introspection;
+        }
+      }
+
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: alb
+        alb.ingress.kubernetes.io/target-type: ip
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+        external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+        alb.ingress.kubernetes.io/ssl-policy: "ELBSecurityPolicy-TLS-1-2-2017-01"
+        alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-west-2:887755037386:certificate/3c3957ae-4feb-40c8-a454-292bb292ff3b"
+        alb.ingress.kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+      hostname: gp4btc-backend-proxy-stg.energyweb.org
+      pathType: Prefix
+      path: /
+      tls: false # This is managed by ACM
+
+    livenessProbe:
+      enabled: false
+
+    readinessProbe:
+      enabled: false
+
+    customLivenessProbe:
+      httpGet:
+        path: /auth
+        port: http
+
+    customReadinessProbe:
+      httpGet:
+        path: /auth
+        port: http

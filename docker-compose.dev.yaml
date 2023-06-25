@@ -4,6 +4,7 @@ services:
   webserver:
     restart: unless-stopped
     image: did-auth-proxy-webserver
+    pull_policy: never
     build:
       context: nginx
     ports:
@@ -12,10 +13,13 @@ services:
       dev-backend:
     volumes:
       - ./nginx/nginx.dev.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   backend:
     restart: unless-stopped
     image: did-auth-proxy-backend
+    pull_policy: never
     build:
       context: backend-server
     networks:

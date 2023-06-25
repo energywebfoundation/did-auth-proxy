@@ -5,6 +5,8 @@
   "scripts": {
     "lint": "cd authorization-server && yarn lint",
     "test": "cd authorization-server && yarn test",
+    "test:unit": "cd authorization-server && yarn test:unit",
+    "test:e2e": "cd authorization-server && yarn test:e2e",
     "clean": "rimraf node_modules authorization-server/dist authorization-server/node_modules backend-server/node_modules generate-identity-cli/node_modules",
     "postinstall": "run-s install:*",
     "install:backend-server": "cd backend-server && yarn",
@@ -18,6 +20,8 @@
     "prepare": "husky install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^17.2.0",
+    "@commitlint/config-conventional": "^17.2.0",
     "husky": "^7",
     "lint-staged": "^13.0.0",
     "npm-run-all": "^4.1.5",

@@ -1,4 +1,4 @@
-FROM bitnami/nginx:1.23
+FROM bitnami/nginx:1.25
 
 EXPOSE 80
 

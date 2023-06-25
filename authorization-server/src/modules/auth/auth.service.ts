@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { v4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import {
   IGenerateAccessTokenPayload,
@@ -27,7 +27,7 @@ export class AuthService {
     payload: IGenerateAccessTokenPayload,
   ): Promise<string> {
     return this.jwtService.sign(
-      { id: v4(), ...payload },
+      { id: randomUUID(), ...payload },
       {
         expiresIn: this.configService.get<number>('JWT_ACCESS_TTL'),
       },
@@ -38,7 +38,7 @@ export class AuthService {
     payload: IGenerateRefreshTokenPayload,
   ): Promise<string> {
     const token = this.jwtService.sign(
-      { id: v4(), ...payload },
+      { id: randomUUID(), ...payload },
       {
         expiresIn: this.configService.get<number>('JWT_REFRESH_TTL'),
       },
@@ -49,22 +49,14 @@ export class AuthService {
     return token;
   }
 
-  public getAuthCookieSettings(): {
-    enabled: boolean;
-    name: string;
-    options: CookieOptions;
-  } {
+  public getAuthCookiesOptions(): CookieOptions {
     return {
-      enabled: this.configService.get<boolean>('AUTH_COOKIE_ENABLED'),
-      name: this.configService.get<string>('AUTH_COOKIE_NAME'),
-      options: {
-        httpOnly: true,
-        secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
-        sameSite:
-          this.configService.get<'none' | 'lax' | 'strict'>(
-            'AUTH_COOKIE_SAMESITE_POLICY',
-          ) || 'strict',
-      },
+      httpOnly: true,
+      secure: this.configService.get<boolean>('AUTH_COOKIE_SECURE'),
+      sameSite:
+        this.configService.get<'none' | 'lax' | 'strict'>(
+          'AUTH_COOKIE_SAMESITE_POLICY',
+        ) || 'strict',
     };
   }
 

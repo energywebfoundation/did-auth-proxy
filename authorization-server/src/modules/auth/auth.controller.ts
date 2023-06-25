@@ -1,10 +1,12 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -15,7 +17,7 @@ import {
   JwtAuthGuard,
   LoginGuard,
   ValidRefreshTokenGuard,
-  ValidVerifiedRolesGuard,
+  ValidUserRolesGuard,
 } from './guards';
 import { decode as decodeJWT } from 'jsonwebtoken';
 import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
@@ -27,12 +29,13 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import {
-  IAccessTokenPayload,
-  IDidAccessTokenPayload,
-  IRefreshTokenPayload,
-} from './types';
+import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 import { PinoLogger } from 'nestjs-pino';
+import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
+import { NonceService } from './nonce.service';
+import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
+import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
+import { SiweMessage } from 'siwe';
 
 @Controller('auth')
 @UsePipes(
@@ -45,6 +48,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
     private readonly logger: PinoLogger,
+    private readonly nonceService: NonceService,
   ) {
     this.logger.setContext(AuthController.name);
   }
@@ -58,14 +62,14 @@ export class AuthController {
   }
 
   @Post('login')
-  @UseGuards(LoginGuard, ValidVerifiedRolesGuard)
+  @UseGuards(LoginGuard, ValidUserRolesGuard)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ type: LoginResponseDto })
   async login(
     @Body() body: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
+  ): Promise<LoginResponseDto | undefined> {
     this.logger.debug(`user has been logged in`);
     this.logger.debug(
       `identity token received: ${maskString(body.identityToken, 20, 20)}`,
@@ -77,9 +81,21 @@ export class AuthController {
       )}`,
     );
 
+    return this.loginCommon(req, res);
+  }
+
+  /**
+   * implements logic common for all login methods
+   */
+  async loginCommon(req: Request, res: Response): Promise<LoginResponseDto> {
+    //decodeJWT does not throw an error if no token provided
+    if (typeof req.user !== 'string') {
+      throw new Error(`unexpected req.user value: ${req.user}`);
+    }
+
     const didAccessTokenPayload = decodeJWT(
       req.user as string,
-    ) as unknown as IDidAccessTokenPayload;
+    ) as unknown as AuthorisedUser;
 
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
@@ -87,20 +103,58 @@ export class AuthController {
 
     const { accessToken, refreshToken } = await this.authService.logIn({
       did: didAccessTokenPayload.did,
-      roles: didAccessTokenPayload.verifiedRoles.map((r) => r.namespace),
+      roles: didAccessTokenPayload.userRoles
+        .filter((role) => role.status === RoleCredentialStatus.VALID)
+        .map((role) => role.namespace),
     });
 
-    if (this.authService.getAuthCookieSettings().enabled) {
-      const { name, options } = this.authService.getAuthCookieSettings();
-      res.cookie(name, accessToken, {
-        ...options,
-        maxAge:
-          (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
-          Date.now(),
+    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      this.setAuthCookies({
+        res,
+        accessToken,
+        refreshToken,
       });
     }
 
-    return new LoginResponseDto({ accessToken, refreshToken });
+    if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
+      return new LoginResponseDto({ accessToken, refreshToken });
+    }
+  }
+
+  @Post('login/siwe/initiate')
+  @ApiOkResponse({ type: SiweInitResponseDto })
+  async siweLoginInit(): Promise<SiweInitResponseDto> {
+    return new SiweInitResponseDto({
+      nonce: await this.nonceService.generateNonce(),
+    });
+  }
+
+  @Post('login/siwe/verify')
+  @UseGuards(LoginGuard, ValidUserRolesGuard)
+  @ApiOkResponse({ type: LoginResponseDto })
+  async siweLoginVerify(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() body: SiweVerifyRequestDto,
+  ): Promise<LoginResponseDto> {
+    const { message } = body;
+    let nonce: string;
+
+    try {
+      const siweMessage = new SiweMessage(message);
+      nonce = siweMessage.nonce;
+    } catch (err) {
+      this.logger.warn(
+        `error parsing SIWE message field: ${err.message || err}`,
+      );
+      throw new BadRequestException('invalid SIWE message');
+    }
+
+    if (!(await this.nonceService.validateOnce(nonce))) {
+      throw new UnauthorizedException(`invalid nonce: ${nonce}`);
+    }
+
+    return await this.loginCommon(req, res);
   }
 
   @Post('logout')
@@ -110,8 +164,9 @@ export class AuthController {
   async logout(
     @Body() body: LogoutDto,
     @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
   ): Promise<void> {
-    const tokenDecoded = decodeJWT(body.refreshToken) as IRefreshTokenPayload;
+    const tokenDecoded = decodeJWT(req.user as string) as IRefreshTokenPayload;
 
     await this.authService.logout({
       did: tokenDecoded.did,
@@ -119,9 +174,7 @@ export class AuthController {
       allDevices: body.allDevices,
     });
 
-    res.cookie(this.authService.getAuthCookieSettings().name, '', {
-      expires: new Date(0),
-    });
+    this.unsetAuthCookies(res);
   }
 
   @Get('token-introspection')
@@ -137,25 +190,91 @@ export class AuthController {
   @UseGuards(ValidRefreshTokenGuard)
   @ApiBody({ type: RefreshDto })
   @ApiOkResponse({ type: LoginResponseDto })
-  async refresh(
-    @Body() body: RefreshDto,
+  // backwards compatibility
+  async refreshWithPost(
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<LoginResponseDto> {
-    const { accessToken, refreshToken } = await this.authService.refreshTokens(
-      body.refreshToken,
-    );
+  ): Promise<LoginResponseDto | undefined> {
+    return this.refreshCommon(req.user as string, res);
+  }
 
-    if (this.authService.getAuthCookieSettings().enabled) {
-      const { name, options } = this.authService.getAuthCookieSettings();
-      res.cookie(name, accessToken, {
+  @Get('refresh_token')
+  @UseGuards(ValidRefreshTokenGuard)
+  @ApiOkResponse({ type: LoginResponseDto })
+  //compatible with the SSI-HUB implementation
+  async refreshWithGet(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginResponseDto | undefined> {
+    return await this.refreshCommon(req.user as string, res);
+  }
+
+  async refreshCommon(
+    refreshToken: string,
+    res: Response,
+  ): Promise<LoginResponseDto | undefined> {
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.authService.refreshTokens(refreshToken);
+
+    if (this.configService.get<boolean>('AUTH_COOKIE_ENABLED')) {
+      this.setAuthCookies({
+        res,
+        accessToken,
+        refreshToken: newRefreshToken,
+      });
+    }
+
+    if (this.configService.get<boolean>('AUTH_HEADER_ENABLED')) {
+      return new LoginResponseDto({
+        accessToken,
+        refreshToken: newRefreshToken,
+      });
+    }
+  }
+
+  private setAuthCookies({
+    res,
+    accessToken,
+    refreshToken,
+  }: {
+    res: Response;
+    accessToken: string;
+    refreshToken: string;
+  }) {
+    const options = this.authService.getAuthCookiesOptions();
+
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+      accessToken,
+      {
         ...options,
         maxAge:
           (decodeJWT(accessToken) as IAccessTokenPayload).exp * 1000 -
           Date.now(),
-      });
-    }
+      },
+    );
 
-    return new LoginResponseDto({ accessToken, refreshToken });
+    res.cookie(
+      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+      refreshToken,
+      {
+        ...options,
+        maxAge:
+          (decodeJWT(refreshToken) as IAccessTokenPayload).exp * 1000 -
+          Date.now(),
+      },
+    );
+  }
+
+  private unsetAuthCookies(res: Response) {
+    const { sameSite, secure } = this.authService.getAuthCookiesOptions();
+
+    [
+      this.configService.get<string>('AUTH_COOKIE_NAME_ACCESS_TOKEN'),
+      this.configService.get<string>('AUTH_COOKIE_NAME_REFRESH_TOKEN'),
+    ].forEach((cookieName: string) =>
+      res.clearCookie(cookieName, { sameSite, secure }),
+    );
   }
 }
 

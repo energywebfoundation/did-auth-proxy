@@ -27,13 +27,17 @@ RUN yarn install --production=true
 #### FINAL IMAGE CREATION STAGE
 FROM base as final
 
+ARG GIT_SHA
+
 ENV NODE_ENV=production
 ENV BIND=0.0.0.0
 ENV LOG_LEVEL=info
 
-COPY --from=dependencies-prod /app/node_modules ./node_modules
-COPY --from=build /app/dist ./
+COPY --from=dependencies-prod /app/node_modules ./authorisation-server/node_modules
+COPY --from=build /app/dist ./authorisation-server/
 
+RUN echo "{\"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"gitSha\": \"$GIT_SHA\"}" > build.json
+COPY package.json .
 EXPOSE 3000
 
-CMD ["node", "main.js"]
+CMD ["node", "authorisation-server/main.js"]
