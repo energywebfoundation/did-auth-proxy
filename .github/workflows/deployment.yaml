@@ -135,8 +135,6 @@ jobs:
         run: |
           docker build --build-arg GIT_SHA=${{ github.sha }} -t $ACR_REGISTRY/$REPO_NAME:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
           docker push $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker tag $ACR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
-          docker push $ACR_REGISTRY/$REPO_NAME:canary
 
       # - name: Configure AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v1
