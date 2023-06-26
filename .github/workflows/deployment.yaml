@@ -123,14 +123,14 @@ jobs:
       - name: Login to Azure registry
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_REGISTRY_USERNAME }}
-          password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
+          login-server: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
       - name: Push image (Azure)
         env:
           BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
+          ACR_REGISTRY: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}
           REPO_NAME: ${{ steps.env_vars.outputs.aws_ecr_repository }}
         run: |
           docker build --build-arg GIT_SHA=${{ github.sha }} -t $ACR_REGISTRY/$REPO_NAME:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
