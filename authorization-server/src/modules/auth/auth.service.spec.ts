@@ -510,7 +510,7 @@ describe('AuthService', () => {
       });
 
       it('should throw an exception', async function () {
-        expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+        expect(exceptionThrown.name).toBe('JsonWebTokenError');
       });
     });
   });
