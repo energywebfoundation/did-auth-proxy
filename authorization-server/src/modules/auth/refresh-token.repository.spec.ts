@@ -4,7 +4,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
-import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
