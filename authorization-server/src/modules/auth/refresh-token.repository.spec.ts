@@ -4,7 +4,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
-import { JsonWebTokenError, sign, TokenExpiredError } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -114,7 +114,7 @@ describe('RefreshTokenRepository', () => {
       });
 
       it('should throw TokenExpiredError', async function () {
-        expect(exceptionThrown).toBeInstanceOf(TokenExpiredError);
+        expect(exceptionThrown.name).toBe('TokenExpiredError');
       });
 
       it('should throw exception before saving a token', async function () {
@@ -146,7 +146,7 @@ describe('RefreshTokenRepository', () => {
       });
 
       it('should throw TokenExpiredError', async function () {
-        expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+        expect(exceptionThrown.name).toBe('JsonWebTokenError');
       });
 
       it('should throw exception before saving a token', async function () {

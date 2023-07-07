@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RefreshTokenRepository } from './refresh-token.repository';
-import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
+import { decode, sign } from 'jsonwebtoken';
 import { PinoLogger } from 'nestjs-pino';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 
@@ -510,7 +510,7 @@ describe('AuthService', () => {
       });
 
       it('should throw an exception', async function () {
-        expect(exceptionThrown).toBeInstanceOf(JsonWebTokenError);
+        expect(exceptionThrown.name).toBe('JsonWebTokenError');
       });
     });
   });
