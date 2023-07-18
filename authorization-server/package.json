@@ -64,7 +64,7 @@
   "devDependencies": {
     "@energyweb/eslint-config": "^0.1.0",
     "@energyweb/prettier-config": "^0.0.1",
-    "@golevelup/ts-jest": "^0.3.2",
+    "@golevelup/ts-jest": "^0.4.0",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
