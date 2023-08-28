@@ -33,11 +33,10 @@ jobs:
             authorization-server/node_modules
             backend-server/node_modules
             generate-identity-cli/node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-            ${{ runner.os }}-yarn-
-            ${{ runner.os }}-
+            ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+            ${{ runner.os }}-node_modules-
 
       - run: yarn install --frozen-lockfile
 
@@ -62,7 +61,7 @@ jobs:
             backend-server/node_modules
             generate-identity-cli/node_modules
 
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn lint
 
@@ -87,7 +86,7 @@ jobs:
             backend-server/node_modules
             generate-identity-cli/node_modules
 
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn build
 
@@ -112,7 +111,7 @@ jobs:
             backend-server/node_modules
             generate-identity-cli/node_modules
 
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn test:unit
 
@@ -162,7 +161,7 @@ jobs:
             backend-server/node_modules
             generate-identity-cli/node_modules
 
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn test:e2e
 
@@ -214,6 +213,6 @@ jobs:
             backend-server/node_modules
             generate-identity-cli/node_modules
 
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - run: yarn test:e2e

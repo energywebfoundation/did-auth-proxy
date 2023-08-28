@@ -75,7 +75,7 @@ jobs:
             backend-server/node_modules
             generate-identity-cli/node_modules
 
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
         run: yarn install
