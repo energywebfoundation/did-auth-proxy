@@ -69,6 +69,9 @@ services:
       - INCLUDE_ALL_ROLES=true
       - JWT_ACCESS_TTL=3600
       - JWT_REFRESH_TTL=86400
+      - BLOCKNUM_AUTH_ENABLED=true
+      - SIWE_NONCE_TTL=120
+      - SELF_BASE_URL=http://127.0.0.1:8080
       - AUTH_COOKIE_NAME_ACCESS_TOKEN=token
       - AUTH_COOKIE_NAME_REFRESH_TOKEN=refreshToken
       - AUTH_COOKIE_ENABLED=false
