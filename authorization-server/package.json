@@ -7,7 +7,7 @@
   "license": "GPL-3.0",
   "engineStrict": true,
   "engines": {
-    "node": ">=14 <17"
+    "node": "18"
   },
   "scripts": {
     "clean": "rimraf dist node_modules",
