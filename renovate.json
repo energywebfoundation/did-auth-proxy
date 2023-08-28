@@ -3,7 +3,10 @@
     "github>energywebfoundation/shared-configs"
   ],
   "lockFileMaintenance": { "enabled": true },
-  "ignorePaths": [".github/workflows"],
+  "ignorePaths": [
+    ".github/workflows/deployments.yaml",
+    ".github/workflows/deployment-release.yaml"
+  ],
   "labels": ["dependencies"],
   "assignees": [
     "artursudnik"
