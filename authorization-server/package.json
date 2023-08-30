@@ -58,7 +58,7 @@
     "pino-http": "^8.0.0",
     "pino-pretty": "10.2.0",
     "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
+    "rimraf": "5.0.1",
     "rxjs": "^7.2.0",
     "siwe": "1.1.6",
     "swagger-ui-express": "5.0.0"
