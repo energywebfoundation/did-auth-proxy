@@ -2,6 +2,11 @@
   "name": "nginx-auth-poc",
   "version": "1.0.0",
   "license": "GPL-3.0",
+  "engines": {
+    "node": "18",
+    "npm": "please-use-yarn",
+    "pnpm": "please-use-yarn"
+  },
   "scripts": {
     "lint": "cd authorization-server && yarn lint",
     "test": "cd authorization-server && yarn test",

@@ -29,6 +29,7 @@ services:
       - redis
     restart: unless-stopped
     image: did-auth-proxy-auth-server
+    pull_policy: build
     build:
       context: authorization-server
     environment:

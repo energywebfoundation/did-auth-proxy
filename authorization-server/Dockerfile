@@ -1,6 +1,4 @@
-FROM node:16-alpine as base
-#FROM --platform=linux/amd64 node:16-alpine as base
-#FROM --platform=linux/arm64 node:16-alpine as base
+FROM node:18.17.1-alpine@sha256:3482a20c97e401b56ac50ba8920cc7b5b2022bfc6aa7d4e4c231755770cf892f as base
 
 WORKDIR /app
 

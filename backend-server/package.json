@@ -1,6 +1,11 @@
 {
   "name": "backend-server",
   "version": "1.0.0",
+  "engines": {
+    "node": "18",
+    "npm": "please-use-yarn",
+    "pnpm": "please-use-yarn"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
