@@ -58,7 +58,6 @@
     "pino-http": "^8.0.0",
     "pino-pretty": "10.2.0",
     "reflect-metadata": "^0.1.13",
-    "rimraf": "5.0.1",
     "rxjs": "^7.2.0",
     "siwe": "1.1.6",
     "swagger-ui-express": "5.0.0"
@@ -90,6 +89,7 @@
     "node-mocks-http": "^1.0.0",
     "prettier": "3.0.3",
     "redis-memory-server": "^0.7.0",
+    "rimraf": "5.0.1",
     "set-cookie-parser": "^2.4.8",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
