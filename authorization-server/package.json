@@ -61,7 +61,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "siwe": "1.1.6",
-    "swagger-ui-express": "^4.0.0"
+    "swagger-ui-express": "5.0.0"
   },
   "devDependencies": {
     "@energyweb/eslint-config": "^0.1.0",
