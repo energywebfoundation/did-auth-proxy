@@ -2370,11 +2370,6 @@
   dependencies:
     "@types/superagent" "*"
 
-"@types/uuid@^8":
-  version "8.3.4"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
-  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
-
 "@types/validator@^13.7.10":
   version "13.11.1"
   resolved "https://registry.yarnpkg.com/@types/validator/-/validator-13.11.1.tgz#6560af76ed54490e68c42f717ab4e742ba7be74b"
