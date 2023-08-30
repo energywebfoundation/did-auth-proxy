@@ -4,7 +4,7 @@
   ],
   "lockFileMaintenance": { "enabled": true },
   "ignorePaths": [
-    ".github/workflows/deployments.yaml",
+    ".github/workflows/deployment.yaml",
     ".github/workflows/deployment-release.yaml"
   ],
   "labels": ["dependencies"],
