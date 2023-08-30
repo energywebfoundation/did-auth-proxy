@@ -5,7 +5,10 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Catch(AxiosError)
 export class AxiosExceptionFilter extends BaseExceptionFilter {
-  constructor(server: HttpServer, private readonly logger: PinoLogger) {
+  constructor(
+    server: HttpServer,
+    private readonly logger: PinoLogger,
+  ) {
     logger.setContext(AxiosExceptionFilter.name);
     super(server);
   }
