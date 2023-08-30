@@ -59,7 +59,7 @@
     "pino-pretty": "10.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
-    "siwe": "1.1.6",
+    "siwe": "2.1.4",
     "swagger-ui-express": "5.0.0"
   },
   "devDependencies": {
