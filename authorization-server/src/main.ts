@@ -24,7 +24,7 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.flushLogs();
 
-  setupCors(app, config, app.get(Logger));
+  setupCors(app, config);
 
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
   app.useGlobalFilters(
