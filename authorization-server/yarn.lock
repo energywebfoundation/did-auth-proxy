@@ -2254,10 +2254,10 @@
   dependencies:
     undici-types "~5.25.1"
 
-"@types/node@18.18.5":
-  version "18.18.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.18.5.tgz#afc0fd975df946d6e1add5bbf98264225b212244"
-  integrity sha512-4slmbtwV59ZxitY4ixUZdy1uRLf9eSIvBWPQxNjhHYWEtn0FryfKpyS2cvADYXTayWdKEIsJengncrVvkI4I6A==
+"@types/node@18.18.6":
+  version "18.18.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.18.6.tgz#26da694f75cdb057750f49d099da5e3f3824cb3e"
+  integrity sha512-wf3Vz+jCmOQ2HV1YUJuCWdL64adYxumkrxtc+H1VUQlnQI04+5HtH+qZCOE21lBE7gIrt+CwX2Wv8Acrw5Ak6w==
 
 "@types/node@^12.12.6":
   version "12.20.55"
@@ -2269,19 +2269,19 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
-"@types/passport-jwt@3.0.10":
-  version "3.0.10"
-  resolved "https://registry.yarnpkg.com/@types/passport-jwt/-/passport-jwt-3.0.10.tgz#26ad3c62b51a3e61774c44070bfe0bb663ffa1d6"
-  integrity sha512-D2A911g2uiFsq/XXFBxQjcBcK4c6zPF2gAx9blEfz2AOXx5UUwsd8ZcMTcPe8z9dhW8LQBYLjv+vug2dvnRevA==
+"@types/passport-jwt@3.0.11":
+  version "3.0.11"
+  resolved "https://registry.yarnpkg.com/@types/passport-jwt/-/passport-jwt-3.0.11.tgz#96d69fad0a7af28ba44e2ed202c33745a53f1ca2"
+  integrity sha512-HwQNi4cajueebj41EjH5rtnLAdxQfusICFU18JEnvV3uYCJzKoT1D3MCwQ+nn8HeGjy6QuTxnm/I2WxuraqeDw==
   dependencies:
     "@types/express" "*"
     "@types/jsonwebtoken" "*"
     "@types/passport-strategy" "*"
 
-"@types/passport-local@1.0.36":
-  version "1.0.36"
-  resolved "https://registry.yarnpkg.com/@types/passport-local/-/passport-local-1.0.36.tgz#073129b332ee4f4596b5f51e73dce3618e1c333d"
-  integrity sha512-NoL8ynRuzZHw/xUkLOTCscykNYlu6EasXKrGizF0ibMB+vq//big56+jgS2jtd9DZwL7q5fSJZDrZusex72Fjg==
+"@types/passport-local@1.0.37":
+  version "1.0.37"
+  resolved "https://registry.yarnpkg.com/@types/passport-local/-/passport-local-1.0.37.tgz#97f6a60873b551f08c3a251043eb1662ecc546f7"
+  integrity sha512-c57CwMHhMP2BBiOLyQZGRP43F8JtC84H976YVJdiU4EIWvqRCZ3F7QtsEgksOEIgMOk1Kz3EEKGA93OiDPQtRQ==
   dependencies:
     "@types/express" "*"
     "@types/passport" "*"
@@ -2363,10 +2363,10 @@
     "@types/mime" "*"
     "@types/node" "*"
 
-"@types/set-cookie-parser@2.4.4":
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/@types/set-cookie-parser/-/set-cookie-parser-2.4.4.tgz#3c36c9147960cca0fc7c508aacb18ea41f6b5003"
-  integrity sha512-xCfTC/eL/GmvMC24b42qJpYSTdCIBwWcfskDF80ztXtnU6pKXyvuZP2EConb2K9ps0s7gMhCa0P1foy7wiItMA==
+"@types/set-cookie-parser@2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@types/set-cookie-parser/-/set-cookie-parser-2.4.5.tgz#f08fc44f9ab0bb136b7a73bc4e73de7c0c747cf3"
+  integrity sha512-ZPmztaAQ4rbnW/WTUnT1dwSENQo4bjGqxCSeyK+gZxmd+zJl/QAeF6dpEXcS5UEJX22HwiggFSaY8nE1nRmkbg==
   dependencies:
     "@types/node" "*"
 
@@ -2388,10 +2388,10 @@
     "@types/cookiejar" "*"
     "@types/node" "*"
 
-"@types/supertest@2.0.14":
-  version "2.0.14"
-  resolved "https://registry.yarnpkg.com/@types/supertest/-/supertest-2.0.14.tgz#e8fb6f6feed58a0dd5c2036227865dfa6ff7411d"
-  integrity sha512-Q900DeeHNFF3ZYYepf/EyJfZDA2JrnWLaSQ0YNV7+2GTo8IlJzauEnDGhya+hauncpBYTYGpVHwGdssJeAQ7eA==
+"@types/supertest@2.0.15":
+  version "2.0.15"
+  resolved "https://registry.yarnpkg.com/@types/supertest/-/supertest-2.0.15.tgz#3d032865048c84c6a3bbbf1f949145b917d2ff65"
+  integrity sha512-jUCZZ/TMcpGzoSaed9Gjr8HCf3HehExdibyw3OHHEL1als1KmyzcOZZH4MjbObI8TkWsEr7bc7gsW0WTDni+qQ==
   dependencies:
     "@types/superagent" "*"
 
