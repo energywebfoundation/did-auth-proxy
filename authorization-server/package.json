@@ -52,7 +52,7 @@
     "joi": "17.11.0",
     "jsonwebtoken": "9.0.2",
     "nestjs-pino": "3.5.0",
-    "passport": "0.6.0",
+    "passport": "0.7.0",
     "passport-did-auth": "2.0.0",
     "passport-jwt": "4.0.1",
     "pino-http": "8.5.1",
