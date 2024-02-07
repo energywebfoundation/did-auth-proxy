@@ -66,7 +66,7 @@
     "@energyweb/eslint-config": "0.1.0",
     "@energyweb/prettier-config": "0.0.1",
     "@golevelup/ts-jest": "0.4.0",
-    "@nestjs/cli": "10.3.1",
+    "@nestjs/cli": "10.3.2",
     "@nestjs/schematics": "10.1.0",
     "@nestjs/testing": "10.3.2",
     "@types/cookie-parser": "1.4.6",
