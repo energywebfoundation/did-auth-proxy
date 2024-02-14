@@ -1473,10 +1473,10 @@
     webpack "5.90.1"
     webpack-node-externals "3.0.0"
 
-"@nestjs/common@10.3.2":
-  version "10.3.2"
-  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-10.3.2.tgz#021c3637b0db3cc302ea24d291e779ec47914ee5"
-  integrity sha512-yrtohmQlN5J/gFS/ui86SO+KIfUKeL39JPR3f/3AWgpz+duIfc9cGkfh7FGZQMfG9ZqXf7Zw+PRO9G+D4iEbPw==
+"@nestjs/common@10.3.3":
+  version "10.3.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-10.3.3.tgz#ba20f756dbed62f5fe29737c42384ad41156c9e9"
+  integrity sha512-LAkTe8/CF0uNWM0ecuDwUNTHCi1lVSITmmR4FQ6Ftz1E7ujQCnJ5pMRzd8JRN14vdBkxZZ8VbVF0BDUKoKNxMQ==
   dependencies:
     uid "2.0.2"
     iterare "1.2.1"
@@ -1492,10 +1492,10 @@
     lodash "4.17.21"
     uuid "9.0.1"
 
-"@nestjs/core@10.3.2":
-  version "10.3.2"
-  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-10.3.2.tgz#5c64938841401fe27a669fa6ccecbe16809de6d0"
-  integrity sha512-JW3bQvDFY1gB+xXR6E5DzCdKftRszyWtd0YyDkdlKh1+44e2IGybFhSa5HcQBOiRqdVgPqAM5Vqc81rmhgeBnQ==
+"@nestjs/core@10.3.3":
+  version "10.3.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-10.3.3.tgz#f957068ddda59252b7c36fcdb07a0fb323b52bcf"
+  integrity sha512-kxJWggQAPX3RuZx9JVec69eSLaYLNIox2emkZJpfBJ5Qq7cAq7edQIt1r4LGjTKq6kFubNTPsqhWf5y7yFRBPw==
   dependencies:
     uid "2.0.2"
     "@nuxtjs/opencollective" "0.3.2"
@@ -1522,10 +1522,10 @@
   resolved "https://registry.yarnpkg.com/@nestjs/passport/-/passport-10.0.3.tgz#26ec5b2167d364e04962c115fcef80d10e185367"
   integrity sha512-znJ9Y4S8ZDVY+j4doWAJ8EuuVO7SkQN3yOBmzxbGaXbvcSwFDAdGJ+OMCg52NdzIO4tQoN4pYKx8W6M0ArfFRQ==
 
-"@nestjs/platform-express@10.3.2":
-  version "10.3.2"
-  resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-10.3.2.tgz#e1324c75b66a84fa535973effcfef75b56bf906d"
-  integrity sha512-jS0uQ5VCsOezhzW6xzlWquGEaDHQ9B+JTVsuxbac+3XOPt6sbKry8HHOWyjKss9wAKo0lDRSFvpV5oQAF/yl6w==
+"@nestjs/platform-express@10.3.3":
+  version "10.3.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-10.3.3.tgz#c1484d30d1e7666c4c8d0d7cde31cfc0b9d166d7"
+  integrity sha512-GGKSEU48Os7nYFIsUM0nutuFUGn5AbeP8gzFBiBCAtiuJWrXZXpZ58pMBYxAbMf7IrcOZFInHEukjHGAQU0OZw==
   dependencies:
     body-parser "1.20.2"
     cors "2.8.5"
@@ -1564,10 +1564,10 @@
     boxen "5.1.2"
     check-disk-space "3.4.0"
 
-"@nestjs/testing@10.3.2":
-  version "10.3.2"
-  resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.3.2.tgz#5e089d2cf052218583415099363182dd5f40d273"
-  integrity sha512-jetqEPqOPuxmhBinkizmJQg4UZ2IRFrUoMrBDSgg0ogQClokKjnLgkoC5de+Jfm2kub/VpqorHB0me8cCr5jEQ==
+"@nestjs/testing@10.3.3":
+  version "10.3.3"
+  resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.3.3.tgz#09924fca887dc5c9020feff1414da69f5bce30ac"
+  integrity sha512-kX20GfjAImL5grd/i69uD/x7sc00BaqGcP2dRG3ilqshQUuy5DOmspLCr3a2C8xmVU7kzK4spT0oTxhe6WcCAA==
   dependencies:
     tslib "2.6.2"
 
@@ -2229,10 +2229,10 @@
   dependencies:
     undici-types "~5.26.4"
 
-"@types/node@18.19.14":
-  version "18.19.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.14.tgz#1880ff1b3ac913f3877f711588e5ed227da01886"
-  integrity sha512-EnQ4Us2rmOS64nHDWr0XqAD8DsO6f3XR6lf9UIIrZQpUzPVdN/oPuEzfDWNHSyXLvoGgjuEm/sPwFGSSs35Wtg==
+"@types/node@18.19.15":
+  version "18.19.15"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.19.15.tgz#313a9d75435669a57fc28dc8694e7f4c4319f419"
+  integrity sha512-AMZ2UWx+woHNfM11PyAEQmfSxi05jm9OlkxczuHeEqmvwPkYj6MWv44gbzDPefYOLysTOFyI3ziiy2ONmUZfpA==
   dependencies:
     undici-types "~5.26.4"
 
@@ -4672,10 +4672,10 @@ eslint-config-prettier@9.1.0:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-9.1.0.tgz#31af3d94578645966c082fcb71a5846d3c94867f"
   integrity sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==
 
-eslint-plugin-jest@27.6.3:
-  version "27.6.3"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-27.6.3.tgz#8acb8b1e45597fe1f4d4cf25163d90119efc12be"
-  integrity sha512-+YsJFVH6R+tOiO3gCJon5oqn4KWc+mDq2leudk8mrp8RFubLOo9CVyi3cib4L7XMpxExmkmBZQTPDYVBzgpgOA==
+eslint-plugin-jest@27.8.0:
+  version "27.8.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-27.8.0.tgz#c8900c3e74e4c6b8cee67ea77dbc8de9cbd9e093"
+  integrity sha512-347hVFiu4ZKMYl5xFp0X81gLNwBdno0dl0CMpUMjwuAux9X/M2a7z+ab2VHmPL6XCT87q8nv1vaVzhIO4TE/hw==
   dependencies:
     "@typescript-eslint/utils" "^5.10.0"
 
