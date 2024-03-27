@@ -47,7 +47,7 @@
     "cookie-parser": "1.4.6",
     "didkit-wasm-node": "0.1.6",
     "ethers": "5.7.2",
-    "express": "4.19.1",
+    "express": "4.19.2",
     "ioredis": "5.3.2",
     "joi": "17.12.2",
     "jsonwebtoken": "9.0.2",
