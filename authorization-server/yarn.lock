@@ -1474,10 +1474,10 @@
     webpack "5.90.1"
     webpack-node-externals "3.0.0"
 
-"@nestjs/common@10.3.6":
-  version "10.3.6"
-  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-10.3.6.tgz#4aa4bebb6dfe504b27e66191e1e49f53c4198e91"
-  integrity sha512-ExWGwjKs8L3sAm6SMRIV/N2HzVol4VFO3EbDhKL/HV1FQXAqj7otjXv/SzGBlI+/ax1nQfEdGgZbSMeZeeR6VA==
+"@nestjs/common@10.3.7":
+  version "10.3.7"
+  resolved "https://registry.yarnpkg.com/@nestjs/common/-/common-10.3.7.tgz#38ab5ff92277cf1f26f4749c264524e76962cfff"
+  integrity sha512-gKFtFzcJznrwsRYjtNZoPAvSOPYdNgxbTYoAyLTpoy393cIKgLmJTHu6ReH8/qIB9AaZLdGaFLkx98W/tFWFUw==
   dependencies:
     uid "2.0.2"
     iterare "1.2.1"
@@ -1493,10 +1493,10 @@
     lodash "4.17.21"
     uuid "9.0.1"
 
-"@nestjs/core@10.3.6":
-  version "10.3.6"
-  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-10.3.6.tgz#1db7a051648d59d3fc7063cdc017b2d35ad6054f"
-  integrity sha512-06RFGSFGwDiMRdWFm1Rofp9A1G+1+W7dH2U07S6mE2XtABx5UBwA5kGBZL8z9osdNnBg+6WMpSpkNvQ35f60EA==
+"@nestjs/core@10.3.7":
+  version "10.3.7"
+  resolved "https://registry.yarnpkg.com/@nestjs/core/-/core-10.3.7.tgz#736906ec27bc39b91519506babc231c8ab56ea21"
+  integrity sha512-hsdlnfiQ3kgqHL5k7js3CU0PV7hBJVi+LfFMgCkoagRxNMf67z0GFGeOV2jk5d65ssB19qdYsDa1MGVuEaoUpg==
   dependencies:
     uid "2.0.2"
     "@nuxtjs/opencollective" "0.3.2"
@@ -1523,10 +1523,10 @@
   resolved "https://registry.yarnpkg.com/@nestjs/passport/-/passport-10.0.3.tgz#26ec5b2167d364e04962c115fcef80d10e185367"
   integrity sha512-znJ9Y4S8ZDVY+j4doWAJ8EuuVO7SkQN3yOBmzxbGaXbvcSwFDAdGJ+OMCg52NdzIO4tQoN4pYKx8W6M0ArfFRQ==
 
-"@nestjs/platform-express@10.3.6":
-  version "10.3.6"
-  resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-10.3.6.tgz#ecf350b8d47c5639d0e188cd6148d1c295f5af2d"
-  integrity sha512-yNHuBn/ktjssl+hJd3RXNyMjqL7jXOCDHhnc0JvAmRf3L54/RBgKyDcDLZ6Mv/KYOrmfId5PNeAAjd9IPmcyBw==
+"@nestjs/platform-express@10.3.7":
+  version "10.3.7"
+  resolved "https://registry.yarnpkg.com/@nestjs/platform-express/-/platform-express-10.3.7.tgz#ae3fc59609bdc0ffc5029a6e74d59a5d1e257eef"
+  integrity sha512-noNJ+PyIxQJLCKfuXz0tcQtlVAynfLIuKy62g70lEZ86UrIqSrZFqvWs/rFUgkbT6J8H7Rmv11hASOnX+7M2rA==
   dependencies:
     body-parser "1.20.2"
     cors "2.8.5"
@@ -1565,10 +1565,10 @@
     boxen "5.1.2"
     check-disk-space "3.4.0"
 
-"@nestjs/testing@10.3.6":
-  version "10.3.6"
-  resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.3.6.tgz#492a60838bc7fc5a39079003766958edaf48bd88"
-  integrity sha512-9atg+aGqhg3ZhwTz2oHMa3hg3JJ6XQfQcRhkiIsOegCIiV/esqBH7R71kAJC6ppOlKtT3XHngFvlIxo4tODKfw==
+"@nestjs/testing@10.3.7":
+  version "10.3.7"
+  resolved "https://registry.yarnpkg.com/@nestjs/testing/-/testing-10.3.7.tgz#b39fbaf011c439a397d42bc16a13bc5191d0a961"
+  integrity sha512-PmwZXyoCC/m3F3IFgpgD+SNN6cDPQa/vi3YQxFruvfX3cuHq+P6ZFvBB7hwaKKsLlhA0so42LsMm41oFBkdouw==
   dependencies:
     tslib "2.6.2"
 
@@ -9371,10 +9371,10 @@ redis-parser@^3.0.0:
   dependencies:
     redis-errors "^1.0.0"
 
-reflect-metadata@0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.2.1.tgz#8d5513c0f5ef2b4b9c3865287f3c0940c1f67f74"
-  integrity sha512-i5lLI6iw9AU3Uu4szRNPPEkomnkjRTaVt9hy/bn5g/oSzekBSMeLZblcjP74AW0vBabqERLLIrz+gR8QYR54Tw==
+reflect-metadata@0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.2.2.tgz#400c845b6cba87a21f2c65c4aeb158f4fa4d9c5b"
+  integrity sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==
 
 regenerator-runtime@^0.14.0:
   version "0.14.1"
