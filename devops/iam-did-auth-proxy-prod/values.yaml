@@ -101,9 +101,14 @@ did-auth-proxy-helm:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
-  nodeSelector: {}
+  nodeSelector:
+    node.gp4btc: "true"
 
-  tolerations: []
+  tolerations:
+    - key: 'gp4btc'
+      operator: 'Equal'
+      value: 'true'
+      effect: 'NoSchedule'
 
   affinity: {}
 
@@ -121,11 +126,28 @@ did-auth-proxy-helm:
     architecture: standalone
     auth:
       password: redis
+    master:
+      nodeSelector:
+        node.gp4btc: "true"
+      tolerations:
+        - key: 'gp4btc'
+          operator: 'Equal'
+          value: 'true'
+          effect: 'NoSchedule'
 
   ########
   # nginx
   nginx:
     fullnameOverride: "did-auth-proxy-helm-server-block"
+
+    nodeSelector:
+      node.gp4btc: "true"
+
+    tolerations:
+      - key: 'gp4btc'
+        operator: 'Equal'
+        value: 'true'
+        effect: 'NoSchedule'
 
     serverBlock: |-
       map $http_origin $allow_origin {
