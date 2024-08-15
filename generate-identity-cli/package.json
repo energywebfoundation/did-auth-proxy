@@ -5,6 +5,6 @@
   "dependencies": {
     "base64url": "^3",
     "commander": "^8",
-    "ethers": "^5"
+    "ethers": "^6.0.0"
   }
 }
