@@ -27,7 +27,9 @@ const header = {
 
     const payload = {
         iss: did,
-        claimData: { blockNumber }
+        claimData: { blockNumber },
+        iat: Math.floor(Date.now() / 1000), // Issued at now
+        exp: Math.floor(Date.now() / 1000) + 900  // Expires in 15 minutes
     };
 
     logger(`token header: ${JSON.stringify(header)}`, verbose);
