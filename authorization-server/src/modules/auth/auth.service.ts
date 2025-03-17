@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
@@ -14,6 +14,8 @@ import { PinoLogger } from 'nestjs-pino';
 
 @Injectable()
 export class AuthService {
+  private readonly tokenTTLFactor = 0.5; // to validate 50% of JWT_ACCESS_TTL
+
   constructor(
     private configService: ConfigService,
     private jwtService: JwtService,
@@ -170,6 +172,47 @@ export class AuthService {
       await this.invalidateAllRefreshTokens(did);
     } else {
       await this.invalidateRefreshToken(did, refreshTokenId);
+    }
+  }
+
+  public async identityTokenValidate(iat: number, exp: number): Promise<void> {
+    // Check if `iat` and `exp` exist and are numbers
+    const iatExists = typeof iat === 'number';
+    const expExists = typeof exp === 'number';
+
+    if (!iatExists || !expExists) {
+      throw new UnauthorizedException(
+        `Identity Token must contain 'iat' and 'exp' fields.`,
+      );
+    }
+
+    // Check if `iat` and `exp` are set correctly
+    const iatValid = iatExists && iat! > 0;
+    const expValid = expExists && exp! > iat!;
+
+    if (!iatValid || !expValid) {
+      throw new UnauthorizedException(
+        `Identity Token 'iat' and 'exp' fields are not set correctly.`,
+      );
+    }
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    const tokenTTL = exp - iat;
+    const timeElapsed = currentTime - iat;
+    const expiresInToken = tokenTTL - timeElapsed;
+
+    if (expiresInToken <= 0) {
+      throw new UnauthorizedException(`Identity Token expired.`);
+    }
+
+    const expectedTTL =
+      this.configService.get<number>('JWT_ACCESS_TTL') * this.tokenTTLFactor;
+    const expiresIn = expectedTTL - timeElapsed;
+
+    if (expiresIn <= 0) {
+      throw new UnauthorizedException(
+        `Identity Token expired based on expected TTL: ${expectedTTL}`,
+      );
     }
   }
 }

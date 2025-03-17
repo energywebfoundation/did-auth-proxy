@@ -7,6 +7,7 @@ import { RefreshTokenRepository } from './refresh-token.repository';
 import { decode, JsonWebTokenError, sign } from 'jsonwebtoken';
 import { PinoLogger } from 'nestjs-pino';
 import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -582,6 +583,64 @@ describe('AuthService', () => {
       it('should not invalidate any tokens', async function () {
         expect(spyInvalidateRefreshToken).not.toHaveBeenCalled();
         expect(spyInvalidateAllRefreshTokens).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('identityTokenValidate()', function () {
+    let spyIdentityTokenValidate: jest.SpyInstance;
+    let spyConfigService: jest.SpyInstance;
+
+    beforeEach(async function () {
+      spyIdentityTokenValidate = jest.spyOn(service, 'identityTokenValidate');
+      spyConfigService = jest.spyOn(configService, 'get').mockImplementation(
+        (key: string) =>
+          ({
+            LOG_LEVELS: 'error,warn',
+            JWT_ACCESS_TTL: 900,
+            JWT_REFRESH_TTL: 2,
+          })[key],
+      );
+    });
+
+    afterEach(async function () {
+      spyIdentityTokenValidate.mockClear().mockRestore();
+      spyConfigService.mockClear().mockRestore();
+    });
+
+    describe('when called with a given iat expired', function () {
+      let exceptionThrown: Error;
+
+      beforeEach(async function () {
+        try {
+          const iat = Math.floor(Date.now() / 1000) - 450;
+          const exp = Math.floor(Date.now() / 1000) + 450;
+          await service.identityTokenValidate(iat, exp);
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
+
+      it('should throw an exception', async function () {
+        expect(exceptionThrown).toBeInstanceOf(UnauthorizedException);
+      });
+    });
+
+    describe('when called with a given iat', function () {
+      let exceptionThrown: Error;
+
+      beforeEach(async function () {
+        try {
+          const iat = Math.floor(Date.now() / 1000) - 350;
+          const exp = Math.floor(Date.now() / 1000) + 350;
+          await service.identityTokenValidate(iat, exp);
+        } catch (err) {
+          exceptionThrown = err;
+        }
+      });
+
+      it('should not throw an exception', async function () {
+        expect(exceptionThrown).toBeUndefined();
       });
     });
   });
