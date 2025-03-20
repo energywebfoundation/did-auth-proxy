@@ -1,25 +1,36 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { CookieOptions, Request, Response } from 'express';
+import { JsonWebTokenError, sign } from 'jsonwebtoken';
+import { PinoLogger } from 'nestjs-pino';
+import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
+import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
+import { ParsedQs } from 'qs';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { ConfigService } from '@nestjs/config';
-import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
-import { JsonWebTokenError, sign as sign } from 'jsonwebtoken';
 import { LoginResponseDto } from './dto';
-import { PinoLogger } from 'nestjs-pino';
-import { CookieOptions, Request, Response } from 'express';
-import { RolesValidationService } from './roles-validation.service';
-import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
-import { NonceService } from './nonce.service';
 import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
-import { ParsedQs } from 'qs';
 import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { NonceService } from './nonce.service';
+import { RolesValidationService } from './roles-validation.service';
 
 function mockLoginRequestResponse(didAccessTokenPayload: AuthorisedUser) {
   const mockRequest = createRequest();
 
   mockRequest.user = sign(didAccessTokenPayload, 'secretKeyValid');
+
+  const identityTokenPayload = {
+    iss: '1234567',
+    claimData: { blockNumber: 999999999999 },
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 900, // 15 minutes
+  };
+
+  mockRequest.body = {
+    identityToken: sign(identityTokenPayload, 'secretKeyValid'),
+  };
 
   const mockResponse = createResponse();
 
@@ -57,6 +68,7 @@ describe('AuthController', () => {
     refreshTokens: jest.fn(),
     logout: jest.fn(),
     getAuthCookiesOptions: jest.fn(),
+    identityTokenValidate: jest.fn(),
   };
 
   const mockNonceService = {
@@ -857,8 +869,6 @@ describe('AuthController', () => {
         id: '1f7a3006-75a2-41ef-a12a-58144252fd2c',
         did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
         roles: ['role1.roles.app-test2.apps.artur.iam.ewc'],
-        iat: Math.floor(Date.now() / 1000 - 1800),
-        exp: Math.floor(Date.now() / 100 + 1800),
       };
       await controller.introspect(request);
     });

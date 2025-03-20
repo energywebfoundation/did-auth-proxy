@@ -19,7 +19,7 @@ import {
   ValidRefreshTokenGuard,
   ValidUserRolesGuard,
 } from './guards';
-import { decode as decodeJWT } from 'jsonwebtoken';
+import { decode as decodeJWT, JwtPayload } from 'jsonwebtoken';
 import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
 import {
   ApiBearerAuth,
@@ -99,6 +99,15 @@ export class AuthController {
 
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
+    );
+
+    const identityTokenPayload = decodeJWT(
+      req.body.identityToken as string,
+    ) as JwtPayload;
+
+    await this.authService.identityTokenValidate(
+      identityTokenPayload.iat,
+      identityTokenPayload.exp,
     );
 
     const { accessToken, refreshToken } = await this.authService.logIn({
