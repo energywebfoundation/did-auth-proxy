@@ -104,16 +104,19 @@ jobs:
           REDIS_HOST: 'localhost'
           REDIS_PORT: 61379
           JWT_SECRET: 'asecret'
-          JWT_ACCESS_TTL: 60
+          JWT_ACCESS_TTL: 1800
           JWT_REFRESH_TTL: 600
           SIWE_NONCE_TTL: 120
           FAIL_ON_REDIS_UNAVAILABLE: true
           AUTH_COOKIE_ENABLED: true
-          IDENTITY_TOKEN: ${{ secrets.IDENTITY_TOKEN }}
           BLOCKNUM_AUTH_ENABLED: true
           ACCEPTED_ROLES: ''
           INCLUDE_ALL_ROLES: false
-        run: yarn test
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
+        run: |
+          IDENTITY_TOKEN=$(node generate-identity-cli/index.js -p "$PRIVATE_KEY" -b 999999999999)
+          export IDENTITY_TOKEN
+          yarn test  
 
       - name: Get the tag version
 

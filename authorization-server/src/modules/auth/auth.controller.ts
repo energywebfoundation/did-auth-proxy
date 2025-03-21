@@ -81,6 +81,15 @@ export class AuthController {
       )}`,
     );
 
+    const identityTokenPayload = decodeJWT(
+      req.body.identityToken as string,
+    ) as JwtPayload;
+
+    await this.authService.identityTokenValidate(
+      identityTokenPayload.iat,
+      identityTokenPayload.exp,
+    );
+
     return this.loginCommon(req, res);
   }
 
@@ -99,15 +108,6 @@ export class AuthController {
 
     this.logger.debug(
       `did access token payload: ${JSON.stringify(didAccessTokenPayload)}`,
-    );
-
-    const identityTokenPayload = decodeJWT(
-      req.body.identityToken as string,
-    ) as JwtPayload;
-
-    await this.authService.identityTokenValidate(
-      identityTokenPayload.iat,
-      identityTokenPayload.exp,
     );
 
     const { accessToken, refreshToken } = await this.authService.logIn({
