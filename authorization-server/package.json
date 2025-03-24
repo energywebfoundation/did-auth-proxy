@@ -39,7 +39,7 @@
     "@nestjs/jwt": "10.2.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "10.0.3",
-    "@nestjs/platform-express": "10.3.10",
+    "@nestjs/platform-express": "10.4.14",
     "@nestjs/swagger": "7.4.0",
     "@nestjs/terminus": "10.2.3",
     "class-transformer": "0.5.1",
