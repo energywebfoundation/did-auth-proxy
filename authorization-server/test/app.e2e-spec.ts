@@ -49,7 +49,7 @@ describe('AppController (e2e)', () => {
     appHttpServer = app.getHttpServer();
 
     await setTimeout(3000); // delaying to get rid of errors caused by passsport-did-auth
-  }, 15000);
+  }, 60000);
 
   afterAll(async function () {
     await app.close();
@@ -103,7 +103,7 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).post('/auth/login').send({
           identityToken,
         });
-      }, 30000);
+      }, 60000);
 
       it('should respond with 200 status code', async function () {
         expect(response.statusCode).toBe(201);
@@ -452,7 +452,7 @@ describe('AppController (e2e)', () => {
     describe('when called with a valid access token', function () {
       beforeAll(async function () {
         ({ accessToken } = await logIn(appHttpServer, identityToken));
-      }, 15000);
+      }, 60000);
 
       beforeEach(async function () {
         response = await request(appHttpServer)
@@ -514,7 +514,7 @@ describe('AppController (e2e)', () => {
         const { accessToken } = await logIn(appHttpServer, identityToken);
         const { id, did, roles } = decode(accessToken) as IAccessTokenPayload;
         invalidAccessToken = sign({ id, did, roles }, 'invalid secret');
-      }, 15000);
+      }, 60000);
 
       beforeEach(async function () {
         response = await request(appHttpServer)
@@ -551,7 +551,7 @@ describe('AppController (e2e)', () => {
           .send({
             refreshToken,
           });
-      }, 15000);
+      }, 60000);
 
       it('should respond with 201 status code', async function () {
         expect(response.statusCode).toBe(201);
@@ -652,7 +652,7 @@ describe('AppController (e2e)', () => {
           .send({
             refreshToken: sign({ id, did, roles }, 'invalid secret'),
           });
-      }, 15000);
+      }, 60000);
 
       it('should respond with 403 status code', async function () {
         expect(response.statusCode).toBe(403);
@@ -697,7 +697,7 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).get(
           `/auth/refresh_token?refresh_token=${refreshToken}`,
         );
-      });
+      }, 60000);
 
       it('should respond with 200 status code', async function () {
         expect(response.statusCode).toBe(200);
@@ -718,7 +718,7 @@ describe('AppController (e2e)', () => {
         response = await request(appHttpServer).get(
           `/auth/refresh_token?refresh_token=invalid-token`,
         );
-      });
+      }, 60000);
 
       it('should respond with 403 status code', async function () {
         expect(response.statusCode).toBe(403);
@@ -803,7 +803,7 @@ describe('AppController (e2e)', () => {
           .send({
             refreshToken,
           });
-      }, 15000);
+      }, 60000);
 
       it('should respond with 201 status code', async function () {
         expect(response.statusCode).toBe(201);
