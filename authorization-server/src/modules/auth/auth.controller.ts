@@ -11,16 +11,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
-import {
-  JwtAuthGuard,
-  LoginGuard,
-  ValidRefreshTokenGuard,
-  ValidUserRolesGuard,
-} from './guards';
-import { decode as decodeJWT, JwtPayload } from 'jsonwebtoken';
-import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -28,14 +19,23 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
-import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
+import { Request, Response } from 'express';
+import { decode as decodeJWT } from 'jsonwebtoken';
 import { PinoLogger } from 'nestjs-pino';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
-import { NonceService } from './nonce.service';
+import { SiweMessage } from 'siwe';
+import { AuthService } from './auth.service';
+import { LoginDto, LoginResponseDto, LogoutDto, RefreshDto } from './dto';
 import { SiweInitResponseDto } from './dto/siwe-init-response.dto';
 import { SiweVerifyRequestDto } from './dto/siwe-verify-request.dto';
-import { SiweMessage } from 'siwe';
+import {
+  JwtAuthGuard,
+  LoginGuard,
+  ValidRefreshTokenGuard,
+  ValidUserRolesGuard,
+} from './guards';
+import { NonceService } from './nonce.service';
+import { IAccessTokenPayload, IRefreshTokenPayload } from './types';
 
 @Controller('auth')
 @UsePipes(
@@ -81,14 +81,14 @@ export class AuthController {
       )}`,
     );
 
-    const identityTokenPayload = decodeJWT(
-      req.body.identityToken as string,
-    ) as JwtPayload;
+    // const identityTokenPayload = decodeJWT(
+    //   req.body.identityToken as string,
+    // ) as JwtPayload;
 
-    await this.authService.identityTokenValidate(
-      identityTokenPayload.iat,
-      identityTokenPayload.exp,
-    );
+    // await this.authService.identityTokenValidate(
+    //   identityTokenPayload.iat,
+    //   identityTokenPayload.exp,
+    // );
 
     return this.loginCommon(req, res);
   }
