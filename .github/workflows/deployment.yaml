@@ -2,7 +2,7 @@ name: Build images and deploy
 
 on:
   push:
-    branches: [develop, gp4btc-stg, gp4btc-release]
+    branches: [test/code, gp4btc-stg, gp4btc-release]
     paths-ignore:
       - 'devops/**'
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
         id: env_vars
         run: |
           echo "Running on branch ${{ github.ref }}"
-          if [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+          if [ "${{ github.ref }}" = "refs/heads/test/code" ]; then
             echo "::set-output name=aws_access_key_id::${{ secrets.DEV_AWS_ACCESS_KEY_ID }}"
             echo "::set-output name=aws_secret_key::${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
             echo "::set-output name=aws_region::${{ secrets.DEV_AWS_REGION }}"
@@ -141,8 +141,6 @@ jobs:
         run: |
           docker build --build-arg GIT_SHA=${{ github.sha }} -t $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
           docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
-          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
-          docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
 
       - name: Logout of Amazon ECR
         if: always()
@@ -164,6 +162,7 @@ jobs:
           options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
 
       - name: ArgoCD overvrite IAM-DID-AUTH-PROXY values.yaml
+        if: false
         uses: clowdhaus/argo-cd-action/@v1.12.1
         id: argocd_image_helm_tag_overwrite_iam
         with:
