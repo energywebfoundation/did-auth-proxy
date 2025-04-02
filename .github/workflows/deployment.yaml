@@ -2,7 +2,7 @@ name: Build images and deploy
 
 on:
     push:
-        branches: [acr-based, gp4btc-stg, gp4btc-release]
+        branches: [fix/acr-based, gp4btc-stg, gp4btc-release]
         paths-ignore:
             - "devops/**"
     workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
               id: env_vars
               run: |
                   echo "Running on branch ${{ github.ref }}"
-                  if [ "${{ github.ref }}" = "refs/heads/acr_manual_release" ]; then
+                  if [ "${{ github.ref }}" = "refs/heads/fix/acr-based" ]; then
                     echo "::set-output name=aws_access_key_id::${{ secrets.DEV_AWS_ACCESS_KEY_ID }}"
                     echo "::set-output name=aws_secret_key::${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
                     echo "::set-output name=aws_region::${{ secrets.DEV_AWS_REGION }}"
