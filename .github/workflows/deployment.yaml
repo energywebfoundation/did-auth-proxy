@@ -2,7 +2,7 @@ name: Build and deploy
 
 on:
   push:
-    branches: [develop]
+    branches: [azure-canary-branch]
     paths-ignore:
       - 'devops/**'
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
         id: env_vars
         run: |
           echo "Running on branch ${{ github.ref }}"
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/azure-canary-branch" ]]; then
             echo "::set-output name=aws_access_key_id::${{ secrets.DEV_AWS_ACCESS_KEY_ID }}"
             echo "::set-output name=aws_secret_key::${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
             echo "::set-output name=aws_region::${{ secrets.DEV_AWS_REGION }}"
@@ -87,67 +87,65 @@ jobs:
           aws-secret-access-key: ${{ steps.env_vars.outputs.aws_secret_key }}
           aws-region: ${{ steps.env_vars.outputs.aws_region }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build & push docker images (AWS)
-        env:
-          BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          docker build -t $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
-          docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
-          docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
-          docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+      # - name: Build & push docker images (AWS)
+      #   env:
+      #     BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #   run: |
+      #     docker build -t $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
+      #     docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID
+      #     docker tag $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:$BUILD_ID $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
+      #     docker push $ECR_REGISTRY/${{ steps.env_vars.outputs.aws_ecr_repository }}:latest
 
-      - name: Logout of Amazon ECR
-        if: always()
-        run: docker logout ${{ steps.login-ecr.outputs.registry }}
+      # - name: Logout of Amazon ECR
+      #   if: always()
+      #   run: docker logout ${{ steps.login-ecr.outputs.registry }}
       
       - name: Login to Azure registry
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_REGISTRY_USERNAME }}
-          password: ${{ secrets.ACR_REGISTRY_PASSWORD }}
+          login-server: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
       - name: Push image (Azure)
         env:
           BUILD_ID: ${{needs.unique_id.outputs.unique_id}}
-          ACR_REGISTRY: ${{ secrets.ACR_REGISTRY_LOGIN_SERVER }}
+          ACR_REGISTRY: ${{ secrets.AZURE_REGISTRY_LOGIN_SERVER }}
           REPO_NAME: ${{ steps.env_vars.outputs.aws_ecr_repository }}
         run: |
-          docker tag ${{ steps.login-ecr.outputs.registry }}/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
+          docker build -t $ACR_REGISTRY/$REPO_NAME:$BUILD_ID -f authorization-server/Dockerfile ./authorization-server
           docker push $ACR_REGISTRY/$REPO_NAME:$BUILD_ID
-          docker tag $ACR_REGISTRY/$REPO_NAME:$BUILD_ID $ACR_REGISTRY/$REPO_NAME:canary
-          docker push $ACR_REGISTRY/$REPO_NAME:canary
 
-      - name: ArgoCD login
-        uses: clowdhaus/argo-cd-action/@v1.12.0
-        id: argocd_login
-        with:
-          command: login ${{ steps.env_vars.outputs.argocd_url }}
-          options: --insecure --password ${{ steps.env_vars.outputs.argocd_password }} --username ${{ steps.env_vars.outputs.argocd_username }}
+      # - name: ArgoCD login
+      #   uses: clowdhaus/argo-cd-action/@v1.12.0
+      #   id: argocd_login
+      #   with:
+      #     command: login ${{ steps.env_vars.outputs.argocd_url }}
+      #     options: --insecure --password ${{ steps.env_vars.outputs.argocd_password }} --username ${{ steps.env_vars.outputs.argocd_username }}
 
-      - name: ArgoCD overvrite HELM values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.12.0
-        id: argocd_image_helm_tag_overwrite
-        with:
-          command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
-          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
+      # - name: ArgoCD overvrite HELM values.yaml
+      #   uses: clowdhaus/argo-cd-action/@v1.12.0
+      #   id: argocd_image_helm_tag_overwrite
+      #   with:
+      #     command: app set ${{ steps.env_vars.outputs.argocd_app_name }}
+      #     options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
 
-      - name: Reset ArgoCD
-        run: rm -rf /home/runner/argocd
+      # - name: Reset ArgoCD
+      #   run: rm -rf /home/runner/argocd
 
-      - name: ArgoCD(DDhub-dev) login
-        uses: clowdhaus/argo-cd-action/@v1.12.0
-        with:
-          command: login ${{ secrets.ARGOCD_DDHUB_DEV_URL }}
-          options: --insecure --password ${{ secrets.ARGOCD_DDHUB_DEV_PASS }} --username ${{ secrets.ARGOCD_DDHUB_DEV_USERNAME }}
+      # - name: ArgoCD(DDhub-dev) login
+      #   uses: clowdhaus/argo-cd-action/@v1.12.0
+      #   with:
+      #     command: login ${{ secrets.ARGOCD_DDHUB_DEV_URL }}
+      #     options: --insecure --password ${{ secrets.ARGOCD_DDHUB_DEV_PASS }} --username ${{ secrets.ARGOCD_DDHUB_DEV_USERNAME }}
 
-      - name: ArgoCD(DDhub-dev) overvrite values.yaml
-        uses: clowdhaus/argo-cd-action/@v1.12.0
-        with:
-          command: app set ddhub-messagebroker-dev
-          options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
+      # - name: ArgoCD(DDhub-dev) overvrite values.yaml
+      #   uses: clowdhaus/argo-cd-action/@v1.12.0
+      #   with:
+      #     command: app set ddhub-messagebroker-dev
+      #     options: -p did-auth-proxy-helm.image.tag=${{needs.unique_id.outputs.unique_id}}
