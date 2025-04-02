@@ -8,7 +8,10 @@ import { isNil } from '@nestjs/common/utils/shared.utils';
 export class NonceService {
   private readonly redisKeyPrefix = 'siwe-nonce:';
 
-  constructor(private config: ConfigService, private redis: RedisService) {}
+  constructor(
+    private config: ConfigService,
+    private redis: RedisService,
+  ) {}
 
   async generateNonce(): Promise<string> {
     const nonce = generateNonce();

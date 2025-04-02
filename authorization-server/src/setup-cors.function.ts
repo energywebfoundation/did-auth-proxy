@@ -15,11 +15,11 @@ export function setupCors(
       config.get<string>('CORS_ORIGIN') === '*'
         ? '*'
         : config.get<string>('CORS_ORIGIN')?.match(',')
-        ? config
-            .get<string>('CORS_ORIGIN')
-            ?.split(',')
-            .map((o) => o.trim())
-        : config.get<string>('CORS_ORIGIN'),
+          ? config
+              .get<string>('CORS_ORIGIN')
+              ?.split(',')
+              .map((o) => o.trim())
+          : config.get<string>('CORS_ORIGIN'),
   };
 
   app
@@ -28,4 +28,5 @@ export function setupCors(
       `setting CORS headers with settings: ${JSON.stringify(corsOptions)}`,
     );
   app.enableCors(corsOptions);
+  logger.log('setupCors');
 }
