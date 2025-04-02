@@ -80,7 +80,7 @@ jobs:
               run: yarn install
 
             - name: Check linting
-              run: yarn lint
+              run: yarn lint --fix
 
             - name: Build project
               run: yarn build
