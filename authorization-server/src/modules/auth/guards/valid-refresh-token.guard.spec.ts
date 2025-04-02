@@ -100,9 +100,8 @@ describe('ValidRefreshTokenGuard', () => {
         );
 
         try {
-          result = await validRefreshTokenGuard.canActivate(
-            mockExecutionContext,
-          );
+          result =
+            await validRefreshTokenGuard.canActivate(mockExecutionContext);
         } catch (err) {
           exception = err;
         }
@@ -144,9 +143,8 @@ describe('ValidRefreshTokenGuard', () => {
           });
 
           try {
-            result = await validRefreshTokenGuard.canActivate(
-              mockExecutionContext,
-            );
+            result =
+              await validRefreshTokenGuard.canActivate(mockExecutionContext);
           } catch (err) {
             exception = err;
           }
@@ -188,9 +186,8 @@ describe('ValidRefreshTokenGuard', () => {
         );
 
         try {
-          result = await validRefreshTokenGuard.canActivate(
-            mockExecutionContext,
-          );
+          result =
+            await validRefreshTokenGuard.canActivate(mockExecutionContext);
         } catch (err) {
           exception = err;
         }
@@ -225,9 +222,8 @@ describe('ValidRefreshTokenGuard', () => {
           });
 
           try {
-            result = await validRefreshTokenGuard.canActivate(
-              mockExecutionContext,
-            );
+            result =
+              await validRefreshTokenGuard.canActivate(mockExecutionContext);
           } catch (err) {
             exception = err;
           }
@@ -266,9 +262,8 @@ describe('ValidRefreshTokenGuard', () => {
           );
 
           try {
-            result = await validRefreshTokenGuard.canActivate(
-              mockExecutionContext,
-            );
+            result =
+              await validRefreshTokenGuard.canActivate(mockExecutionContext);
           } catch (err) {
             exception = err;
           }
