@@ -104,7 +104,7 @@ jobs:
                   REDIS_PORT: 61379
                   JWT_SECRET: "asecret"
                   JWT_ACCESS_TTL: 1800
-                  JWT_REFRESH_TTL: 600
+                  JWT_REFRESH_TTL: 86400
                   SIWE_NONCE_TTL: 120
                   FAIL_ON_REDIS_UNAVAILABLE: true
                   AUTH_COOKIE_ENABLED: true
