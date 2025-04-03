@@ -2,7 +2,7 @@ name: Build and deploy
 
 on:
   push:
-    branches: [fix/identity-expiry]
+    branches: [azure-canary-branch]
     paths-ignore:
       - "devops/**"
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
         id: env_vars
         run: |
           echo "Running on branch ${{ github.ref }}"
-          if [[ "${{ github.ref }}" == "refs/heads/fix/identity-expiry" ]]; then
+          if [[ "${{ github.ref }}" == "refs/heads/azure-canary-branch" ]]; then
             echo "::set-output name=aws_access_key_id::${{ secrets.DEV_AWS_ACCESS_KEY_ID }}"
             echo "::set-output name=aws_secret_key::${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}"
             echo "::set-output name=aws_region::${{ secrets.DEV_AWS_REGION }}"
