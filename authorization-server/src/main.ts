@@ -65,6 +65,9 @@ async function bootstrap() {
 
   const server = app.getHttpServer();
 
+  // Set server timeout to 5 minutes (in milliseconds)
+  server.setTimeout(300000); // 300000ms = 5 minutes
+
   server.on('connection', (socket: Socket) =>
     connectionHandler(socket, webserverLogger),
   );
