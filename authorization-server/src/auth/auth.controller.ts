@@ -12,7 +12,7 @@ import {
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { LoginGuard } from './login.guard';
-import { decode as decodeJWT } from 'jsonwebtoken';
+import { decode as decodeJWT, JwtPayload } from 'jsonwebtoken';
 import { JwtAuthGuard } from './jwt.guard';
 import { LoginResponseDto } from './dto/login-response.dto';
 import {
@@ -75,6 +75,15 @@ export class AuthController {
       `identity token content: ${JSON.stringify(
         decodeJWT(body.identityToken),
       )}`,
+    );
+
+    const identityTokenPayload = decodeJWT(
+      body.identityToken as string,
+    ) as JwtPayload;
+
+    await this.authService.identityTokenValidate(
+      identityTokenPayload.iat,
+      identityTokenPayload.exp,
     );
 
     const didAccessTokenPayload = decodeJWT(

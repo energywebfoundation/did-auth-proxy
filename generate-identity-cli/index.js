@@ -1,14 +1,22 @@
 #!/usr/bin/env node
 
-const { utils, Wallet } = require('ethers');
-const { encode } = require('base64url');
-const { program } = require('commander');
+const { utils, Wallet } = require("ethers");
+const { encode } = require("base64url");
+const { program } = require("commander");
 
 program
-    .requiredOption('-p, --private-key <key>', 'DID private key', validatePrivateKey)
-    .requiredOption('-b, --block-number <block number>', 'block number', parseBlockNumber)
-    .option('-v, --verbose', 'output messages for debugging')
-    .parse(process.argv);
+  .requiredOption(
+    "-p, --private-key <key>",
+    "DID private key",
+    validatePrivateKey
+  )
+  .requiredOption(
+    "-b, --block-number <block number>",
+    "block number",
+    parseBlockNumber
+  )
+  .option("-v, --verbose", "output messages for debugging")
+  .parse(process.argv);
 
 const options = program.opts();
 const { privateKey, blockNumber, verbose = false } = options;
@@ -16,57 +24,63 @@ const { privateKey, blockNumber, verbose = false } = options;
 const signer = new Wallet(privateKey);
 
 const header = {
-    alg: 'ES256',
-    typ: 'JWT'
+  alg: "ES256",
+  typ: "JWT",
 };
 
 (async () => {
-    const did = `did:ethr:volta:${await signer.getAddress()}`;
+  const did = `did:ethr:volta:${await signer.getAddress()}`;
 
-    logger(`generating identityToken for ${did}`, verbose);
+  logger(`generating identityToken for ${did}`, verbose);
 
-    const payload = {
-        iss: did,
-        claimData: { blockNumber }
-    };
+  const payload = {
+    iss: did,
+    claimData: { blockNumber },
+    iat: Math.floor(Date.now() / 1000), // Issued at now
+    exp: Math.floor(Date.now() / 1000) + 900, // Expires in 15 minutes
+  };
 
-    logger(`token header: ${JSON.stringify(header)}`, verbose);
-    logger(`token payload: ${JSON.stringify(payload)}`, verbose);
+  logger(`token header: ${JSON.stringify(header)}`, verbose);
+  logger(`token payload: ${JSON.stringify(payload)}`, verbose);
 
-    const headerEncoded = encode(Buffer.from(JSON.stringify(header)));
-    const payloadEncoded = encode(Buffer.from(JSON.stringify(payload)));
+  const headerEncoded = encode(Buffer.from(JSON.stringify(header)));
+  const payloadEncoded = encode(Buffer.from(JSON.stringify(payload)));
 
-    const hash = utils.keccak256(Buffer.from(`${headerEncoded}.${payloadEncoded}`));
+  const hash = utils.keccak256(
+    Buffer.from(`${headerEncoded}.${payloadEncoded}`)
+  );
 
-    logger(`hash: ${hash}`, verbose);
+  logger(`hash: ${hash}`, verbose);
 
-    const signatureEncoded = encode(Buffer.from(await signer.signMessage(utils.arrayify(hash))));
+  const signatureEncoded = encode(
+    Buffer.from(await signer.signMessage(utils.arrayify(hash)))
+  );
 
-    logger(`signature: ${signatureEncoded}`, verbose);
+  logger(`signature: ${signatureEncoded}`, verbose);
 
-    const identityToken = `${headerEncoded}.${payloadEncoded}.${signatureEncoded}`;
+  const identityToken = `${headerEncoded}.${payloadEncoded}.${signatureEncoded}`;
 
-    console.log(identityToken);
+  console.log(identityToken);
 })();
 
 function logger(message, enabled = true) {
-    if (enabled) console.error(message);
+  if (enabled) console.error(message);
 }
 
 function parseBlockNumber(blockNumber) {
-    const parsedValue = parseInt(blockNumber, 10);
-    if (isNaN(parsedValue)) {
-        throw new program.InvalidArgumentError('Not a number.');
-    }
-    return parsedValue;
+  const parsedValue = parseInt(blockNumber, 10);
+  if (isNaN(parsedValue)) {
+    throw new program.InvalidArgumentError("Not a number.");
+  }
+  return parsedValue;
 }
 
 function validatePrivateKey(privateKey) {
-    try {
-        w = new Wallet(privateKey);
-    } catch (e) {
-        throw new program.InvalidArgumentError('Invalid private key.');
-    }
+  try {
+    w = new Wallet(privateKey);
+  } catch (e) {
+    throw new program.InvalidArgumentError("Invalid private key.");
+  }
 
-    return privateKey;
+  return privateKey;
 }
