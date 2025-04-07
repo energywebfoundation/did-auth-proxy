@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "engineStrict": true,
   "engines": {
-    "node": ">=14 <17"
+    "node": ">=14 <19"
   },
   "scripts": {
     "clean": "rimraf dist node_modules",
@@ -46,7 +46,7 @@
     "joi": "^17.0.0",
     "jsonwebtoken": "^8.0.0",
     "passport": "^0.5.0",
-    "passport-did-auth": "2.0.0-alpha.4",
+    "passport-did-auth": "2.1.0-alpha.1",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
