@@ -61,6 +61,10 @@ did-auth-proxy-helm:
     DID_REGISTRY_ADDRESS: 0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af
     ENS_REGISTRY_ADDRESS: 0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac
     ENS_RESOLVER_ADDRESS: 0xcf72f16Ab886776232bea2fcf3689761a0b74EfE
+    INCLUDE_ALL_ROLES: false
+    SIWE_NONCE_TTL: 300
+    SELF_BASE_URL: https://did-auth-proxy-dev.energyweb.org
+    
 
   opsValues:
     RPC_URL: https://volta-rpc.energyweb.org/
@@ -70,6 +74,7 @@ did-auth-proxy-helm:
     REDIS_PASSWORD: redis
     IPFS_HOST: ipfs.infura.io
     IPFS_PORT: 5001
+    IPFS_PROTOCOL: https
     IPFS_PROJECTID: 2DXJGR6JFXIE612O8bUvjXGIBIP
 
   resources: {}
