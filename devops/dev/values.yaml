@@ -170,7 +170,7 @@ did-auth-proxy-helm:
             proxy_pass http://gp4btc-backend-microservice.gp4btc.svc.cluster.local;
 
             proxy_hide_header Access-Control-Allow-Origin;
-            add_header Access-Control-Allow-Origin $allow_origin  always;
+            add_header Access-Control-Allow-Origin '*'  always;
 
             proxy_hide_header Access-Control-Allow-Credentials;
             add_header Access-Control-Allow-Credentials 'true'  always;
