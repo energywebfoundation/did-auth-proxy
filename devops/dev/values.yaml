@@ -117,11 +117,6 @@ did-auth-proxy-helm:
     fullnameOverride: "dev-did-auth-proxy-helm-server-block"
 
     serverBlock: |-
-      map $http_origin $allow_origin {
-        default "";
-        "~^(http://localhost:4200|http://localhost:4201)$" "$http_origin";
-      }
-        
       map $request_method $cors_method {
         default "allowed";
         "OPTIONS" "preflight";
