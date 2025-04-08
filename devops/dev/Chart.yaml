@@ -26,5 +26,6 @@ appVersion: "0.0.9"
 
 dependencies:
   - name: did-auth-proxy-helm
-    version: 0.0.12
-    repository: "oci://984870885661.dkr.ecr.us-west-2.amazonaws.com"
+    condition: did-auth-proxy-helm.enabled
+    version: 0.1.8
+    repository: https://energywebfoundation.github.io/did-auth-proxy-helm/
