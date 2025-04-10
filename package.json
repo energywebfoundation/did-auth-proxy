@@ -13,7 +13,7 @@
     "test:unit": "cd authorization-server && yarn test:unit",
     "test:e2e": "cd authorization-server && yarn test:e2e",
     "clean": "rimraf node_modules authorization-server/dist authorization-server/node_modules backend-server/node_modules generate-identity-cli/node_modules",
-    "postinstall": "run-s install:*",
+    "postinstall": "yarn install:backend-server && yarn install:authorization-server && yarn install:generate-identity-cli",
     "install:backend-server": "cd backend-server && yarn",
     "install:authorization-server": "cd authorization-server && yarn",
     "install:generate-identity-cli": "cd generate-identity-cli && yarn",
