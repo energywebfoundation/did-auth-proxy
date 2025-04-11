@@ -42,6 +42,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       address: configService.get<string>('ENS_RESOLVER_ADDRESS'),
       type: ResolverContractType.RoleDefinitionResolver_v2,
     });
+    const cacheServerUrl = process.env.CACHE_SERVER_URL;
+    const privateKey = process.env.CACHE_SERVER_LOGIN_PRVKEY;
 
     super(
       {
@@ -70,6 +72,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           method: Methods.Erc1056,
         },
         new DidStore(AuthStrategy.getIpfsClientConfig(configService)),
+        privateKey,
+        cacheServerUrl,
       ),
       verifyCredential,
     );
