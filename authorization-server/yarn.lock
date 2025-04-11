@@ -339,10 +339,10 @@
   resolved "https://registry.npmjs.org/@ecies/ciphers/-/ciphers-0.2.3.tgz"
   integrity sha512-tapn6XhOueMwht3E2UzY0ZZjYokdaw9XtL9kEyjhQ/Fb9vL9xTFbOaI+fV0AWvTpYu4BNloC6getKW6NtSg4mA==
 
-"@energyweb/credential-governance@2.2.1-alpha.321.0":
-  version "2.2.1-alpha.321.0"
-  resolved "https://registry.npmjs.org/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.321.0.tgz"
-  integrity sha512-x+MUUF8gQ+TpEia/XLw3eN8P4ca1WktFHfLLnU4FWyIoX3qM8frUCu5kg56SDORDdkI2tm1zOmu+zme0vEn4Sg==
+"@energyweb/credential-governance@2.2.1-alpha.322.0", "@energyweb/credential-governance@^2.2.1-alpha.322.0":
+  version "2.2.1-alpha.322.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.322.0.tgz#fe9096256ae18604d47d81cb40c5e8b201ae15c5"
+  integrity sha512-yVFQh6+33MAFNJ6gfTSI2zXNxL+0ZI0haNLGIi+F+/AiEcMq5gvxE3pCdQiBUU8D3rwwZ+o5w21OXIuBhm6NTg==
   dependencies:
     "@cjs-exporter/p-map" "5.5.0"
     "@ew-did-registry/credentials-interface" "^0.8.1-alpha.1122.0"
@@ -354,12 +354,12 @@
   resolved "https://registry.npmjs.org/@energyweb/eslint-config/-/eslint-config-0.1.0.tgz"
   integrity sha512-8XHRyDtx0owTpRTeC7b/1pfrxtKW/QfnhWjw/k9dOV8fMos0yeqMMZlW7Uyy3EEFkYITFrPL1S1Lr2MQUPoysw==
 
-"@energyweb/onchain-claims@2.2.1-alpha.321.0":
-  version "2.2.1-alpha.321.0"
-  resolved "https://registry.npmjs.org/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.321.0.tgz"
-  integrity sha512-9YueWHPUE+KPVYlsnRmsummVmok/amSfMitjUUvBWuRHnZVc5SfBG5Q2iI3sc+jtpd8MEDxwLe6dCpQiOU++zQ==
+"@energyweb/onchain-claims@2.2.1-alpha.322.0", "@energyweb/onchain-claims@^2.2.1-alpha.322.0":
+  version "2.2.1-alpha.322.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.322.0.tgz#f7acd61c4575cb7d7882cb6523987fd60495c609"
+  integrity sha512-XYX4hlJo9YnNQxa9mCwQYn4t7FaG6gl+mXzj3g3IpLuR9KeUaMSBt+j5GMa5g8964CDUIxW1tLB+tpVMMVtA3w==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.321.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.322.0"
     "@ew-did-registry/did" "^0.8.1-alpha.1122.0"
     "@ew-did-registry/did-ethr-resolver" "^0.8.1-alpha.1122.0"
     ethers "^5.7.2"
@@ -369,13 +369,13 @@
   resolved "https://registry.npmjs.org/@energyweb/prettier-config/-/prettier-config-0.0.1.tgz"
   integrity sha512-4Bh2nbDO1JkGRVZ2Ub0fdgmRTLMQa2eoB2U5jo7o8M/ivqFxyZbPRWSgwfahyHvxjev1bUi25FayWee5zMRrkg==
 
-"@energyweb/vc-verification@2.2.1-alpha.321.0":
-  version "2.2.1-alpha.321.0"
-  resolved "https://registry.npmjs.org/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.321.0.tgz"
-  integrity sha512-imKykb4skjeFyYeSxWIbwU/gVIAJLU0n2+rkuehhXfGIj1NCftUWakF87rFxPsvsmfKv+fyoQUEMAonjf8wwvg==
+"@energyweb/vc-verification@^2.2.1-alpha.322.0":
+  version "2.2.1-alpha.322.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.322.0.tgz#16725d0437b61507bd38c1854e31582cc41af48a"
+  integrity sha512-/3ZvIE5m52co1ouUrHvE6OdkCH5WROdN2uy5wrHwjQnDh5DIJF1Cm0Iyl8gd/MmcZt/FUYlHEwsX4f+WW/4ECA==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.321.0"
-    "@energyweb/onchain-claims" "2.2.1-alpha.321.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.322.0"
+    "@energyweb/onchain-claims" "2.2.1-alpha.322.0"
     "@ew-did-registry/claims" "^0.8.1-alpha.1122.0"
     "@ew-did-registry/credentials-interface" "^0.8.1-alpha.1122.0"
     "@ew-did-registry/did-ethr-resolver" "^0.8.1-alpha.1122.0"
@@ -7335,14 +7335,14 @@ parseurl@^1.3.3, parseurl@~1.3.3:
   resolved "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz"
   integrity sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
 
-passport-did-auth@2.1.0-alpha.2:
-  version "2.1.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.1.0-alpha.2.tgz#84bc04a0848f5e8b49fb15e4b7100daeb1c847e5"
-  integrity sha512-yWQY3yGaFWVjm20oZkeSh9wkjnadjWHmw8mkJ8DSOsmu9j6OXXROVMTas1q0jofaPgmq/wrGh/eyCShIpQnkBQ==
+passport-did-auth@2.1.0-alpha.3:
+  version "2.1.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.1.0-alpha.3.tgz#68bd31447f276d77430e4a903d865a7773aabd28"
+  integrity sha512-rL5wxjSxPm/leFLOREJPtuJ1mwkMsj/MTCgO+X49seaKsuTaoW3FKPUc+3/41wuoUJW4HXkEdDYYReBG3DXrtg==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.321.0"
-    "@energyweb/onchain-claims" "2.2.1-alpha.321.0"
-    "@energyweb/vc-verification" "2.2.1-alpha.321.0"
+    "@energyweb/credential-governance" "^2.2.1-alpha.322.0"
+    "@energyweb/onchain-claims" "^2.2.1-alpha.322.0"
+    "@energyweb/vc-verification" "^2.2.1-alpha.322.0"
     "@ensdomains/ens-contracts" "^0.0.21"
     "@ew-did-registry/claims" "0.8.1-alpha.1140.0"
     "@ew-did-registry/did" "0.8.1-alpha.1140.0"
