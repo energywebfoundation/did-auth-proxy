@@ -339,10 +339,10 @@
   resolved "https://registry.npmjs.org/@ecies/ciphers/-/ciphers-0.2.3.tgz"
   integrity sha512-tapn6XhOueMwht3E2UzY0ZZjYokdaw9XtL9kEyjhQ/Fb9vL9xTFbOaI+fV0AWvTpYu4BNloC6getKW6NtSg4mA==
 
-"@energyweb/credential-governance@2.2.1-alpha.322.0", "@energyweb/credential-governance@^2.2.1-alpha.322.0":
-  version "2.2.1-alpha.322.0"
-  resolved "https://registry.yarnpkg.com/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.322.0.tgz#fe9096256ae18604d47d81cb40c5e8b201ae15c5"
-  integrity sha512-yVFQh6+33MAFNJ6gfTSI2zXNxL+0ZI0haNLGIi+F+/AiEcMq5gvxE3pCdQiBUU8D3rwwZ+o5w21OXIuBhm6NTg==
+"@energyweb/credential-governance@2.2.1-alpha.323.0":
+  version "2.2.1-alpha.323.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.323.0.tgz#21890c23956ad4c5d3caa767d6ffe30a7eb0978e"
+  integrity sha512-Qr4mp4yxsFEQ9bluRTcjOOAFAxg973Vo7DWAXAHOZ5H7F7DaZpXgU0rxDvKt5rEGs/uvpmiHX6vQ8fH9ASWLvw==
   dependencies:
     "@cjs-exporter/p-map" "5.5.0"
     "@ew-did-registry/credentials-interface" "^0.8.1-alpha.1122.0"
@@ -354,12 +354,12 @@
   resolved "https://registry.npmjs.org/@energyweb/eslint-config/-/eslint-config-0.1.0.tgz"
   integrity sha512-8XHRyDtx0owTpRTeC7b/1pfrxtKW/QfnhWjw/k9dOV8fMos0yeqMMZlW7Uyy3EEFkYITFrPL1S1Lr2MQUPoysw==
 
-"@energyweb/onchain-claims@2.2.1-alpha.322.0", "@energyweb/onchain-claims@^2.2.1-alpha.322.0":
-  version "2.2.1-alpha.322.0"
-  resolved "https://registry.yarnpkg.com/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.322.0.tgz#f7acd61c4575cb7d7882cb6523987fd60495c609"
-  integrity sha512-XYX4hlJo9YnNQxa9mCwQYn4t7FaG6gl+mXzj3g3IpLuR9KeUaMSBt+j5GMa5g8964CDUIxW1tLB+tpVMMVtA3w==
+"@energyweb/onchain-claims@2.2.1-alpha.323.0":
+  version "2.2.1-alpha.323.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.323.0.tgz#5ca786069e593ad1781006809eba8d980d641424"
+  integrity sha512-cLTIYeZSHC6aGuMbEQ6iTQeEkkdmCpyJxqLqRjwHPCuSk3WWC84Lcoq7WKh98w9bT2MwUrfuSMmSbZk0x1vTng==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.322.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.323.0"
     "@ew-did-registry/did" "^0.8.1-alpha.1122.0"
     "@ew-did-registry/did-ethr-resolver" "^0.8.1-alpha.1122.0"
     ethers "^5.7.2"
@@ -369,13 +369,13 @@
   resolved "https://registry.npmjs.org/@energyweb/prettier-config/-/prettier-config-0.0.1.tgz"
   integrity sha512-4Bh2nbDO1JkGRVZ2Ub0fdgmRTLMQa2eoB2U5jo7o8M/ivqFxyZbPRWSgwfahyHvxjev1bUi25FayWee5zMRrkg==
 
-"@energyweb/vc-verification@^2.2.1-alpha.322.0":
-  version "2.2.1-alpha.322.0"
-  resolved "https://registry.yarnpkg.com/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.322.0.tgz#16725d0437b61507bd38c1854e31582cc41af48a"
-  integrity sha512-/3ZvIE5m52co1ouUrHvE6OdkCH5WROdN2uy5wrHwjQnDh5DIJF1Cm0Iyl8gd/MmcZt/FUYlHEwsX4f+WW/4ECA==
+"@energyweb/vc-verification@2.2.1-alpha.323.0":
+  version "2.2.1-alpha.323.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.323.0.tgz#93df6db2a73e8f886f499e3acd5d97f228828b93"
+  integrity sha512-A2cPN+/pTP5ZuifqgbyemHugCRlJYwaJag9+0epTJ2h6u8SVyYRuTfqPDIJYnYruMa3qJyCT7TbreJl/661oKw==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.322.0"
-    "@energyweb/onchain-claims" "2.2.1-alpha.322.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.323.0"
+    "@energyweb/onchain-claims" "2.2.1-alpha.323.0"
     "@ew-did-registry/claims" "^0.8.1-alpha.1122.0"
     "@ew-did-registry/credentials-interface" "^0.8.1-alpha.1122.0"
     "@ew-did-registry/did-ethr-resolver" "^0.8.1-alpha.1122.0"
@@ -384,6 +384,7 @@
     "@ew-did-registry/revocation" "^0.8.1-alpha.1122.0"
     ethers "^5.7.2"
     lodash "^4.17.21"
+    p-limit "3"
 
 "@ensdomains/buffer@^0.1.1":
   version "0.1.1"
@@ -7256,19 +7257,19 @@ p-is-promise@^2.0.0:
   resolved "https://registry.npmjs.org/p-is-promise/-/p-is-promise-2.1.0.tgz"
   integrity sha512-Y3W0wlRPK8ZMRbNq97l4M5otioeA5lm1z7bkNkxCka8HSPjR0xRWmpCmc9utiaLP9Jb1eD8BgeIxTW4AIF45Pg==
 
+p-limit@3, p-limit@^3.0.2, p-limit@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.npmjs.org/p-limit/-/p-limit-3.1.0.tgz"
+  integrity sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==
+  dependencies:
+    yocto-queue "^0.1.0"
+
 p-limit@^2.0.0, p-limit@^2.2.0:
   version "2.3.0"
   resolved "https://registry.npmjs.org/p-limit/-/p-limit-2.3.0.tgz"
   integrity sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==
   dependencies:
     p-try "^2.0.0"
-
-p-limit@^3.0.2, p-limit@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.npmjs.org/p-limit/-/p-limit-3.1.0.tgz"
-  integrity sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==
-  dependencies:
-    yocto-queue "^0.1.0"
 
 p-locate@^3.0.0:
   version "3.0.0"
@@ -7335,14 +7336,14 @@ parseurl@^1.3.3, parseurl@~1.3.3:
   resolved "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz"
   integrity sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
 
-passport-did-auth@2.1.0-alpha.3:
-  version "2.1.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.1.0-alpha.3.tgz#68bd31447f276d77430e4a903d865a7773aabd28"
-  integrity sha512-rL5wxjSxPm/leFLOREJPtuJ1mwkMsj/MTCgO+X49seaKsuTaoW3FKPUc+3/41wuoUJW4HXkEdDYYReBG3DXrtg==
+passport-did-auth@2.1.0-alpha.4:
+  version "2.1.0-alpha.4"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.1.0-alpha.4.tgz#96dd9e0607a048b7e8005f7e6ae93f27571d15f2"
+  integrity sha512-SmBfM+USBVtoce8bj7symTuMolqjseKW0BsalUbRq5WfBTJd1fAKV8hGZHBUTDMg/1YrXFzQko4YkOLflyEOHA==
   dependencies:
-    "@energyweb/credential-governance" "^2.2.1-alpha.322.0"
-    "@energyweb/onchain-claims" "^2.2.1-alpha.322.0"
-    "@energyweb/vc-verification" "^2.2.1-alpha.322.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.323.0"
+    "@energyweb/onchain-claims" "2.2.1-alpha.323.0"
+    "@energyweb/vc-verification" "2.2.1-alpha.323.0"
     "@ensdomains/ens-contracts" "^0.0.21"
     "@ew-did-registry/claims" "0.8.1-alpha.1140.0"
     "@ew-did-registry/did" "0.8.1-alpha.1140.0"
