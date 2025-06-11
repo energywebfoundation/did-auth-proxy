@@ -71,7 +71,13 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           address: configService.get<string>('DID_REGISTRY_ADDRESS'),
           method: Methods.Erc1056,
         },
-        new DidStore(AuthStrategy.getIpfsClientConfig(configService)),
+        new DidStore(configService.get<string>('AWS_S3_BUCKET'), {
+          region: configService.get<string>('AWS_REGION'),
+          credentials: {
+            accessKeyId: configService.get<string>('AWS_ACCESS_KEY_ID'),
+            secretAccessKey: configService.get<string>('AWS_SECRET_ACCESS_KEY'),
+          },
+        }),
         privateKey,
         cacheServerUrl,
       ),

@@ -3,223 +3,224 @@ name: CI
 on: [pull_request]
 
 jobs:
-  cancel-previous:
-    name: Cancel Previous Runs
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
+    cancel-previous:
+        name: Cancel Previous Runs
+        runs-on: ubuntu-latest
+        timeout-minutes: 3
+        steps:
+            - uses: styfle/cancel-workflow-action@0.12.1
+              with:
+                  access_token: ${{ github.token }}
 
-  install:
-    name: Install dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+    install:
+        name: Install dependencies
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-      - name: Setup app dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
+            - name: Setup app dependencies
+              uses: actions/setup-node@v3
+              with:
+                  node-version-file: ".nvmrc"
 
-      - name: Cache node modules
-        uses: actions/cache@v3
+            - name: Cache node modules
+              uses: actions/cache@v3
+              env:
+                  cache-name: cache-node-modules
+              with:
+                  # npm cache files are stored in `~/.npm` on Linux/macOS
+                  path: |
+                      authorization-server/node_modules
+                      backend-server/node_modules
+                      generate-identity-cli/node_modules
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+                      ${{ runner.os }}-node_modules-
+
+            - run: yarn install --frozen-lockfile
+
+    lint:
+        name: Linting code
+        needs: [install]
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup app dependencies
+              uses: actions/setup-node@v3
+              with:
+                  node-version-file: ".nvmrc"
+
+            - uses: actions/cache@v3
+              id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+              with:
+                  path: |
+                      authorization-server/node_modules
+                      backend-server/node_modules
+                      generate-identity-cli/node_modules
+
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+
+            - run: yarn lint
+
+    build:
+        name: Building code
+        needs: [install]
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup app dependencies
+              uses: actions/setup-node@v3
+              with:
+                  node-version-file: ".nvmrc"
+
+            - uses: actions/cache@v3
+              id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+              with:
+                  path: |
+                      authorization-server/node_modules
+                      backend-server/node_modules
+                      generate-identity-cli/node_modules
+
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+
+            - run: yarn build
+
+    tests-unit:
+        name: Unit tests
+        needs: [build]
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup app dependencies
+              uses: actions/setup-node@v3
+              with:
+                  node-version-file: ".nvmrc"
+
+            - uses: actions/cache@v3
+              id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+              with:
+                  path: |
+                      authorization-server/node_modules
+                      backend-server/node_modules
+                      generate-identity-cli/node_modules
+
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+
+            - run: yarn test:unit
+
+    tests-e2e-public:
+        name: E2E tests - public IPFS gateway
+        if: false
+        needs: [build]
+        runs-on: ubuntu-latest
+
         env:
-          cache-name: cache-node-modules
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: |
-            authorization-server/node_modules
-            backend-server/node_modules
-            generate-identity-cli/node_modules
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-            ${{ runner.os }}-node_modules-
+            LOG_LEVEL: "error"
+            SELF_BASE_URL: http://127.0.0.1:3000
+            RPC_URL: "https://volta-rpc-vkn5r5zx4ke71f9hcu0c.energyweb.org/"
+            CACHE_SERVER_URL: "https://identitycache-dev.energyweb.org/v1"
+            CACHE_SERVER_LOGIN_PRVKEY: "eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c"
+            DID_REGISTRY_ADDRESS: "0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af"
+            ENS_REGISTRY_ADDRESS: "0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac"
+            ENS_RESOLVER_ADDRESS: "0xcf72f16Ab886776232bea2fcf3689761a0b74EfE"
+            IPFS_PROTOCOL: https
+            IPFS_HOST: "ipfs.io"
+            IPFS_PORT: 443
+            REDIS_HOST: "localhost"
+            REDIS_PORT: 61379
+            JWT_SECRET: "asecret"
+            JWT_ACCESS_TTL: 1800
+            JWT_REFRESH_TTL: 600
+            SIWE_NONCE_TTL: 120
+            FAIL_ON_REDIS_UNAVAILABLE: true
+            AUTH_COOKIE_ENABLED: true
+            BLOCKNUM_AUTH_ENABLED: true
+            ACCEPTED_ROLES: ""
+            INCLUDE_ALL_ROLES: false
+            PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
 
-      - run: yarn install --frozen-lockfile
+        steps:
+            - uses: actions/checkout@v3
 
-  lint:
-    name: Linting code
-    needs: [ install ]
-    runs-on: ubuntu-latest
+            - name: Setup app dependencies
+              uses: actions/setup-node@v3
+              with:
+                  node-version-file: ".nvmrc"
 
-    steps:
-      - uses: actions/checkout@v3
+            - uses: actions/cache@v3
+              id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+              with:
+                  path: |
+                      authorization-server/node_modules
+                      backend-server/node_modules
+                      generate-identity-cli/node_modules
 
-      - name: Setup app dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: |
-            authorization-server/node_modules
-            backend-server/node_modules
-            generate-identity-cli/node_modules
+            - run: |
+                  IDENTITY_TOKEN=$(node generate-identity-cli/index.js -p "$PRIVATE_KEY" -b 999999999999)
+                  export IDENTITY_TOKEN
+                  yarn test:e2e
 
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
+    tests-e2e-infura:
+        name: E2E tests - Infura
+        if: false
+        needs: [build]
+        runs-on: ubuntu-latest
 
-      - run: yarn lint
+        env:
+            LOG_LEVEL: "error"
+            SELF_BASE_URL: http://127.0.0.1:3000
+            RPC_URL: "https://volta-rpc-vkn5r5zx4ke71f9hcu0c.energyweb.org/"
+            CACHE_SERVER_URL: "https://identitycache-dev.energyweb.org/v1"
+            CACHE_SERVER_LOGIN_PRVKEY: "eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c"
+            DID_REGISTRY_ADDRESS: "0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af"
+            ENS_REGISTRY_ADDRESS: "0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac"
+            ENS_RESOLVER_ADDRESS: "0xcf72f16Ab886776232bea2fcf3689761a0b74EfE"
+            IPFS_PROTOCOL: https
+            IPFS_HOST: ipfs.infura.io
+            IPFS_PORT: 5001
+            IPFS_PROJECTID: ${{ secrets.IPFS_PROJECTID }}
+            IPFS_PROJECTSECRET: ${{ secrets.IPFS_PROJECTSECRET }}
+            REDIS_HOST: "localhost"
+            REDIS_PORT: 61379
+            JWT_SECRET: "asecret"
+            JWT_ACCESS_TTL: 1800
+            JWT_REFRESH_TTL: 600
+            SIWE_NONCE_TTL: 120
+            FAIL_ON_REDIS_UNAVAILABLE: true
+            AUTH_COOKIE_ENABLED: true
+            BLOCKNUM_AUTH_ENABLED: true
+            ACCEPTED_ROLES: ""
+            INCLUDE_ALL_ROLES: false
+            PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
 
-  build:
-    name: Building code
-    needs: [ install ]
-    runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-    steps:
-      - uses: actions/checkout@v3
+            - name: Setup app dependencies
+              uses: actions/setup-node@v3
+              with:
+                  node-version-file: ".nvmrc"
 
-      - name: Setup app dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
+            - uses: actions/cache@v3
+              id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+              with:
+                  path: |
+                      authorization-server/node_modules
+                      backend-server/node_modules
+                      generate-identity-cli/node_modules
 
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: |
-            authorization-server/node_modules
-            backend-server/node_modules
-            generate-identity-cli/node_modules
+                  key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
 
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-
-      - run: yarn build
-
-  tests-unit:
-    name: Unit tests
-    needs: [ build ]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup app dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: |
-            authorization-server/node_modules
-            backend-server/node_modules
-            generate-identity-cli/node_modules
-
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-
-      - run: yarn test:unit
-
-  tests-e2e-public:
-    name: E2E tests - public IPFS gateway
-    if: false
-    needs: [ build ]
-    runs-on: ubuntu-latest
-
-    env:
-      LOG_LEVEL: 'error'
-      SELF_BASE_URL: http://127.0.0.1:3000
-      RPC_URL: 'https://volta-rpc-vkn5r5zx4ke71f9hcu0c.energyweb.org/'
-      CACHE_SERVER_URL: 'https://identitycache-dev.energyweb.org/v1'
-      CACHE_SERVER_LOGIN_PRVKEY: 'eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c'
-      DID_REGISTRY_ADDRESS: '0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af'
-      ENS_REGISTRY_ADDRESS: '0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac'
-      ENS_RESOLVER_ADDRESS: '0xcf72f16Ab886776232bea2fcf3689761a0b74EfE'
-      IPFS_PROTOCOL: https
-      IPFS_HOST: 'ipfs.io'
-      IPFS_PORT: 443
-      REDIS_HOST: 'localhost'
-      REDIS_PORT: 61379
-      JWT_SECRET: 'asecret'
-      JWT_ACCESS_TTL: 1800
-      JWT_REFRESH_TTL: 600
-      SIWE_NONCE_TTL: 120
-      FAIL_ON_REDIS_UNAVAILABLE: true
-      AUTH_COOKIE_ENABLED: true
-      BLOCKNUM_AUTH_ENABLED: true
-      ACCEPTED_ROLES: ''
-      INCLUDE_ALL_ROLES: false
-      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup app dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: |
-            authorization-server/node_modules
-            backend-server/node_modules
-            generate-identity-cli/node_modules
-
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-
-      - run: |
-          IDENTITY_TOKEN=$(node generate-identity-cli/index.js -p "$PRIVATE_KEY" -b 999999999999)
-          export IDENTITY_TOKEN
-          yarn test:e2e
-
-  tests-e2e-infura:
-    name: E2E tests - Infura
-    needs: [ build ]
-    runs-on: ubuntu-latest
-
-    env:
-      LOG_LEVEL: 'error'
-      SELF_BASE_URL: http://127.0.0.1:3000
-      RPC_URL: 'https://volta-rpc-vkn5r5zx4ke71f9hcu0c.energyweb.org/'
-      CACHE_SERVER_URL: 'https://identitycache-dev.energyweb.org/v1'
-      CACHE_SERVER_LOGIN_PRVKEY: 'eab5e5ccb983fad7bf7f5cb6b475a7aea95eff0c6523291b0c0ae38b5855459c'
-      DID_REGISTRY_ADDRESS: '0xc15d5a57a8eb0e1dcbe5d88b8f9a82017e5cc4af'
-      ENS_REGISTRY_ADDRESS: '0xd7CeF70Ba7efc2035256d828d5287e2D285CD1ac'
-      ENS_RESOLVER_ADDRESS: '0xcf72f16Ab886776232bea2fcf3689761a0b74EfE'
-      IPFS_PROTOCOL: https
-      IPFS_HOST: ipfs.infura.io
-      IPFS_PORT: 5001
-      IPFS_PROJECTID: ${{ secrets.IPFS_PROJECTID }}
-      IPFS_PROJECTSECRET: ${{ secrets.IPFS_PROJECTSECRET }}
-      REDIS_HOST: 'localhost'
-      REDIS_PORT: 61379
-      JWT_SECRET: 'asecret'
-      JWT_ACCESS_TTL: 1800
-      JWT_REFRESH_TTL: 600
-      SIWE_NONCE_TTL: 120
-      FAIL_ON_REDIS_UNAVAILABLE: true
-      AUTH_COOKIE_ENABLED: true
-      BLOCKNUM_AUTH_ENABLED: true
-      ACCEPTED_ROLES: ''
-      INCLUDE_ALL_ROLES: false
-      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup app dependencies
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: '.nvmrc'
-
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: |
-            authorization-server/node_modules
-            backend-server/node_modules
-            generate-identity-cli/node_modules
-
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
-
-      - run: |
-          IDENTITY_TOKEN=$(node generate-identity-cli/index.js -p "$PRIVATE_KEY" -b 999999999999)
-          export IDENTITY_TOKEN
-          yarn test:e2e
+            - run: |
+                  IDENTITY_TOKEN=$(node generate-identity-cli/index.js -p "$PRIVATE_KEY" -b 999999999999)
+                  export IDENTITY_TOKEN
+                  yarn test:e2e
