@@ -84,10 +84,8 @@ describe('AppController (e2e)', () => {
 
       expect(body.status).toBe('ok');
       expect(Object.values(body.error)).toHaveLength(0);
-      expect(Object.keys(body.info).sort()).toEqual(
-        ['rpc', 'redis', 'ipfs'].sort(),
-      );
-      expect(Object.values(body.info)).toHaveLength(3);
+      expect(Object.keys(body.info).sort()).toEqual(['rpc', 'redis'].sort());
+      expect(Object.values(body.info)).toHaveLength(2);
 
       Object.values(body.info).forEach((check: Record<string, string>) =>
         expect(check.status).toBe('up'),
