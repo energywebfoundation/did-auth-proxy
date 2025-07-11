@@ -10,8 +10,6 @@ import { providers } from 'ethers';
 import { Request } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 import {
-  chainConfigs,
-  DidStore,
   DomainReader,
   ethrReg,
   InvalidSiweMessage,
@@ -56,7 +54,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
         didContractAddress: process.env.DID_REGISTRY_ADDRESS,
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
-        ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
         includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
         siweMessageUri: new URL(
           '/auth/login/siwe/verify',
@@ -72,11 +69,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           address: configService.get<string>('DID_REGISTRY_ADDRESS'),
           method: Methods.Erc1056,
         },
-        new DidStore({
-          baseURL: cacheServerUrl,
-          didPrefix: `did:${Methods.Erc1056}:${chainConfigs()[configService.get<number>('CHAIN_ID')].chainName}`,
-          privateKey: privateKey,
-        }),
         privateKey,
         cacheServerUrl,
       ),
@@ -127,38 +119,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         }
       },
     );
-  }
-
-  static getIpfsClientConfig(configService: ConfigService): {
-    url: string;
-    headers: Record<string, string> | null;
-  } {
-    let auth;
-
-    if (
-      configService.get<string>('IPFS_PROJECTID') &&
-      configService.get<string>('IPFS_PROJECTSECRET')
-    ) {
-      auth =
-        'Basic ' +
-        Buffer.from(
-          configService.get<string>('IPFS_PROJECTID') +
-            ':' +
-            configService.get<string>('IPFS_PROJECTSECRET'),
-        ).toString('base64');
-    }
-
-    return {
-      url:
-        `${configService.get<string>('IPFS_PROTOCOL')}://` +
-        `${configService.get<string>('IPFS_HOST')}` +
-        `:${configService.get<string>('IPFS_PORT')}`,
-      headers: auth
-        ? {
-            authorization: auth,
-          }
-        : null,
-    };
   }
 }
 
