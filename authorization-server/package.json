@@ -39,7 +39,7 @@
     "@nestjs/jwt": "10.2.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "10.0.3",
-    "@nestjs/platform-express": "10.3.10",
+    "@nestjs/platform-express": "11.1.5",
     "@nestjs/swagger": "7.4.0",
     "@nestjs/terminus": "10.2.3",
     "axios": "^1.10.0",
