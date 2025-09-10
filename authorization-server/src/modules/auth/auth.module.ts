@@ -16,6 +16,9 @@ import { RolesValidationService } from './roles-validation.service';
 import { NonceService } from './nonce.service';
 import { DisableBlockAuthRoutesMiddleware } from '../../middlewares/disable-block-auth-routes.middleware';
 import { PinoLogger } from 'nestjs-pino';
+import { providers } from 'ethers';
+import { lru as createLru } from 'tiny-lru';
+import { CACHED_JSONRPC } from './auth.const';
 
 @Global()
 @Module({
@@ -36,7 +39,57 @@ import { PinoLogger } from 'nestjs-pino';
     NonceService,
     RefreshTokenRepository,
     RolesValidationService,
+    {
+      provide: CACHED_JSONRPC,
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        const rpcUrl = config.get<string>('RPC_URL');
+        if (!rpcUrl) throw new Error('RPC_URL is not configured');
+
+        const cache = createLru(50, 12_000, true); // 12s expired 'next block'
+        const provider = new providers.StaticJsonRpcProvider(rpcUrl);
+
+        // keep original send
+        const originalSend = provider.send.bind(provider);
+
+        // patch send with per-request cache
+        provider.send = async (method: string, params: unknown[]) => {
+          // Only cache these read-only methods
+          const cacheableMethods = new Set([
+            'eth_call',
+            'eth_blockNumber',
+            'eth_chainId',
+          ]);
+
+          if (!cacheableMethods.has(method)) {
+            return originalSend(method, params);
+          }
+
+          const key = JSON.stringify([method, params]); // simpler key
+          const entry = cache.get(key);
+
+          if (entry !== undefined) {
+            console.info(`[CACHE HIT] ${method}`);
+            return entry;
+          }
+
+          console.info(`[CACHE MISS] ${method} ${key}`);
+          const result = await originalSend(method, params);
+          cache.set(key, result);
+          return result;
+        };
+
+        (
+          provider as providers.JsonRpcProvider & { clearCache: () => void }
+        ).clearCache = () => cache.clear();
+
+        return provider as providers.JsonRpcProvider & {
+          clearCache: () => void;
+        };
+      },
+    },
   ],
+  exports: [CACHED_JSONRPC],
 })
 export class AuthModule implements NestModule {
   constructor(

@@ -940,10 +940,10 @@
   resolved "https://registry.npmjs.org/@ecies/ciphers/-/ciphers-0.2.3.tgz"
   integrity sha512-tapn6XhOueMwht3E2UzY0ZZjYokdaw9XtL9kEyjhQ/Fb9vL9xTFbOaI+fV0AWvTpYu4BNloC6getKW6NtSg4mA==
 
-"@energyweb/credential-governance@2.2.1-alpha.339.0", "@energyweb/credential-governance@2.2.1-alpha.339.0 ":
-  version "2.2.1-alpha.339.0"
-  resolved "https://registry.npmjs.org/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.339.0.tgz"
-  integrity sha512-DS4z0bgAtjd09tqw7NQW+ZhBifpZpr9x+b7bNV8L7XaSrSG1aUEBfLVLr/u3FU5gTICaCrHXCHOBxkRNjphTsQ==
+"@energyweb/credential-governance@2.2.1-alpha.341.0", "@energyweb/credential-governance@2.2.1-alpha.341.0 ":
+  version "2.2.1-alpha.341.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/credential-governance/-/credential-governance-2.2.1-alpha.341.0.tgz#4ca94297cc68ab8e392f99b1ac9becb5be1e04b7"
+  integrity sha512-HlFgY/5lE1xVMV5r0J7E9T5D0vQTEvt9PH0XYuhGw4Dsxg6lKoMKQzxw8tJg3yvj8gV0HkrEudRwxbi57VcHzg==
   dependencies:
     "@cjs-exporter/p-map" "5.5.0"
     "@ew-did-registry/credentials-interface" "0.9.1-alpha.1577.0"
@@ -963,12 +963,12 @@
   resolved "https://registry.npmjs.org/@energyweb/eslint-config/-/eslint-config-0.1.0.tgz"
   integrity sha512-8XHRyDtx0owTpRTeC7b/1pfrxtKW/QfnhWjw/k9dOV8fMos0yeqMMZlW7Uyy3EEFkYITFrPL1S1Lr2MQUPoysw==
 
-"@energyweb/onchain-claims@2.2.1-alpha.339.0", "@energyweb/onchain-claims@2.2.1-alpha.339.0 ":
-  version "2.2.1-alpha.339.0"
-  resolved "https://registry.npmjs.org/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.339.0.tgz"
-  integrity sha512-adyVlaP7AqrbJN5+yTtykUz1tFx/ktlkaxMrlnK9BP2e2o//2co0Pc60E4GgqpioKYj8wLkkV9h3YUXLv9QH+A==
+"@energyweb/onchain-claims@2.2.1-alpha.341.0", "@energyweb/onchain-claims@2.2.1-alpha.341.0 ":
+  version "2.2.1-alpha.341.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/onchain-claims/-/onchain-claims-2.2.1-alpha.341.0.tgz#ab1d8e01b89aed16834a1350ed53aa2774a50fa0"
+  integrity sha512-oLJ+TlCWGoDvalHOVy88GQj5xz0mfaTka6HCfRDBtB1/0RXjgkq1Kefpsp0kblOB7k/tFqQzjUZ7wppeMsVEYA==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.339.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.341.0"
     "@ew-did-registry/did" "0.9.1-alpha.1577.0"
     "@ew-did-registry/did-ethr-resolver" "0.9.1-alpha.1577.0"
     ethers "^5.7.2"
@@ -986,13 +986,13 @@
     eth-revert-reason "^1.0.3"
     prompt-sync "^4.2.0"
 
-"@energyweb/vc-verification@2.2.1-alpha.339.0 ":
-  version "2.2.1-alpha.339.0"
-  resolved "https://registry.npmjs.org/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.339.0.tgz"
-  integrity sha512-tpbXjUolsR0Vj+Kmn4o2y6K6NHmUgYPJNuRxbJZ46JuglIZQgr2h2c/Zs10UThBK+eKjuPTiRZVr3XyWvv0OKQ==
+"@energyweb/vc-verification@2.2.1-alpha.341.0 ":
+  version "2.2.1-alpha.341.0"
+  resolved "https://registry.yarnpkg.com/@energyweb/vc-verification/-/vc-verification-2.2.1-alpha.341.0.tgz#7ead50ff0c0d91ba6b6a484205e477e3971e8eae"
+  integrity sha512-37RZNP8yN/fTcpDw/R1k+8NEHpwtQrsaK6B2TXs8waJDN3ezRQOJ7mKB8Wqc+KQoLHaLurX8RfN1qOLGjuu+rg==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.339.0"
-    "@energyweb/onchain-claims" "2.2.1-alpha.339.0"
+    "@energyweb/credential-governance" "2.2.1-alpha.341.0"
+    "@energyweb/onchain-claims" "2.2.1-alpha.341.0"
     "@ew-did-registry/claims" "0.9.1-alpha.1577.0"
     "@ew-did-registry/credentials-interface" "0.9.1-alpha.1577.0"
     "@ew-did-registry/did-ethr-resolver" "0.9.1-alpha.1577.0"
@@ -6668,16 +6668,16 @@ human-signals@^2.1.0:
   resolved "https://registry.npmjs.org/human-signals/-/human-signals-2.1.0.tgz"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
 
-iam-client-lib@8.2.0-dev.2560.0:
-  version "8.2.0-dev.2560.0"
-  resolved "https://registry.yarnpkg.com/iam-client-lib/-/iam-client-lib-8.2.0-dev.2560.0.tgz#6a4725c12034a71ee89aea6637d6d9e9e90fa60f"
-  integrity sha512-O/65wnHZBX6ZB5G8qPhozUJnSr6Is72Qd27kfUaPrpRd89iicJWWEaZ794L8ekQqeQnuuprGhEzBDhyhF6DwSw==
+iam-client-lib@8.2.0-dev.2563.0:
+  version "8.2.0-dev.2563.0"
+  resolved "https://registry.yarnpkg.com/iam-client-lib/-/iam-client-lib-8.2.0-dev.2563.0.tgz#cb4ba0b45c4be097bbb3eb6bc6ceba9ab796617f"
+  integrity sha512-pNSSDnFYctVwHoRJOXmhc4DQXzfacjqzAtBAMilvxHL8v3UD1bU7Mghhvvb10gh2JJgM0b8f29/+JBgqmnl98g==
   dependencies:
-    "@energyweb/credential-governance" "2.2.1-alpha.339.0 "
+    "@energyweb/credential-governance" "2.2.1-alpha.341.0 "
     "@energyweb/ekc" "^0.6.7"
-    "@energyweb/onchain-claims" "2.2.1-alpha.339.0 "
+    "@energyweb/onchain-claims" "2.2.1-alpha.341.0 "
     "@energyweb/staking-pool" "^1.0.0-rc.14"
-    "@energyweb/vc-verification" "2.2.1-alpha.339.0 "
+    "@energyweb/vc-verification" "2.2.1-alpha.341.0 "
     "@ensdomains/ens" "^0.6.2"
     "@ew-did-registry/claims" "0.9.1-alpha.1577.0"
     "@ew-did-registry/credentials-interface" "0.9.1-alpha.1577.0"
@@ -8766,10 +8766,10 @@ parseurl@^1.3.3, parseurl@~1.3.3:
   resolved "https://registry.npmjs.org/parseurl/-/parseurl-1.3.3.tgz"
   integrity sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==
 
-passport-did-auth@2.1.0-dev.1336.0:
-  version "2.1.0-dev.1336.0"
-  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.1.0-dev.1336.0.tgz#a519d630cea18973d1b26b89b4bbd341f576c7e6"
-  integrity sha512-TsddBb4NKkLgLno2u5j5UKoJaxVzhpyofUcERaXaE6lpvqy8dGX+34nw1fqAmDDsYDdSbEa945cU+zgL4DF7uA==
+passport-did-auth@2.1.0-dev.1340.0:
+  version "2.1.0-dev.1340.0"
+  resolved "https://registry.yarnpkg.com/passport-did-auth/-/passport-did-auth-2.1.0-dev.1340.0.tgz#9bd1bdcd7734b3afef15dbadc201d23fc1900793"
+  integrity sha512-FaHXxE7sesvoSerNuXE/IxBvu7ScBd/g3pWrJrlitc19jQHi/9UFEtRB3Cy0qA7cZhAsPptnj3v3CDv9bzhHUA==
   dependencies:
     "@ensdomains/ens-contracts" "^0.0.21"
     axios "0.27.0"
@@ -8779,7 +8779,7 @@ passport-did-auth@2.1.0-dev.1336.0:
     ethereumjs-abi "0.6.8"
     ethers "5.7.2"
     ganache-cli "6.12.2"
-    iam-client-lib "8.2.0-dev.2560.0"
+    iam-client-lib "8.2.0-dev.2563.0"
     js-sha3 "0.8.0"
     jsonwebtoken "9.0.0"
     multiformats "9.7.0"
@@ -10378,6 +10378,11 @@ through@^2.3.6:
   version "2.3.8"
   resolved "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
+
+tiny-lru@^11.4.5:
+  version "11.4.5"
+  resolved "https://registry.yarnpkg.com/tiny-lru/-/tiny-lru-11.4.5.tgz#0672b1b049f3d783021da5b99314264702f814c9"
+  integrity sha512-hkcz3FjNJfKXjV4mjQ1OrXSLAehg8Hw+cEZclOVT+5c/cWQWImQ9wolzTjth+dmmDe++p3bme3fTxz6Q4Etsqw==
 
 tmp@^0.0.33:
   version "0.0.33"
