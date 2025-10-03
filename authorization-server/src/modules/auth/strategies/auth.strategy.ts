@@ -1,17 +1,17 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { verifyCredential } from 'didkit-wasm-node';
-import { providers } from 'ethers';
+import { providers as EthersProviders } from 'ethers';
 import { Request } from 'express';
+import { JwtPayload } from 'jsonwebtoken';
 import { PinoLogger } from 'nestjs-pino';
 import {
-  chainConfigs,
-  DidStore,
   DomainReader,
   ethrReg,
   InvalidSiweMessage,
@@ -22,17 +22,21 @@ import {
   RoleIssuerResolver,
   RoleRevokerResolver,
 } from 'passport-did-auth';
+import { CACHED_JSONRPC } from '../auth.const';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
   constructor(
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+    @Inject(CACHED_JSONRPC)
+    private readonly _provider: EthersProviders.JsonRpcProvider & {
+      clearCache: () => void;
+    },
   ) {
-    const provider = new providers.JsonRpcProvider(
-      configService.get<string>('RPC_URL'),
-    );
-
+    const provider = _provider;
     const domainReader = new DomainReader({
       ensRegistryAddress: configService.get<string>('ENS_REGISTRY_ADDRESS'),
       provider,
@@ -56,7 +60,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
         didContractAddress: process.env.DID_REGISTRY_ADDRESS,
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
-        ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
         includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
         siweMessageUri: new URL(
           '/auth/login/siwe/verify',
@@ -72,11 +75,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           address: configService.get<string>('DID_REGISTRY_ADDRESS'),
           method: Methods.Erc1056,
         },
-        new DidStore({
-          baseURL: cacheServerUrl,
-          didPrefix: `did:${Methods.Erc1056}:${chainConfigs()[configService.get<number>('CHAIN_ID')].chainName}`,
-          privateKey: privateKey,
-        }),
         privateKey,
         cacheServerUrl,
       ),
@@ -109,10 +107,23 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     payload: unknown,
     done: (err?: Error, user?: unknown, info?: unknown) => void,
   ): Promise<void> {
+    if (isJwtPayload(payload)) {
+      try {
+        await this.authService.identityTokenValidate(
+          (payload as JwtPayload).iat,
+          (payload as JwtPayload).exp,
+        );
+      } catch (error) {
+        done(error);
+        return;
+      }
+    }
+
     return super.validate(
       token,
       payload,
       (err?: Error, user?: unknown, info?: unknown) => {
+        // this._provider.clearCache();
         if (
           err?.message === 'Signature does not match address of the message.' ||
           err?.message === 'uri in siwe message payload is incorrect'
@@ -128,40 +139,17 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       },
     );
   }
-
-  static getIpfsClientConfig(configService: ConfigService): {
-    url: string;
-    headers: Record<string, string> | null;
-  } {
-    let auth;
-
-    if (
-      configService.get<string>('IPFS_PROJECTID') &&
-      configService.get<string>('IPFS_PROJECTSECRET')
-    ) {
-      auth =
-        'Basic ' +
-        Buffer.from(
-          configService.get<string>('IPFS_PROJECTID') +
-            ':' +
-            configService.get<string>('IPFS_PROJECTSECRET'),
-        ).toString('base64');
-    }
-
-    return {
-      url:
-        `${configService.get<string>('IPFS_PROTOCOL')}://` +
-        `${configService.get<string>('IPFS_HOST')}` +
-        `:${configService.get<string>('IPFS_PORT')}`,
-      headers: auth
-        ? {
-            authorization: auth,
-          }
-        : null,
-    };
-  }
 }
 
 function parseAcceptedRoles(ACCEPTED_ROLES: string): string[] {
   return ACCEPTED_ROLES ? ACCEPTED_ROLES.split(',') : [];
+}
+
+function isJwtPayload(payload: unknown): payload is JwtPayload {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'iat' in payload &&
+    'exp' in payload
+  );
 }
