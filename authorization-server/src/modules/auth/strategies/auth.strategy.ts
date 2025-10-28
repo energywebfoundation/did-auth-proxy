@@ -29,7 +29,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     private readonly logger: PinoLogger,
     private readonly configService: ConfigService,
   ) {
-    const provider = new providers.JsonRpcProvider(
+    const provider = new providers.JsonRpcBatchProvider(
       configService.get<string>('RPC_URL'),
     );
 
@@ -143,8 +143,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         'Basic ' +
         Buffer.from(
           configService.get<string>('IPFS_PROJECTID') +
-            ':' +
-            configService.get<string>('IPFS_PROJECTSECRET'),
+          ':' +
+          configService.get<string>('IPFS_PROJECTSECRET'),
         ).toString('base64');
     }
 
@@ -155,8 +155,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         `:${configService.get<string>('IPFS_PORT')}`,
       headers: auth
         ? {
-            authorization: auth,
-          }
+          authorization: auth,
+        }
         : null,
     };
   }
