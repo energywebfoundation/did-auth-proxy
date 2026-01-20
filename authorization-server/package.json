@@ -47,7 +47,7 @@
     "class-validator": "0.14.1",
     "cookie-parser": "1.4.6",
     "didkit-wasm-node": "0.1.6",
-    "ethers": "5.7.2",
+    "ethers": "6.0.0",
     "express": "4.19.2",
     "ioredis": "5.4.1",
     "joi": "17.13.3",
