@@ -123,6 +123,10 @@ did-auth-proxy-helm:
   ########
   # Redis
   redis:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/redis
+      tag: 6.2.6
     architecture: standalone
     auth:
       password: redis
@@ -138,6 +142,10 @@ did-auth-proxy-helm:
   ########
   # nginx
   nginx:
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/nginx
+      tag: 1.21.6
     fullnameOverride: "did-auth-proxy-helm-server-block"
 
     nodeSelector:
