@@ -121,6 +121,10 @@ export class AuthService {
     }
   }
 
+  public async hasActiveSession(did: string): Promise<boolean> {
+    return this.refreshTokenRepository.hasActiveTokens(did);
+  }
+
   public async invalidateRefreshToken(did: string, id: string) {
     await this.refreshTokenRepository.deleteToken(did, id);
   }

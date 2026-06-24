@@ -193,6 +193,15 @@ export class AuthController {
     this.logger.debug(
       `successful access token introspection: ${JSON.stringify(req.user)}`,
     );
+
+    const userPayload = req.user as IAccessTokenPayload;
+    const hasActiveSession = await this.authService.hasActiveSession(
+      userPayload.did,
+    );
+
+    if (!hasActiveSession) {
+      throw new UnauthorizedException('User session is invalid or logged out');
+    }
   }
 
   @Post('refresh-token')

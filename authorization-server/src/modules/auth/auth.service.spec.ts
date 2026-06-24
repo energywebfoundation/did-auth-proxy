@@ -30,6 +30,9 @@ describe('AuthService', () => {
     getToken() {},
     deleteToken() {},
     deleteAllTokens() {},
+    hasActiveTokens(): Promise<boolean> {
+      return Promise.resolve(false);
+    },
   };
 
   const payload = {
@@ -430,6 +433,34 @@ describe('AuthService', () => {
 
       it('should remove token entry from the repository', async function () {
         expect(spyDeleteAllTokens).toHaveBeenCalledWith('did');
+      });
+    });
+  });
+
+  describe('hasActiveSession()', function () {
+    it('should be defined', async function () {
+      expect(service.hasActiveSession).toBeDefined();
+    });
+
+    describe('when called', function () {
+      let spyHasActiveTokens: jest.SpyInstance;
+      let result: boolean;
+
+      beforeEach(async function () {
+        spyHasActiveTokens = jest
+          .spyOn(mockRefreshTokenRepository, 'hasActiveTokens')
+          .mockResolvedValueOnce(true);
+
+        result = await service.hasActiveSession('did');
+      });
+
+      afterEach(async function () {
+        spyHasActiveTokens.mockClear().mockRestore();
+      });
+
+      it('should query repository for active tokens', async function () {
+        expect(spyHasActiveTokens).toHaveBeenCalledWith('did');
+        expect(result).toBe(true);
       });
     });
   });

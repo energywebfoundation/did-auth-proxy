@@ -23,6 +23,9 @@ describe('RefreshTokenRepository', () => {
     set() {},
     get() {},
     del() {},
+    keys(): Promise<string[]> {
+      return Promise.resolve([]);
+    },
   };
 
   const payload = {
@@ -212,20 +215,78 @@ describe('RefreshTokenRepository', () => {
     });
 
     describe('when called', function () {
-      let spy: jest.SpyInstance;
+      let spyDel: jest.SpyInstance;
+      let spyKeys: jest.SpyInstance;
 
       beforeEach(async function () {
-        spy = jest.spyOn(mockRedisService, 'del');
+        spyKeys = jest
+          .spyOn(mockRedisService, 'keys')
+          .mockResolvedValueOnce([`refresh-token:${payload.did}:token1`]);
+        spyDel = jest.spyOn(mockRedisService, 'del');
 
         await repository.deleteAllTokens(payload.did);
       });
 
       afterEach(async function () {
-        spy.mockClear().mockRestore();
+        spyKeys.mockClear().mockRestore();
+        spyDel.mockClear().mockRestore();
       });
 
       it('should delete all tokens for the given DID', async function () {
-        expect(spy).toHaveBeenCalledWith(`refresh-token:${payload.did}:*`);
+        expect(spyKeys).toHaveBeenCalledWith(`refresh-token:${payload.did}:*`);
+        expect(spyDel).toHaveBeenCalledWith(
+          `refresh-token:${payload.did}:token1`,
+        );
+      });
+    });
+  });
+
+  describe('hasActiveTokens()', function () {
+    it('should be defined', async function () {
+      expect(repository.hasActiveTokens).toBeDefined();
+    });
+
+    describe('when user has active tokens', function () {
+      let spyKeys: jest.SpyInstance;
+      let result: boolean;
+
+      beforeEach(async function () {
+        spyKeys = jest
+          .spyOn(mockRedisService, 'keys')
+          .mockResolvedValueOnce([`refresh-token:${payload.did}:token1`]);
+
+        result = await repository.hasActiveTokens(payload.did);
+      });
+
+      afterEach(async function () {
+        spyKeys.mockClear().mockRestore();
+      });
+
+      it('should return true', async function () {
+        expect(spyKeys).toHaveBeenCalledWith(`refresh-token:${payload.did}:*`);
+        expect(result).toBe(true);
+      });
+    });
+
+    describe('when user has no active tokens', function () {
+      let spyKeys: jest.SpyInstance;
+      let result: boolean;
+
+      beforeEach(async function () {
+        spyKeys = jest
+          .spyOn(mockRedisService, 'keys')
+          .mockResolvedValueOnce([]);
+
+        result = await repository.hasActiveTokens(payload.did);
+      });
+
+      afterEach(async function () {
+        spyKeys.mockClear().mockRestore();
+      });
+
+      it('should return false', async function () {
+        expect(spyKeys).toHaveBeenCalledWith(`refresh-token:${payload.did}:*`);
+        expect(result).toBe(false);
       });
     });
   });
