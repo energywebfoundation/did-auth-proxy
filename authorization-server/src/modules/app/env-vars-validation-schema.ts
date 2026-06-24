@@ -43,6 +43,7 @@ export const envVarsValidationSchema = Joi.object({
   REDIS_PASSWORD: Joi.string().optional().allow(''),
 
   FAIL_ON_REDIS_UNAVAILABLE: Joi.bool().default(false),
+  USE_CACHED_AUTH_STRATEGY: Joi.boolean().default(false),
 
   JWT_SECRET: Joi.string().required(),
   JWT_ACCESS_TTL: Joi.number().default(3600),

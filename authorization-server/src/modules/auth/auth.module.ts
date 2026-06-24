@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { AuthStrategy, JwtStrategy } from './strategies';
+import { AuthStrategy, CachedAuthStrategy, JwtStrategy } from './strategies';
 import { RedisModule } from '../redis';
 import { RefreshTokenRepository } from './refresh-token.repository';
 import { JwtModule } from '@nestjs/jwt';
@@ -31,7 +31,24 @@ import { PinoLogger } from 'nestjs-pino';
   controllers: [AuthController],
   providers: [
     AuthService,
-    AuthStrategy,
+    {
+      provide: AuthStrategy,
+      useFactory: (config: ConfigService, logger: PinoLogger) => {
+        const useCached = config.get<boolean>('USE_CACHED_AUTH_STRATEGY');
+        if (useCached) {
+          logger.info(
+            'Registering CachedAuthStrategy (without blockchain RPC fallback)',
+          );
+          return new CachedAuthStrategy(logger, config);
+        } else {
+          logger.info(
+            'Registering legacy AuthStrategy (with blockchain RPC fallback)',
+          );
+          return new AuthStrategy(logger, config);
+        }
+      },
+      inject: [ConfigService, PinoLogger],
+    },
     JwtStrategy,
     NonceService,
     RefreshTokenRepository,

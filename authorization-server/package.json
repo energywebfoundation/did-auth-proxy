@@ -122,5 +122,8 @@
     "src/**/*.ts": [
       "eslint --fix"
     ]
+  },
+  "resolutions": {
+    "@ensdomains/buffer": "0.1.3"
   }
 }

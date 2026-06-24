@@ -8,6 +8,7 @@ import { PinoLogger } from 'nestjs-pino';
 import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
 import { AuthorisedUser, RoleCredentialStatus } from 'passport-did-auth';
 import { ParsedQs } from 'qs';
+import { IAccessTokenPayload } from './types';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto';
@@ -69,6 +70,7 @@ describe('AuthController', () => {
     logout: jest.fn(),
     getAuthCookiesOptions: jest.fn(),
     identityTokenValidate: jest.fn(),
+    hasActiveSession: jest.fn(),
   };
 
   const mockNonceService = {
@@ -858,19 +860,55 @@ describe('AuthController', () => {
   });
 
   describe('introspect()', () => {
-    // eslint-disable-next-line jest/expect-expect
-    it('should execute when request passes Guards', async function () {
-      const request = createRequest({
-        method: 'GET',
-        path: '/auth/token-introspection',
-      });
+    describe('when session is active', function () {
+      it('should execute successfully', async function () {
+        const request = createRequest({
+          method: 'GET',
+          path: '/auth/token-introspection',
+        });
 
-      request.user = {
-        id: '1f7a3006-75a2-41ef-a12a-58144252fd2c',
-        did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
-        roles: ['role1.roles.app-test2.apps.artur.iam.ewc'],
-      };
-      await controller.introspect(request);
+        request.user = {
+          id: '1f7a3006-75a2-41ef-a12a-58144252fd2c',
+          did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
+          roles: ['role1.roles.app-test2.apps.artur.iam.ewc'],
+        };
+
+        mockAuthService.hasActiveSession.mockResolvedValueOnce(true);
+
+        await controller.introspect(request);
+        expect(mockAuthService.hasActiveSession).toHaveBeenCalledWith(
+          (request.user as IAccessTokenPayload).did,
+        );
+      });
+    });
+
+    describe('when session is inactive (logged out)', function () {
+      it('should throw UnauthorizedException', async function () {
+        const request = createRequest({
+          method: 'GET',
+          path: '/auth/token-introspection',
+        });
+
+        request.user = {
+          id: '1f7a3006-75a2-41ef-a12a-58144252fd2c',
+          did: 'did:ethr:0x82FcB31385EaBe261E4e6003b9F2Cb2af34e2654',
+          roles: ['role1.roles.app-test2.apps.artur.iam.ewc'],
+        };
+
+        mockAuthService.hasActiveSession.mockResolvedValueOnce(false);
+
+        let exception: Error;
+        try {
+          await controller.introspect(request);
+        } catch (err) {
+          exception = err;
+        }
+
+        expect(exception).toBeInstanceOf(UnauthorizedException);
+        expect(mockAuthService.hasActiveSession).toHaveBeenCalledWith(
+          (request.user as IAccessTokenPayload).did,
+        );
+      });
     });
   });
 
