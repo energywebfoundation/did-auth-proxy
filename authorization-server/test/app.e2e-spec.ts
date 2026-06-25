@@ -796,12 +796,10 @@ describe('AppController (e2e)', () => {
       beforeAll(async function () {
         ({ refreshToken } = await logIn(appHttpServer, identityToken));
 
-        response = await request(appHttpServer)
-          .post('/auth/logout')
-          .send({
-            refreshToken,
-            allDevices: false,
-          });
+        response = await request(appHttpServer).post('/auth/logout').send({
+          refreshToken,
+          allDevices: false,
+        });
       }, 60000);
 
       it('should respond with 201 status code', async function () {
@@ -813,11 +811,9 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/logout')
-          .send({
-            allDevices: false,
-          });
+        response = await request(appHttpServer).post('/auth/logout').send({
+          allDevices: false,
+        });
       });
 
       it('should respond with 401 status code', async function () {
@@ -829,12 +825,10 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/logout')
-          .send({
-            refreshToken: 'invalid',
-            allDevices: false,
-          });
+        response = await request(appHttpServer).post('/auth/logout').send({
+          refreshToken: 'invalid',
+          allDevices: false,
+        });
       });
 
       it('should respond with 403 status code', async function () {
@@ -848,14 +842,15 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        ({ accessToken, refreshToken } = await logIn(appHttpServer, identityToken));
+        ({ accessToken, refreshToken } = await logIn(
+          appHttpServer,
+          identityToken,
+        ));
 
-        response = await request(appHttpServer)
-          .post('/auth/logout')
-          .send({
-            refreshToken,
-            allDevices: true,
-          });
+        response = await request(appHttpServer).post('/auth/logout').send({
+          refreshToken,
+          allDevices: true,
+        });
       });
 
       it('should respond with 201 status code', async function () {
