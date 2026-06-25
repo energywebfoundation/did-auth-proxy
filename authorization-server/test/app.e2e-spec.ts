@@ -789,18 +789,17 @@ describe('AppController (e2e)', () => {
   });
 
   describe('/auth/logout', function () {
-    describe('whan called with a valid refresh token', function () {
+    describe('when called with a valid refresh token', function () {
       let refreshToken: string;
       let response: Response;
 
       beforeAll(async function () {
         ({ refreshToken } = await logIn(appHttpServer, identityToken));
 
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({
-            refreshToken,
-          });
+        response = await request(appHttpServer).post('/auth/logout').send({
+          refreshToken,
+          allDevices: false,
+        });
       }, 60000);
 
       it('should respond with 201 status code', async function () {
@@ -812,9 +811,9 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({});
+        response = await request(appHttpServer).post('/auth/logout').send({
+          allDevices: false,
+        });
       });
 
       it('should respond with 401 status code', async function () {
@@ -826,15 +825,43 @@ describe('AppController (e2e)', () => {
       let response: Response;
 
       beforeAll(async function () {
-        response = await request(appHttpServer)
-          .post('/auth/refresh-token')
-          .send({
-            refreshToken: 'invalid',
-          });
+        response = await request(appHttpServer).post('/auth/logout').send({
+          refreshToken: 'invalid',
+          allDevices: false,
+        });
       });
 
       it('should respond with 403 status code', async function () {
         expect(response.statusCode).toBe(403);
+      });
+    });
+
+    describe('when called with allDevices: true', function () {
+      let accessToken: string;
+      let refreshToken: string;
+      let response: Response;
+
+      beforeAll(async function () {
+        ({ accessToken, refreshToken } = await logIn(
+          appHttpServer,
+          identityToken,
+        ));
+
+        response = await request(appHttpServer).post('/auth/logout').send({
+          refreshToken,
+          allDevices: true,
+        });
+      });
+
+      it('should respond with 201 status code', async function () {
+        expect(response.statusCode).toBe(201);
+      });
+
+      it('should invalidate the access token', async function () {
+        const introspectRes = await request(appHttpServer)
+          .get('/auth/token-introspection')
+          .set('Authorization', `Bearer ${accessToken}`);
+        expect(introspectRes.statusCode).toBe(401);
       });
     });
   });
