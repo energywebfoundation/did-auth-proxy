@@ -122,5 +122,8 @@
     "src/**/*.ts": [
       "eslint --fix"
     ]
+  },
+  "redisMemoryServer": {
+    "disablePostinstall": "1"
   }
 }
