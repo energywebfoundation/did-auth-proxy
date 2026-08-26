@@ -35,6 +35,20 @@ try {
         pinoHttp: {
           genReqId: (req: Request) =>
             req.headers['x-request-id'] || randomUUID(),
+          // Prevent full JWTs (access/refresh tokens) and session cookies from
+          // being written to logs in plaintext. Without this, pino-http's
+          // default `req`/`res` serializers include the raw `Authorization`,
+          // `Cookie`, and `Set-Cookie` header values verbatim on every
+          // auto-logged request/response line, which would leak a usable,
+          // impersonation-capable bearer token to anyone who can read the logs.
+          redact: {
+            paths: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'res.headers["set-cookie"]',
+            ],
+            censor: '[Redacted]',
+          },
           transport:
             configService.get<string>('NODE_ENV') !== 'production'
               ? {
