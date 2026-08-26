@@ -147,5 +147,8 @@
   },
   "scarfSettings": {
     "enabled": false
+  },
+  "redisMemoryServer": {
+    "disablePostinstall": "1"
   }
 }
