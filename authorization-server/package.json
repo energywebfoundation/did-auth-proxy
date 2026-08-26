@@ -50,7 +50,7 @@
     "ethers": "5.7.2",
     "express": "4.19.2",
     "ioredis": "5.4.1",
-    "joi": "17.13.3",
+    "joi": "17.13.4",
     "jsonwebtoken": "9.0.2",
     "nestjs-pino": "3.5.0",
     "passport": "0.7.0",
