@@ -1,4 +1,16 @@
 import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
+import { verifyCredential } from 'didkit-wasm-node';
+import { providers } from 'ethers';
+import { Request } from 'express';
+import { PinoLogger } from 'nestjs-pino';
+import {
+  chainConfigs,
   DidStore,
   DomainReader,
   ethrReg,
@@ -10,17 +22,6 @@ import {
   RoleIssuerResolver,
   RoleRevokerResolver,
 } from 'passport-did-auth';
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ConfigService } from '@nestjs/config';
-import { PinoLogger } from 'nestjs-pino';
-import { verifyCredential } from 'didkit-wasm-node';
-import { providers } from 'ethers';
-import { Request } from 'express';
 
 @Injectable()
 export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
@@ -42,6 +43,8 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
       address: configService.get<string>('ENS_RESOLVER_ADDRESS'),
       type: ResolverContractType.RoleDefinitionResolver_v2,
     });
+    const cacheServerUrl = process.env.CACHE_SERVER_URL;
+    const privateKey = process.env.CACHE_SERVER_LOGIN_PRVKEY;
 
     super(
       {
@@ -69,18 +72,18 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
           address: configService.get<string>('DID_REGISTRY_ADDRESS'),
           method: Methods.Erc1056,
         },
-        new DidStore(AuthStrategy.getIpfsClientConfig(configService)),
+        new DidStore({
+          baseURL: cacheServerUrl,
+          didPrefix: `did:${Methods.Erc1056}:${chainConfigs()[configService.get<number>('CHAIN_ID')].chainName}`,
+          privateKey: privateKey,
+        }),
+        privateKey,
+        cacheServerUrl,
       ),
       verifyCredential,
     );
 
     this.logger.setContext(AuthStrategy.name);
-
-    this.logger.info(
-      `ipfsClientConfig ${JSON.stringify(
-        AuthStrategy.getIpfsClientConfig(configService),
-      )}`,
-    );
 
     this.logger.info(
       `accepted roles: ${parseAcceptedRoles(

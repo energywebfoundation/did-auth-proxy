@@ -24,10 +24,6 @@ export class HealthCheckService {
         ? [() => this.rpc.checkStatus('rpc')]
         : []),
 
-      ...(!config.get('DISABLE_HEALTHCHECK_IPFS')
-        ? [() => this.ipfs.checkStatus('ipfs')]
-        : []),
-
       ...(!config.get('DISABLE_HEALTHCHECK_REDIS')
         ? [() => this.redis.checkStatus('redis')]
         : []),

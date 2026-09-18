@@ -65,7 +65,7 @@ services:
             backend:
 
     redis:
-        image: bitnami/redis:latest
+        image: bitnamilegacy/redis:7.4
         restart: unless-stopped
         ports:
             - "127.0.0.1:6379:6379"
