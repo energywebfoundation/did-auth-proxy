@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { utils, Wallet } = require('ethers');
+const { getBytes, keccak256, Wallet } = require('ethers');
 const { encode } = require('base64url');
 const { program } = require('commander');
 
@@ -38,11 +38,11 @@ const header = {
     const headerEncoded = encode(Buffer.from(JSON.stringify(header)));
     const payloadEncoded = encode(Buffer.from(JSON.stringify(payload)));
 
-    const hash = utils.keccak256(Buffer.from(`${headerEncoded}.${payloadEncoded}`));
+    const hash = keccak256(Buffer.from(`${headerEncoded}.${payloadEncoded}`));
 
     logger(`hash: ${hash}`, verbose);
 
-    const signatureEncoded = encode(Buffer.from(await signer.signMessage(utils.arrayify(hash))));
+    const signatureEncoded = encode(Buffer.from(await signer.signMessage(getBytes(hash))));
 
     logger(`signature: ${signatureEncoded}`, verbose);
 

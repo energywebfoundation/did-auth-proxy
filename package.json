@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "license": "GPL-3.0",
   "engines": {
-    "node": "18",
+    "node": "24",
     "npm": "please-use-yarn",
     "pnpm": "please-use-yarn"
   },

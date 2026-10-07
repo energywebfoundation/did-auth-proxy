@@ -1,11 +1,11 @@
-FROM node:18.17.1-alpine@sha256:3482a20c97e401b56ac50ba8920cc7b5b2022bfc6aa7d4e4c231755770cf892f as dependencies
+FROM node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 as dependencies
 WORKDIR /app
 
 COPY ["./package.json", "./yarn.lock", "./"]
 
 RUN yarn install
 
-FROM node:16-alpine as final
+FROM node:24.21.0-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 as final
 WORKDIR /app
 
 COPY --from=dependencies /app/node_modules ./node_modules
