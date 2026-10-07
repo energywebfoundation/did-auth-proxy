@@ -57,7 +57,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
         didContractAddress: process.env.DID_REGISTRY_ADDRESS,
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
-        ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
         includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
         siweMessageUri: new URL(
           '/auth/login/siwe/verify',
@@ -128,38 +127,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         }
       },
     );
-  }
-
-  static getIpfsClientConfig(configService: ConfigService): {
-    url: string;
-    headers: Record<string, string> | null;
-  } {
-    let auth;
-
-    if (
-      configService.get<string>('IPFS_PROJECTID') &&
-      configService.get<string>('IPFS_PROJECTSECRET')
-    ) {
-      auth =
-        'Basic ' +
-        Buffer.from(
-          configService.get<string>('IPFS_PROJECTID') +
-            ':' +
-            configService.get<string>('IPFS_PROJECTSECRET'),
-        ).toString('base64');
-    }
-
-    return {
-      url:
-        `${configService.get<string>('IPFS_PROTOCOL')}://` +
-        `${configService.get<string>('IPFS_HOST')}` +
-        `:${configService.get<string>('IPFS_PORT')}`,
-      headers: auth
-        ? {
-            authorization: auth,
-          }
-        : null,
-    };
   }
 }
 
