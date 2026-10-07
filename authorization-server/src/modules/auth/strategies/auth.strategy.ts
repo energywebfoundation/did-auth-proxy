@@ -48,6 +48,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
 
     super(
       {
+        name: 'login',
         jwtSecret: process.env.JWT_SECRET,
         jwtSignOptions: { algorithm: 'HS256' },
         rpcUrl: process.env.RPC_URL,
@@ -109,7 +110,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     payload: unknown,
     done: (err?: Error, user?: unknown, info?: unknown) => void,
   ): Promise<void> {
-    return super.validate(
+    await super.validate(
       token,
       payload,
       (err?: Error, user?: unknown, info?: unknown) => {

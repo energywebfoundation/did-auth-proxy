@@ -1,4 +1,10 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import {
+  DynamicModule,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth';
 import { LoggerModule } from 'nestjs-pino';
@@ -6,25 +12,22 @@ import { envVarsValidationSchema } from './env-vars-validation-schema';
 import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import { HealthCheckModule } from '../health-check/health-check.module';
+import { DefaultRequestBodyMiddleware } from '../../middlewares/default-request-body.middleware';
 
 const validationOptions = {
   allowUnknown: true,
   abortEarly: false,
 };
 
-let config: DynamicModule;
-
-try {
-  config = ConfigModule.forRoot({
-    isGlobal: true,
-    validationOptions,
-    validationSchema: envVarsValidationSchema,
-  });
-} catch (err) {
+const config: Promise<DynamicModule> = ConfigModule.forRoot({
+  isGlobal: true,
+  validationOptions,
+  validationSchema: envVarsValidationSchema,
+}).catch((err) => {
   console.log(err.toString());
   console.log('exiting');
   process.exit(1);
-}
+});
 
 @Module({
   imports: [
@@ -79,4 +82,10 @@ try {
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(DefaultRequestBodyMiddleware)
+      .forRoutes({ path: '{*splat}', method: RequestMethod.ALL });
+  }
+}
