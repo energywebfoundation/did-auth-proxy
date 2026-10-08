@@ -652,10 +652,10 @@ describe('AuthController', () => {
         result = undefined;
 
         spyOnLoginCommon = jest
-          .spyOn<
-            AuthController,
-            keyof AuthController
-          >(controller, 'loginCommon')
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
           .mockResolvedValueOnce({
             access_token: 'access_token',
             refresh_token: 'refresh_token',
@@ -698,10 +698,10 @@ describe('AuthController', () => {
         result = undefined;
 
         spyOnLoginCommon = jest
-          .spyOn<
-            AuthController,
-            keyof AuthController
-          >(controller, 'loginCommon')
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
           .mockResolvedValueOnce({
             access_token: 'access_token',
             refresh_token: 'refresh_token',
