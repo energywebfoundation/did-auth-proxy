@@ -30,7 +30,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:unit": "jest",
-    "test:e2e": "cd test && jest --config ./jest-e2e.json"
+    "test:e2e": "cd test && jest --config ./jest-e2e.json --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "11.2.7",
@@ -150,5 +150,8 @@
   },
   "scarfSettings": {
     "enabled": false
+  },
+  "redisMemoryServer": {
+    "disablePostinstall": "1"
   }
 }
