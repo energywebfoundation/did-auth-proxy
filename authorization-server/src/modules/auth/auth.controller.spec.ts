@@ -3,6 +3,7 @@ import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CookieOptions, Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import { JsonWebTokenError, sign } from 'jsonwebtoken';
 import { PinoLogger } from 'nestjs-pino';
 import { createRequest, createResponse, ResponseCookie } from 'node-mocks-http';
@@ -450,7 +451,7 @@ describe('AuthController', () => {
       let result: LoginResponseDto | undefined;
       let spyOnLoginCommon: jest.SpyInstance;
       let mockRequest: Request<
-        { [key: string]: string },
+        ParamsDictionary,
         unknown,
         unknown,
         ParsedQs,
@@ -563,7 +564,7 @@ describe('AuthController', () => {
     let result: LoginResponseDto | undefined;
     let spyOnLoginCommon: jest.SpyInstance;
     let mockRequest: Request<
-      { [key: string]: string },
+      ParamsDictionary,
       unknown,
       unknown,
       ParsedQs,
@@ -651,10 +652,10 @@ describe('AuthController', () => {
         result = undefined;
 
         spyOnLoginCommon = jest
-          .spyOn<
-            AuthController,
-            keyof AuthController
-          >(controller, 'loginCommon')
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
           .mockResolvedValueOnce({
             access_token: 'access_token',
             refresh_token: 'refresh_token',
@@ -697,10 +698,10 @@ describe('AuthController', () => {
         result = undefined;
 
         spyOnLoginCommon = jest
-          .spyOn<
-            AuthController,
-            keyof AuthController
-          >(controller, 'loginCommon')
+          .spyOn<AuthController, keyof AuthController>(
+            controller,
+            'loginCommon',
+          )
           .mockResolvedValueOnce({
             access_token: 'access_token',
             refresh_token: 'refresh_token',

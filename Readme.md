@@ -74,6 +74,8 @@ Edit `.env` file and:
 - set `JWT_SECRET` to contain your secret phrase used to generate and validate tokens.
 - set `ACCEPTED_ROLES` to contain roles that DIDs are required to be enrolled to
 
+**It is recommended for CACHE_SERVER_LOGIN_PRVKEY not to have any roles. Also, the account must not be used as an end user as it is being used as a proxy user.**
+
 For the detailed env variables description check [this document](./docs/ENV_VARS.md).
 
 Execute `yarn start:dev`

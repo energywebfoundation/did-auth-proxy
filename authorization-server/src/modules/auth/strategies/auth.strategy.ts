@@ -48,6 +48,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
 
     super(
       {
+        name: 'login',
         jwtSecret: process.env.JWT_SECRET,
         jwtSignOptions: { algorithm: 'HS256' },
         rpcUrl: process.env.RPC_URL,
@@ -56,7 +57,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         privateKey: process.env.CACHE_SERVER_LOGIN_PRVKEY,
         didContractAddress: process.env.DID_REGISTRY_ADDRESS,
         ensRegistryAddress: process.env.ENS_REGISTRY_ADDRESS,
-        ipfsUrl: AuthStrategy.getIpfsClientConfig(configService).url,
         includeAllRoles: configService.get<boolean>('INCLUDE_ALL_ROLES'),
         siweMessageUri: new URL(
           '/auth/login/siwe/verify',
@@ -109,7 +109,7 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
     payload: unknown,
     done: (err?: Error, user?: unknown, info?: unknown) => void,
   ): Promise<void> {
-    return super.validate(
+    await super.validate(
       token,
       payload,
       (err?: Error, user?: unknown, info?: unknown) => {
@@ -127,38 +127,6 @@ export class AuthStrategy extends PassportStrategy(LoginStrategy, 'login') {
         }
       },
     );
-  }
-
-  static getIpfsClientConfig(configService: ConfigService): {
-    url: string;
-    headers: Record<string, string> | null;
-  } {
-    let auth;
-
-    if (
-      configService.get<string>('IPFS_PROJECTID') &&
-      configService.get<string>('IPFS_PROJECTSECRET')
-    ) {
-      auth =
-        'Basic ' +
-        Buffer.from(
-          configService.get<string>('IPFS_PROJECTID') +
-            ':' +
-            configService.get<string>('IPFS_PROJECTSECRET'),
-        ).toString('base64');
-    }
-
-    return {
-      url:
-        `${configService.get<string>('IPFS_PROTOCOL')}://` +
-        `${configService.get<string>('IPFS_HOST')}` +
-        `:${configService.get<string>('IPFS_PORT')}`,
-      headers: auth
-        ? {
-            authorization: auth,
-          }
-        : null,
-    };
   }
 }
 
