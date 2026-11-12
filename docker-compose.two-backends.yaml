@@ -17,6 +17,13 @@ services:
       - "127.0.0.1:8080:80"
     networks:
       backend:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /opt/bitnami/nginx/tmp
+      - /opt/bitnami/nginx/logs
 
   backend-1:
     restart: unless-stopped
@@ -28,6 +35,11 @@ services:
       BACKEND_INSTANCE_ID: backend-1
     networks:
       backend:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
   backend-2:
     restart: unless-stopped
@@ -39,6 +51,11 @@ services:
       BACKEND_INSTANCE_ID: backend-2
     networks:
       backend:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
   auth-server:
     depends_on:
@@ -79,6 +96,11 @@ services:
       - AUTH_COOKIE_SECURE=true
     networks:
       backend:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
   redis:
     image: bitnami/redis:latest
@@ -91,6 +113,11 @@ services:
       backend:
     volumes:
       - redis-data:/bitnami/redis/data
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
 volumes:
   redis-data:
