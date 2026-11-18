@@ -15,6 +15,13 @@ services:
       - ./nginx/nginx.dev.conf:/opt/bitnami/nginx/conf/server_blocks/nginx.conf
     extra_hosts:
       - host.docker.internal:host-gateway
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /opt/bitnami/nginx/tmp
+      - /opt/bitnami/nginx/logs
 
   backend:
     restart: unless-stopped
@@ -24,6 +31,11 @@ services:
       context: backend-server
     networks:
       dev-backend:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
   redis:
     image: bitnamilegacy/redis:7.4
@@ -36,6 +48,11 @@ services:
       dev-backend:
     volumes:
       - dev-redis-data:/bitnami/redis/data
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
   redis-commander:
     image: rediscommander/redis-commander:latest
@@ -46,6 +63,11 @@ services:
       - REDIS_HOSTS=redis:redis:6379
     networks:
       dev-backend:
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
 
 volumes:
   dev-redis-data:

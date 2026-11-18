@@ -117,10 +117,10 @@ You will see the following output:
 
 ```json
 {
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUxZGI1Y2EyLTNlNTUtNDc5NC04N2U4LWNmMDM2YTNjYjBjMCIsImRpZCI6ImRpZDpldGhyOjB4ODJGY0IzMTM4NUVhQmUyNjFFNGU2MDAzYjlGMkNiMmFmMzRlMjY1NCIsInJvbGVzIjpbInJvbGUxLnJvbGVzLmFwcC10ZXN0Mi5hcHBzLmFydHVyLmlhbS5ld2MiXSwiaWF0IjoxNjQ0OTIzMjk5LCJleHAiOjE2NDQ5MjMzMDl9.XFR4V76W_6Ox8-ocVNDSGBNTLpdBNdo5kU1gvpnovOs",
+  "access_token": "<jwt-access-token>",
   "type": "Bearer",
   "expires_in": 9,
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFkMTQ0M2JkLWFkOTktNGZhZC04ZTYyLTVmOGVlMzI2MWQ5YiIsImRpZCI6ImRpZDpldGhyOjB4ODJGY0IzMTM4NUVhQmUyNjFFNGU2MDAzYjlGMkNiMmFmMzRlMjY1NCIsInJvbGVzIjpbInJvbGUxLnJvbGVzLmFwcC10ZXN0Mi5hcHBzLmFydHVyLmlhbS5ld2MiXSwiaWF0IjoxNjQ0OTIzMjk5LCJleHAiOjE2NDQ5MjM4OTl9.1n8TiG1cPSZEfJdj209TQylWqKyU2BDXHUX4loGyggU"
+  "refresh_token": "<jwt-refresh-token>"
 }
 ```
 

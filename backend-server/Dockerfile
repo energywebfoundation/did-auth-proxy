@@ -13,4 +13,5 @@ COPY . .
 
 EXPOSE 80
 
+USER node
 CMD ["index.js"]

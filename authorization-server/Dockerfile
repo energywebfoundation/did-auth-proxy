@@ -38,4 +38,5 @@ RUN echo "{\"timestamp\": \"$(date -u +"%Y-%m-%dT%H:%M:%SZ")\", \"gitSha\": \"$G
 COPY package.json .
 EXPOSE 3000
 
+USER node
 CMD ["node", "authorisation-server/main.js"]

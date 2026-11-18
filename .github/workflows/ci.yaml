@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 3
         steps:
-            - uses: styfle/cancel-workflow-action@0.13.1
+            - uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66 # 0.13.1
               with:
                   access_token: ${{ github.token }}
 
@@ -16,15 +16,15 @@ jobs:
         name: Install dependencies
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
             - name: Setup app dependencies
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
               with:
                   node-version-file: ".nvmrc"
 
             - name: Cache node modules
-              uses: actions/cache@v3
+              uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
               env:
                   cache-name: cache-node-modules
               with:
@@ -46,14 +46,14 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
             - name: Setup app dependencies
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
               with:
                   node-version-file: ".nvmrc"
 
-            - uses: actions/cache@v3
+            - uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
               id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
               with:
                   path: |
@@ -71,14 +71,14 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
             - name: Setup app dependencies
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
               with:
                   node-version-file: ".nvmrc"
 
-            - uses: actions/cache@v3
+            - uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
               id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
               with:
                   path: |
@@ -96,14 +96,14 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
             - name: Setup app dependencies
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
               with:
                   node-version-file: ".nvmrc"
 
-            - uses: actions/cache@v3
+            - uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
               id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
               with:
                   path: |
@@ -147,14 +147,14 @@ jobs:
             PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
             - name: Setup app dependencies
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
               with:
                   node-version-file: ".nvmrc"
 
-            - uses: actions/cache@v3
+            - uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
               id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
               with:
                   path: |
@@ -203,14 +203,14 @@ jobs:
             PRIVATE_KEY: ${{ secrets.PRIVATE_KEY || '1ad82f81452d744fdf8d9ef4e94165db8485f022eaf8d0550e3f30d7b91b796c' }}
 
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
             - name: Setup app dependencies
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
               with:
                   node-version-file: ".nvmrc"
 
-            - uses: actions/cache@v3
+            - uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
               id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
               with:
                   path: |
