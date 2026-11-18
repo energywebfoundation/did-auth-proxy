@@ -1,23 +1,11 @@
 # Accepted HIGH findings — tracked for later dependency upgrades.
 # Trivy reads this file automatically from the scan root.
 
-# body-parser DoS via unhandled decompression stream error
-CVE-2026-111181
-
 # decode-uri-component DoS via malformed percent-encoded input
 CVE-2026-118664
 
 # follow-redirects information disclosure via cross-origin redirects
 CVE-2026-116689
-
-# joi DoS via inefficient regex in email validation
-CVE-2026-118772
-
-# markdown-it DoS via unclosed link reference definitions
-CVE-2026-111758
-
-# multer DoS via aborted request during async file filtering
-CVE-2026-113872
 
 # sjcl missing point-on-curve validation
 CVE-2026-4258
