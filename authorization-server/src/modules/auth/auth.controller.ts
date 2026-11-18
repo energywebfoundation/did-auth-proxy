@@ -298,8 +298,13 @@ function maskString(
   unmaskedStart: number,
   unmaskedEnd: number,
 ): string {
-  return text.replace(
-    new RegExp(`^(.{${unmaskedStart}})(.*)(.{${unmaskedEnd}})$`),
-    (m, $1, $2, $3) => `${$1}${'*'.repeat($2.length)}${$3}`,
-  );
+  if (text.length <= unmaskedStart + unmaskedEnd) {
+    return text;
+  }
+
+  const start = text.slice(0, unmaskedStart);
+  const end = text.slice(text.length - unmaskedEnd);
+  const middle = '*'.repeat(text.length - unmaskedStart - unmaskedEnd);
+
+  return `${start}${middle}${end}`;
 }

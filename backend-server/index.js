@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const app = express();
+// Demo echo backend for local docker-compose only; no browser session/cookie auth.
+const app = express(); // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
 
 const BACKEND_INSTANCE_ID = process.env.BACKEND_INSTANCE_ID || 'backend';
 
