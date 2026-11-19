@@ -4,8 +4,5 @@
 # decode-uri-component DoS via malformed percent-encoded input
 CVE-2026-118664
 
-# follow-redirects information disclosure via cross-origin redirects
-CVE-2026-116689
-
 # sjcl missing point-on-curve validation
 CVE-2026-4258
